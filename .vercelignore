@@ -1,0 +1,6 @@
+# Exclude Railway consumers from Vercel build
+railway-consumers/
+railway-consumers/**
+
+
+
