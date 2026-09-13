@@ -46,6 +46,10 @@ function useRelativeTime() {
   };
 }
 
+function isMissingTranslation(resolved: string, key: string) {
+  return resolved.trim().length === 0 || resolved === key;
+}
+
 export interface NotificationBellProps {
   /**
    * `admin` matches the admin header's button sizing; `storefront` matches the
@@ -168,8 +172,15 @@ function NotificationRow({
   // Money params are normalised first, so a notification stored before amounts
   // were pre-formatted still renders with a currency symbol.
   const params = withFormattedMoneyParams(notification.params, formatPrice);
-  const title = t(notification.titleKey, params);
-  const body = t(notification.bodyKey, params);
+  const translatedTitle = t(notification.titleKey, params);
+  const translatedBody = t(notification.bodyKey, params);
+
+  const title = isMissingTranslation(translatedTitle, notification.titleKey)
+    ? t('notifications.fallback.title')
+    : translatedTitle;
+  const body = isMissingTranslation(translatedBody, notification.bodyKey)
+    ? t('notifications.fallback.body')
+    : translatedBody;
 
   const content = (
     <>

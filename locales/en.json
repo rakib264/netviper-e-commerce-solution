@@ -1744,6 +1744,10 @@
     "loading": "Loading notifications…",
     "loadError": "Notifications could not be loaded.",
     "unreadLabel": "Unread",
+    "fallback": {
+      "title": "Notification update",
+      "body": "A new update is available. Open the related page for details."
+    },
     "time": {
       "justNow": "Just now",
       "minutes": "{{count}}m ago",
@@ -1841,6 +1845,10 @@
       "adminNewCustomer": {
         "title": "New customer",
         "body": "{{customerName}} signed up with {{customerEmail}}."
+      },
+      "adminNewInboxMessage": {
+        "title": "New inbox message",
+        "body": "A customer sent a new message. Open Admin Messaging to read and reply."
       }
     }
   },

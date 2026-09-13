@@ -1744,6 +1744,10 @@
     "loading": "Benachrichtigungen werden geladen…",
     "loadError": "Benachrichtigungen konnten nicht geladen werden.",
     "unreadLabel": "Ungelesen",
+    "fallback": {
+      "title": "Benachrichtigungs-Update",
+      "body": "Es gibt ein neues Update. Oeffnen Sie die zugehoerige Seite fuer Details."
+    },
     "time": {
       "justNow": "Gerade eben",
       "minutes": "vor {{count}} Min.",
@@ -1841,6 +1845,10 @@
       "adminNewCustomer": {
         "title": "Neuer Kunde",
         "body": "{{customerName}} hat sich mit {{customerEmail}} registriert."
+      },
+      "adminNewInboxMessage": {
+        "title": "Neue Postfachnachricht",
+        "body": "Eine Kundin oder ein Kunde hat eine neue Nachricht gesendet. Admin-Messaging oeffnen, um zu lesen und zu antworten."
       }
     }
   },
