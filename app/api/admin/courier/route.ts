@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
+    const provider = searchParams.get('provider') || '';
+    // 'dispatched' | 'undispatched' | 'failed' — the consignment board's lanes.
+    const dispatchState = searchParams.get('dispatchState') || '';
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
@@ -32,12 +35,27 @@ export async function GET(request: NextRequest) {
         { courierId: { $regex: search, $options: 'i' } },
         { 'receiver.name': { $regex: search, $options: 'i' } },
         { 'receiver.phone': { $regex: search, $options: 'i' } },
-        { trackingNumber: { $regex: search, $options: 'i' } }
+        { trackingNumber: { $regex: search, $options: 'i' } },
+        { consignmentId: { $regex: search, $options: 'i' } },
+        { merchantOrderId: { $regex: search, $options: 'i' } }
       ];
     }
 
     if (status) {
       query.status = status;
+    }
+
+    if (provider) {
+      query.courierPartner = provider;
+    }
+
+    if (dispatchState === 'dispatched') {
+      query.consignmentId = { $exists: true, $nin: [null, ''] };
+    } else if (dispatchState === 'undispatched') {
+      query.consignmentId = { $in: [null, ''] };
+    } else if (dispatchState === 'failed') {
+      query.dispatchError = { $exists: true, $nin: [null, ''] };
+      query.consignmentId = { $in: [null, ''] };
     }
 
     // Build sort
@@ -53,8 +71,28 @@ export async function GET(request: NextRequest) {
 
     const total = await Courier.countDocuments(query);
 
+    // Lane counts for the consignment board. Deliberately unfiltered by the
+    // active lane, so switching lanes does not change the numbers on the tabs.
+    const laneQuery = { ...query };
+    delete laneQuery.consignmentId;
+    delete laneQuery.dispatchError;
+    const [dispatchedCount, undispatchedCount, failedCount] = await Promise.all([
+      Courier.countDocuments({ ...laneQuery, consignmentId: { $exists: true, $nin: [null, ''] } }),
+      Courier.countDocuments({ ...laneQuery, consignmentId: { $in: [null, ''] } }),
+      Courier.countDocuments({
+        ...laneQuery,
+        consignmentId: { $in: [null, ''] },
+        dispatchError: { $exists: true, $nin: [null, ''] },
+      }),
+    ]);
+
     return NextResponse.json({
       couriers,
+      counts: {
+        dispatched: dispatchedCount,
+        undispatched: undispatchedCount,
+        failed: failedCount,
+      },
       pagination: {
         page,
         limit,

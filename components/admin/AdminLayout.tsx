@@ -22,9 +22,11 @@ import {
   Menu,
   MessageSquare,
   Package,
+  PlugZap,
   Plus,
   RefreshCw,
   Search,
+  Send,
   Settings,
   ShoppingBag,
   Star,
@@ -88,6 +90,18 @@ const sidebarItems = [
     icon: Truck,
     href: '/admin/courier',
     roles: ['admin', 'manager', 'staff']
+  },
+  {
+    title: 'Consignments',
+    icon: Send,
+    href: '/admin/courier/consignments',
+    roles: ['admin', 'manager', 'staff']
+  },
+  {
+    title: 'Courier Integrations',
+    icon: PlugZap,
+    href: '/admin/courier/integrations',
+    roles: ['admin', 'manager']
   },
   {
     title: 'Customers',
