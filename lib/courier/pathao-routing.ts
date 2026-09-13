@@ -1,5 +1,11 @@
 import 'server-only';
 
+import {
+  matchArea,
+  matchZone,
+  normalizePlaceName,
+  type PathaoAddressInput,
+} from '@/lib/courier/address';
 import { PathaoProvider } from '@/lib/courier/providers/pathao';
 import {
   configuredProviders,
@@ -28,6 +34,9 @@ import { unstable_cache } from 'next/cache';
 
 const logger = createLogger('pathao-routing');
 
+export type { PathaoAddressInput };
+export { normalizePlaceName };
+
 /** Pathao's geography is effectively static. One day is still conservative. */
 const GEO_REVALIDATE = 60 * 60 * 24;
 
@@ -51,63 +60,6 @@ export type PathaoRoutingResult =
   | { ok: true; routing: PathaoRouting }
   | { ok: false; reason: PathaoRoutingFailure; detail?: string };
 
-export interface PathaoAddressInput {
-  /** The `district` field of a shipping address — matched against Pathao cities. */
-  district?: string | null;
-  /** Town/thana. Matched against Pathao zones inside the resolved city. */
-  city?: string | null;
-  /** Only used to disambiguate a district that is also a division name. */
-  division?: string | null;
-  /** Street line. Its tokens are the last resort for a zone match. */
-  street?: string | null;
-}
-
-/**
- * Spellings Bangladesh officially renamed but every address form still carries
- * both of. Pathao's own list uses the modern spelling, and a customer typing
- * the old one must not fall through to "unresolved".
- */
-const CITY_ALIASES: Record<string, string> = {
-  chittagong: 'chattogram',
-  comilla: 'cumilla',
-  barisal: 'barishal',
-  jessore: 'jashore',
-  bogra: 'bogura',
-  chandpur: 'chandpur',
-  moulvibazar: 'maulvibazar',
-  maulvibazar: 'maulvibazar',
-  netrokona: 'netrakona',
-  brahmanbaria: 'brahamanbaria',
-  brahamanbaria: 'brahamanbaria',
-  coxsbazar: 'coxsbazar',
-  jhalokati: 'jhalakathi',
-  jhalakathi: 'jhalakathi',
-};
-
-/**
- * Lowercase, strip everything that is not a letter or digit, then fold the
- * known renames. `Cox's Bazar`, `coxs bazar` and `COX'S BAZAR` all collapse to
- * one key, which is what makes an exact comparison safe enough to trust.
- */
-export function normalizePlaceName(value: string | null | undefined): string {
-  if (!value) return '';
-  const flat = value.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return CITY_ALIASES[flat] ?? flat;
-}
-
-/** `Dhaka Sadar` → ['dhaka','sadar'], for token-level zone matching. */
-function tokens(value: string | null | undefined): string[] {
-  if (!value) return [];
-  return value
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter((token) => token.length > 2);
-}
-
-async function loadCities(settings: CourierIntegrationDoc) {
-  return new PathaoProvider(settings).listCities();
-}
-
 /**
  * The three geography lists, cached.
  *
@@ -115,13 +67,9 @@ async function loadCities(settings: CourierIntegrationDoc) {
  * use — the admin cascade, and now every checkout quote. The lists change on
  * the order of never, so caching them turns a three-call resolution into zero
  * calls for all but the first address of the day.
- *
- * Keyed by nothing but the level and its parent id: the lists are the same for
- * every merchant account on a given Pathao environment, and the credentials
- * only decide whether the call is allowed at all.
  */
 const getCachedCities = unstable_cache(
-  async () => loadCities(await getCourierIntegrationSettings()),
+  async () => new PathaoProvider(await getCourierIntegrationSettings()).listCities(),
   ['pathao-geo-cities-v1'],
   { revalidate: GEO_REVALIDATE },
 );
@@ -139,63 +87,6 @@ const getCachedAreas = unstable_cache(
   ['pathao-geo-areas-v1'],
   { revalidate: GEO_REVALIDATE },
 );
-
-/**
- * Picks the zone for an address inside an already-resolved city.
- *
- * Three passes, narrowest first: an exact normalised match on the town field,
- * then an exact match on any street token, then a containment match. The
- * containment pass is why `Uttara Sector 10` finds the `Uttara` zone — but it
- * only runs when exactly one zone contains the token, so an ambiguous address
- * still fails rather than picking the first hit.
- */
-function matchZone(
-  zones: Array<{ zone_id: number; zone_name: string }>,
-  input: PathaoAddressInput,
-): { zone_id: number; zone_name: string } | null {
-  if (!zones.length) return null;
-
-  const candidates = [normalizePlaceName(input.city), normalizePlaceName(input.district)].filter(
-    Boolean,
-  );
-
-  for (const candidate of candidates) {
-    const exact = zones.find((zone) => normalizePlaceName(zone.zone_name) === candidate);
-    if (exact) return exact;
-  }
-
-  const streetTokens = tokens(input.street);
-  for (const token of streetTokens) {
-    const exact = zones.find((zone) => normalizePlaceName(zone.zone_name) === token);
-    if (exact) return exact;
-  }
-
-  for (const token of [...candidates, ...streetTokens]) {
-    if (token.length < 4) continue;
-    const contained = zones.filter((zone) => normalizePlaceName(zone.zone_name).includes(token));
-    // Exactly one, or it is a guess.
-    if (contained.length === 1) return contained[0];
-  }
-
-  return null;
-}
-
-/** The area is optional for both Pathao endpoints, so a miss is not a failure. */
-function matchArea(
-  areas: Array<{ area_id: number; area_name: string; home_delivery_available: boolean }>,
-  input: PathaoAddressInput,
-): { area_id: number; area_name: string } | null {
-  const deliverable = areas.filter((area) => area.home_delivery_available);
-  if (!deliverable.length) return null;
-
-  const candidates = [normalizePlaceName(input.city), ...tokens(input.street)];
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    const exact = deliverable.find((area) => normalizePlaceName(area.area_name) === candidate);
-    if (exact) return exact;
-  }
-  return null;
-}
 
 /**
  * Address → Pathao routing ids, or a reason it could not be resolved.

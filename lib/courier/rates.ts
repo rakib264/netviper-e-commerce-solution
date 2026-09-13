@@ -1,6 +1,13 @@
 import 'server-only';
 
 import { PathaoProvider } from '@/lib/courier/providers/pathao';
+import {
+  MIN_WEIGHT_KG,
+  resolveZone,
+  toKilograms,
+  toWeightBucket,
+  type ShippingZone,
+} from '@/lib/courier/address';
 import { resolvePathaoRouting, type PathaoRouting } from '@/lib/courier/pathao-routing';
 import {
   configuredProviders,
@@ -12,7 +19,6 @@ import { unstable_cache } from 'next/cache';
 import CourierSettings from '@/lib/models/CourierSettings';
 import Product from '@/lib/models/Product';
 import connectDB from '@/lib/mongodb';
-import { parseMeasurementNumber } from '@/lib/products/measurements';
 
 /**
  * The one place a shipping price is decided.
@@ -53,7 +59,9 @@ import { parseMeasurementNumber } from '@/lib/products/measurements';
 const logger = createLogger('shipping-rates');
 
 export type ShippingRateSource = 'free-threshold' | 'carrier' | 'flat';
-export type ShippingZone = 'inside-dhaka' | 'outside-dhaka';
+
+export { toKilograms };
+export type { ShippingZone };
 
 export interface ShippingQuote {
   /** What the customer is charged, in the store's configured currency. */
@@ -86,35 +94,6 @@ export interface ShippingQuoteInput {
   lines: ShippingQuoteLine[];
   /** Goods total after discounts, for the free-delivery threshold. */
   subtotal: number;
-}
-
-/** Minimum billable parcel, and the floor both providers apply anyway. */
-const MIN_WEIGHT_KG = 0.5;
-
-/**
- * `Product.weight` is a freeform string ("500g", "1.2 kg", "2 lb"), so the unit
- * has to be read off the text rather than assumed. Anything unparseable bills
- * at the minimum rather than at zero.
- */
-export function toKilograms(raw: unknown): number {
-  const value = parseMeasurementNumber(raw as any);
-  if (!value) return MIN_WEIGHT_KG;
-
-  const text = String(raw ?? '').toLowerCase();
-  if (text.includes('oz')) return value * 0.0283495;
-  if (text.includes('lb') || text.includes('pound')) return value * 0.453592;
-  if (text.includes('mg')) return value / 1_000_000;
-  // Bare grams, but not "kg" — checked after kg so "1.5kg" is not read as grams.
-  if (/\bg\b|gram/.test(text) && !text.includes('kg')) return value / 1000;
-  return value;
-}
-
-/** Dhaka is the only zone either provider prices differently by name. */
-export function resolveZone(address: ShippingQuoteAddress): ShippingZone {
-  const haystack = `${address.district ?? ''} ${address.city ?? ''} ${address.division ?? ''}`
-    .toLowerCase()
-    .trim();
-  return haystack.includes('dhaka') ? 'inside-dhaka' : 'outside-dhaka';
 }
 
 /** Billable weight for a cart, read from the catalogue rather than the request. */
@@ -181,11 +160,6 @@ const getCachedCarrierPrice = unstable_cache(
   // Short enough that a published rate change reaches checkout the same hour.
   { revalidate: 3600 },
 );
-
-/** Pathao bills in half-kilo steps; quoting in finer ones only wastes calls. */
-function toWeightBucket(weightKg: number): number {
-  return Math.max(0.5, Math.ceil(weightKg * 2) / 2);
-}
 
 /**
  * Quotes delivery for one cart at one address.
