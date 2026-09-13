@@ -35,7 +35,36 @@ export interface ICourier extends Document {
   };
   status: 'pending' | 'picked' | 'in_transit' | 'delivered' | 'returned' | 'cancelled';
   trackingNumber?: string;
+  /**
+   * Which partner carries the parcel. `pathao` and `steadfast` are dispatched
+   * over their merchant APIs; anything else is handled off-platform and only
+   * tracked manually here.
+   */
   courierPartner?: string;
+  /**
+   * Set once the consignment exists at the provider. Its presence is what
+   * makes a dispatch idempotent — never dispatch a courier that has one.
+   */
+  consignmentId?: string;
+  /** Steadfast's customer-facing tracking code. Pathao has none. */
+  trackingCode?: string;
+  /** Reference we hand the provider so its webhooks map back to this record. */
+  merchantOrderId?: string;
+  /** The provider's own status string, kept verbatim beside our normalised one. */
+  providerStatus?: string;
+  /** Delivery fee the provider quoted at creation time. */
+  providerDeliveryFee?: number;
+  dispatchedAt?: Date;
+  lastSyncedAt?: Date;
+  /** Last dispatch failure, cleared on success, so admins can retry informed. */
+  dispatchError?: string;
+  /** Provider-specific routing the dispatcher resolved (Pathao city/zone/area). */
+  providerMeta?: {
+    pathaoCityId?: number;
+    pathaoZoneId?: number;
+    pathaoAreaId?: number;
+    pathaoStoreId?: string;
+  };
   pickupDate?: Date;
   deliveryDate?: Date;
   estimatedDeliveryDate?: Date;
@@ -90,6 +119,20 @@ const CourierSchema = new Schema<ICourier>({
   },
   trackingNumber: { type: String },
   courierPartner: { type: String },
+  consignmentId: { type: String },
+  trackingCode: { type: String },
+  merchantOrderId: { type: String },
+  providerStatus: { type: String },
+  providerDeliveryFee: { type: Number },
+  dispatchedAt: { type: Date },
+  lastSyncedAt: { type: Date },
+  dispatchError: { type: String },
+  providerMeta: {
+    pathaoCityId: { type: Number },
+    pathaoZoneId: { type: Number },
+    pathaoAreaId: { type: Number },
+    pathaoStoreId: { type: String },
+  },
   pickupDate: { type: Date },
   deliveryDate: { type: Date },
   estimatedDeliveryDate: { type: Date },
@@ -110,6 +153,14 @@ CourierSchema.index({ order: 1 }); // For finding couriers by order ID
 CourierSchema.index({ status: 1 }); // For filtering by status
 CourierSchema.index({ createdAt: -1 }); // For sorting by creation date
 CourierSchema.index({ 'order': 1, 'status': 1 }); // Compound index for order-status queries
+// Webhook callbacks arrive keyed by the provider's own identifiers, so both
+// need to resolve back to a record without a collection scan. Sparse, because
+// a courier only gets them once it has actually been dispatched.
+CourierSchema.index({ consignmentId: 1 }, { sparse: true });
+CourierSchema.index({ merchantOrderId: 1 }, { sparse: true });
+CourierSchema.index({ trackingCode: 1 }, { sparse: true });
+// The consignment board lists undispatched couriers per partner.
+CourierSchema.index({ courierPartner: 1, dispatchedAt: 1 });
 
 // Pre-save middleware to track status changes
 CourierSchema.pre('save', function(next) {

@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { autoDispatchOrderCourier } from '@/lib/courier/dispatch';
 import { syncOrderRewards } from '@/lib/deals/settlement';
 import AuditLog from '@/lib/models/AuditLog';
 import Courier from '@/lib/models/Courier';
@@ -256,6 +257,11 @@ export async function PATCH(
         console.error('Error auto-generating courier (PATCH):', courierError);
         console.error('Courier error stack (PATCH):', courierError instanceof Error ? courierError.stack : 'Unknown error');
       }
+
+      // Push the consignment to Pathao/Steadfast if the admin opted into
+      // automatic dispatch. Never throws, and is a no-op when the courier was
+      // already dispatched, so a repeated confirmation cannot double-book.
+      await autoDispatchOrderCourier(id);
     }
 
     // Log audit for significant changes
