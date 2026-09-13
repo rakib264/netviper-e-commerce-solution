@@ -41,10 +41,7 @@
   },
   "admin": {
     "courier": {
-      "backToCourier": "Kurier",
       "integrations": {
-        "title": "Kurier-Integrationen",
-        "subtitle": "Händler-Zugangsdaten für Pathao und Steadfast und wie bestätigte Bestellungen dorthin gelangen.",
         "loadError": "Die Kurier-Integrationseinstellungen konnten nicht geladen werden.",
         "saved": "Kurier-Integrationseinstellungen gespeichert.",
         "saveError": "Die Kurier-Integrationseinstellungen konnten nicht gespeichert werden.",
@@ -64,7 +61,9 @@
           "defaultProvider": "Standardanbieter",
           "defaultProviderHelp": "Wird verwendet, wenn eine Sendung keinen eigenen Kurier nennt.",
           "autoDispatch": "Bei Auftragsbestätigung versenden",
-          "autoDispatchHelp": "Die Sendung sofort nach Bestätigung der Bestellung an den Anbieter übergeben, statt auf einen manuellen Versand zu warten."
+          "autoDispatchHelp": "Die Sendung sofort nach Bestätigung der Bestellung an den Anbieter übergeben, statt auf einen manuellen Versand zu warten.",
+          "carrierRates": "Tarife des Dienstleisters",
+          "carrierRatesHelp": "Beim Checkout den Live-Preis von Pathao statt Ihres Pauschaltarifs anzeigen. Nur Pathao kann Preise nennen; Steadfast-Bestellungen und Adressen außerhalb des Pathao-Gebiets nutzen immer Ihren Pauschaltarif."
         },
         "pathao": {
           "toggle": "Pathao aktivieren",
@@ -183,9 +182,6 @@
         }
       },
       "consignments": {
-        "title": "Sendungen",
-        "subtitle": "Bestätigte Bestellungen und was davon Pathao oder Steadfast erreicht hat.",
-        "configure": "Integrationseinstellungen",
         "loadError": "Die Sendungen konnten nicht geladen werden.",
         "search": "Bestellung, Empfänger, Sendung suchen…",
         "allProviders": "Alle Anbieter",
@@ -227,6 +223,99 @@
           "delivered": "Zugestellt",
           "returned": "Retourniert",
           "cancelled": "Storniert"
+        }
+      },
+      "workspace": {
+        "title": "Versand",
+        "subtitle": "Pakete versenden, Versanddatensätze verwalten und Dienstleister einrichten.",
+        "tabs": {
+          "consignments": "Sendungen",
+          "records": "Datensätze",
+          "settings": "Einstellungen"
+        }
+      },
+      "routing": {
+        "failure": {
+          "pathao-not-configured": "Pathao ist nicht aktiviert oder die Zugangsdaten sind unvollständig.",
+          "no-district": "Der Lieferadresse fehlt der Bezirk, den Pathao zum Routen benötigt.",
+          "city-unresolved": "Keine Pathao-Stadt passt zu diesem Bezirk. Routing manuell setzen und erneut versuchen.",
+          "zone-unresolved": "Keine Pathao-Zone passt zu dieser Adresse. Routing manuell setzen und erneut versuchen.",
+          "lookup-failed": "Pathao war für die Auflösung dieser Adresse nicht erreichbar."
+        }
+      },
+      "operations": {
+        "pickupTitle": "Abholadresse",
+        "pickupSubtitle": "Wo Dienstleister Ihre Pakete abholen. Wird mit jeder Sendung übermittelt.",
+        "senderName": "Firmenname",
+        "senderPhone": "Telefon",
+        "senderAddress": "Adresse",
+        "senderDivision": "Region",
+        "senderDistrict": "Bezirk",
+        "ratesTitle": "Versandkosten",
+        "ratesSubtitle": "Was Kundinnen und Kunden zahlen. Gilt, wenn kein Live-Tarif verfügbar ist.",
+        "insideDhaka": "Innerhalb Dhaka",
+        "outsideDhaka": "Außerhalb Dhaka",
+        "freeThreshold": "Kostenloser Versand ab",
+        "freeThresholdHint": "Auf 0 setzen, um bei jeder Bestellung Versand zu berechnen.",
+        "codRate": "Nachnahmegebühr (%)",
+        "codRateHint": "Die Nachnahmeprovision Ihres Dienstleisters. Wird im Datensatz erfasst, nicht dem Kunden berechnet.",
+        "save": "Speichern",
+        "saved": "Versandeinstellungen gespeichert",
+        "saveError": "Versandeinstellungen konnten nicht gespeichert werden",
+        "loadError": "Versandeinstellungen konnten nicht geladen werden"
+      },
+      "records": {
+        "search": "Datensätze durchsuchen",
+        "allStatuses": "Alle Status",
+        "refresh": "Aktualisieren",
+        "total": "{{count}} Datensätze",
+        "selected": "{{count}} ausgewählt",
+        "setStatus": "Status setzen",
+        "deleteSelected": "Löschen",
+        "selectAll": "Alle Datensätze auswählen",
+        "selectRow": "Datensatz {{id}} auswählen",
+        "empty": "Keine Versanddatensätze passen zu diesen Filtern.",
+        "loadError": "Versanddatensätze konnten nicht geladen werden",
+        "statusUpdated": "Status aktualisiert",
+        "statusError": "Status konnte nicht aktualisiert werden",
+        "bulkStatusDone": "{{count}} Datensätze aktualisiert",
+        "deleteTitle": "Versanddatensätze löschen?",
+        "deleteBody": "Dies entfernt {{count}} Datensätze dauerhaft. Bereits übergebene Sendungen werden nicht zurückgerufen.",
+        "deleteDone": "{{count}} Datensätze gelöscht",
+        "deleteError": "Datensätze konnten nicht gelöscht werden",
+        "delete": "Löschen",
+        "view": "Details ansehen",
+        "previous": "Zurück",
+        "next": "Weiter",
+        "noOrder": "Keine verknüpfte Bestellung",
+        "noPartner": "Nicht zugewiesen",
+        "codOf": "{{amount}} einziehen",
+        "columns": {
+          "record": "Datensatz",
+          "recipient": "Empfänger",
+          "charges": "Berechnet",
+          "partner": "Dienstleister",
+          "status": "Status",
+          "actions": "Aktionen"
+        },
+        "status": {
+          "pending": "Ausstehend",
+          "picked": "Abgeholt",
+          "in_transit": "Unterwegs",
+          "delivered": "Zugestellt",
+          "returned": "Zurückgesendet",
+          "cancelled": "Storniert"
+        },
+        "detail": {
+          "order": "Bestellung",
+          "recipient": "Empfänger",
+          "parcel": "Paket",
+          "parcelSummary": "{{quantity}} Artikel · {{weight}} kg",
+          "charged": "Dem Kunden berechnet",
+          "carrierFee": "Dienstleistergebühr",
+          "consignment": "Sendung",
+          "lastError": "Letzter Fehler",
+          "history": "Verlauf"
         }
       }
     },

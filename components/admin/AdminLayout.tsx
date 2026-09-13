@@ -23,11 +23,9 @@ import {
   Menu,
   MessageSquare,
   Package,
-  PlugZap,
   Plus,
   RefreshCw,
   Search,
-  Send,
   Settings,
   ShoppingBag,
   Star,
@@ -72,9 +70,9 @@ const sidebarGroups = [
     label: 'Engagement',
     items: [
       { title: 'Marketing & Deals', icon: Megaphone, href: '/admin/marketing', roles: ['admin', 'manager'] },
+      // One entry: the dispatch desk, the records and the carrier credentials
+      // are tabs of `/admin/courier`, not three sibling routes.
       { title: 'Courier', icon: Truck, href: '/admin/courier', roles: ['admin', 'manager', 'staff'] },
-      { title: 'Consignments', icon: Send, href: '/admin/courier/consignments', roles: ['admin', 'manager', 'staff'] },
-      { title: 'Courier Integrations', icon: PlugZap, href: '/admin/courier/integrations', roles: ['admin', 'manager'] },
       { title: 'Customers', icon: Users, href: '/admin/customers', roles: ['admin', 'manager'] },
       { title: 'Customer Feedback', icon: Star, href: '/admin/customer-feedback', roles: ['admin', 'manager'] },
       { title: 'Messaging', icon: MessageSquare, href: '/admin/messaging', roles: ['admin', 'manager'] },

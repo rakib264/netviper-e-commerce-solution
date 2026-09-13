@@ -61,6 +61,7 @@ export function toAdminIntegrationPayload(settings: CourierIntegrationDoc) {
   return {
     defaultProvider: settings.defaultProvider ?? 'steadfast',
     autoDispatchOnConfirm: Boolean(settings.autoDispatchOnConfirm),
+    carrierCalculatedRates: Boolean(settings.carrierCalculatedRates),
     pathao: {
       enabled: Boolean(pathao.enabled),
       sandbox: pathao.sandbox !== false,
@@ -111,6 +112,9 @@ export function applyIntegrationUpdate(
   }
   if (typeof body.autoDispatchOnConfirm === 'boolean') {
     settings.autoDispatchOnConfirm = body.autoDispatchOnConfirm;
+  }
+  if (typeof body.carrierCalculatedRates === 'boolean') {
+    settings.carrierCalculatedRates = body.carrierCalculatedRates;
   }
 
   const pathao = body.pathao ?? {};

@@ -41,10 +41,7 @@
   },
   "admin": {
     "courier": {
-      "backToCourier": "Courier",
       "integrations": {
-        "title": "Courier integrations",
-        "subtitle": "Merchant credentials for Pathao and Steadfast, and how confirmed orders reach them.",
         "loadError": "Could not load the courier integration settings.",
         "saved": "Courier integration settings saved.",
         "saveError": "Could not save the courier integration settings.",
@@ -64,7 +61,9 @@
           "defaultProvider": "Default provider",
           "defaultProviderHelp": "Used when a consignment does not name a courier of its own.",
           "autoDispatch": "Dispatch on order confirmation",
-          "autoDispatchHelp": "Send the consignment to the provider as soon as an order is confirmed, instead of waiting for someone to press dispatch."
+          "autoDispatchHelp": "Send the consignment to the provider as soon as an order is confirmed, instead of waiting for someone to press dispatch.",
+          "carrierRates": "Carrier-calculated rates",
+          "carrierRatesHelp": "Quote Pathao’s live price at checkout instead of your flat rate. Only Pathao can quote; Steadfast orders and any address Pathao does not cover always use your flat rate."
         },
         "pathao": {
           "toggle": "Enable Pathao",
@@ -183,9 +182,6 @@
         }
       },
       "consignments": {
-        "title": "Consignments",
-        "subtitle": "Confirmed orders and what has reached Pathao or Steadfast.",
-        "configure": "Integration settings",
         "loadError": "Could not load the consignments.",
         "search": "Search order, recipient, consignment…",
         "allProviders": "All providers",
@@ -227,6 +223,99 @@
           "delivered": "Delivered",
           "returned": "Returned",
           "cancelled": "Cancelled"
+        }
+      },
+      "workspace": {
+        "title": "Courier",
+        "subtitle": "Dispatch parcels, manage courier records, and configure your carriers.",
+        "tabs": {
+          "consignments": "Consignments",
+          "records": "Records",
+          "settings": "Settings"
+        }
+      },
+      "routing": {
+        "failure": {
+          "pathao-not-configured": "Pathao is not enabled or its credentials are incomplete.",
+          "no-district": "The shipping address has no district, which Pathao needs to route the parcel.",
+          "city-unresolved": "No Pathao city matches this district. Set the routing manually and retry.",
+          "zone-unresolved": "No Pathao zone matches this address. Set the routing manually and retry.",
+          "lookup-failed": "Could not reach Pathao to resolve this address."
+        }
+      },
+      "operations": {
+        "pickupTitle": "Pickup address",
+        "pickupSubtitle": "Where carriers collect your parcels. Sent with every consignment.",
+        "senderName": "Business name",
+        "senderPhone": "Phone",
+        "senderAddress": "Address",
+        "senderDivision": "Division",
+        "senderDistrict": "District",
+        "ratesTitle": "Delivery rates",
+        "ratesSubtitle": "What customers pay. Used whenever a live carrier rate is unavailable.",
+        "insideDhaka": "Inside Dhaka",
+        "outsideDhaka": "Outside Dhaka",
+        "freeThreshold": "Free delivery above",
+        "freeThresholdHint": "Set to 0 to charge delivery on every order.",
+        "codRate": "Cash-on-delivery fee (%)",
+        "codRateHint": "Your carrier’s COD commission. Recorded on the courier record, not charged to the customer.",
+        "save": "Save",
+        "saved": "Courier settings saved",
+        "saveError": "Could not save courier settings",
+        "loadError": "Could not load courier settings"
+      },
+      "records": {
+        "search": "Search records",
+        "allStatuses": "All statuses",
+        "refresh": "Refresh",
+        "total": "{{count}} records",
+        "selected": "{{count}} selected",
+        "setStatus": "Set status",
+        "deleteSelected": "Delete",
+        "selectAll": "Select all records",
+        "selectRow": "Select record {{id}}",
+        "empty": "No courier records match these filters.",
+        "loadError": "Could not load courier records",
+        "statusUpdated": "Status updated",
+        "statusError": "Could not update the status",
+        "bulkStatusDone": "Updated {{count}} records",
+        "deleteTitle": "Delete courier records?",
+        "deleteBody": "This permanently removes {{count}} records. Consignments already at a carrier are not recalled.",
+        "deleteDone": "Deleted {{count}} records",
+        "deleteError": "Could not delete the records",
+        "delete": "Delete",
+        "view": "View details",
+        "previous": "Previous",
+        "next": "Next",
+        "noOrder": "No linked order",
+        "noPartner": "Unassigned",
+        "codOf": "Collect {{amount}}",
+        "columns": {
+          "record": "Record",
+          "recipient": "Recipient",
+          "charges": "Charged",
+          "partner": "Carrier",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "pending": "Pending",
+          "picked": "Picked up",
+          "in_transit": "In transit",
+          "delivered": "Delivered",
+          "returned": "Returned",
+          "cancelled": "Cancelled"
+        },
+        "detail": {
+          "order": "Order",
+          "recipient": "Recipient",
+          "parcel": "Parcel",
+          "parcelSummary": "{{quantity}} items · {{weight}} kg",
+          "charged": "Charged to customer",
+          "carrierFee": "Carrier fee",
+          "consignment": "Consignment",
+          "lastError": "Last error",
+          "history": "History"
         }
       }
     },

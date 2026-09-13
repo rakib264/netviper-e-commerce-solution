@@ -74,6 +74,7 @@ interface SteadfastSettings {
 interface IntegrationSettings {
   defaultProvider: 'pathao' | 'steadfast';
   autoDispatchOnConfirm: boolean;
+  carrierCalculatedRates: boolean;
   pathao: PathaoSettings;
   steadfast: SteadfastSettings;
 }
@@ -188,6 +189,7 @@ export default function CourierIntegrationsPanel() {
         body: JSON.stringify({
           defaultProvider: settings.defaultProvider,
           autoDispatchOnConfirm: settings.autoDispatchOnConfirm,
+          carrierCalculatedRates: settings.carrierCalculatedRates,
           pathao: {
             enabled: settings.pathao.enabled,
             sandbox: settings.pathao.sandbox,
@@ -359,6 +361,22 @@ export default function CourierIntegrationsPanel() {
               id="auto-dispatch"
               checked={settings.autoDispatchOnConfirm}
               onCheckedChange={(checked) => patch('autoDispatchOnConfirm', checked)}
+            />
+          </div>
+
+          <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
+            <div className="space-y-1">
+              <Label htmlFor="carrier-rates">
+                {t('admin.courier.integrations.routing.carrierRates')}
+              </Label>
+              <p className="typography-micro text-muted-foreground">
+                {t('admin.courier.integrations.routing.carrierRatesHelp')}
+              </p>
+            </div>
+            <Switch
+              id="carrier-rates"
+              checked={settings.carrierCalculatedRates}
+              onCheckedChange={(checked) => patch('carrierCalculatedRates', checked)}
             />
           </div>
         </CardContent>
