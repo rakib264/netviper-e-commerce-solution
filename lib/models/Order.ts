@@ -222,4 +222,38 @@ const OrderSchema = new Schema<IOrder>({
   timestamps: true
 });
 
+/*
+ * Indexes.
+ *
+ * The collection carried none beyond the implicit unique `orderNumber`, so
+ * every admin analytic — all of which are date-windowed — was a full scan.
+ * Each index below is here for named queries; nothing speculative.
+ */
+
+/**
+ * The workhorse. Every dashboard and targeting aggregation opens with
+ * `createdAt: { $gte, $lte }`, and the recent-orders widget sorts by it.
+ */
+OrderSchema.index({ createdAt: -1 });
+
+/**
+ * Status-scoped windows: the district heatmap and the geo demand roll-ups
+ * (`orderStatus $in [...] ` + date range), and the line-item pipeline behind
+ * the category mix and top sellers.
+ */
+OrderSchema.index({ orderStatus: 1, createdAt: -1 });
+
+/**
+ * Paid-only windows: the revenue series, the spend leaderboard and the
+ * payment-health split all filter or branch on `paymentStatus`.
+ */
+OrderSchema.index({ paymentStatus: 1, createdAt: -1 });
+
+/**
+ * Per-customer history: the retention snapshot groups by customer across all
+ * time up to the window end, and the returning-customer filter looks up a
+ * customer's orders directly.
+ */
+OrderSchema.index({ customer: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

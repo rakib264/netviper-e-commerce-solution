@@ -113,4 +113,11 @@ UserSchema.pre('save', function(next) {
   next();
 });
 
+/**
+ * Customer analytics are all "customers created in this window": the customer
+ * total, the growth series and the recent-customers widget (which also sorts
+ * by `createdAt`). Without this each one scanned every user.
+ */
+UserSchema.index({ role: 1, createdAt: -1 });
+
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

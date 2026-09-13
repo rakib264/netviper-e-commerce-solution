@@ -110,6 +110,223 @@
       "variantRail": "Reihe",
       "variantRailHelp": "Eine wischbare Reihe — gut für Ranglisten."
     },
+    "customerTrends": {
+      "title": "Geo-Retargeting-Kommandozentrale",
+      "subtitle": "Wo investiert wird, was beworben wird und welche Bezirke jetzt skaliert, verteidigt oder getestet werden — ausschließlich aus echten Bestellungen.",
+      "loading": "Targeting-Daten werden geladen…",
+      "error": "Targeting-Daten konnten nicht geladen werden.",
+      "retry": "Erneut versuchen",
+      "notAvailable": "Nicht verfügbar",
+      "noBaseline": "Kein Vergleichswert",
+      "percent": "{{value}} %",
+      "percentChange": "{{value}} %",
+      "methodology": "Alle Werte stammen aus bestätigten, in Bearbeitung befindlichen, versandten und gelieferten Bestellungen; offene und stornierte Bestellungen bleiben unberücksichtigt. Die Konfidenz gibt an, wie viele Bestellungen hinter einer Zahl stehen — sie ist keine Prognose.",
+      "empty": {
+        "title": "Keine Daten für den gewählten Zeitraum",
+        "body": "In diesem Zeitraum wurden keine Bestellungen aufgegeben, daher gibt es noch nichts zu targeten."
+      },
+      "filters": {
+        "period": "Zeitraum",
+        "lastDays": "Letzte {{days}} Tage",
+        "district": "Bezirk",
+        "allDistricts": "Alle Bezirke",
+        "refresh": "Aktualisieren"
+      },
+      "kpi": {
+        "orders": "Bestellungen",
+        "revenue": "Umsatz",
+        "aov": "Durchschnittlicher Bestellwert",
+        "repeatRate": "Wiederkäuferquote",
+        "topGrowthDistrict": "Am stärksten wachsender Bezirk"
+      },
+      "confidence": {
+        "low": "Geringe Konfidenz",
+        "medium": "Mittlere Konfidenz",
+        "high": "Hohe Konfidenz",
+        "sample_one": "{{count}} Bestellung",
+        "sample_other": "{{count}} Bestellungen"
+      },
+      "cluster": {
+        "scale": "Skalieren",
+        "scaleHint": "Stark und wachsend — Budget hier erhöhen.",
+        "defend": "Verteidigen",
+        "defendHint": "Hohes Volumen, aber stagnierend — mit Retention halten.",
+        "test": "Testen",
+        "testHint": "Aufkommende Nachfrage — günstig Erkenntnisse kaufen.",
+        "watch": "Beobachten",
+        "watchHint": "Noch zu wenige Bestellungen, um zu handeln."
+      },
+      "objective": {
+        "conversion": "Conversion",
+        "retention": "Bestandskunden",
+        "prospecting": "Neukundengewinnung",
+        "awareness": "Bekanntheit"
+      },
+      "geo": {
+        "clearSelection": "Bezirksfilter zurücksetzen",
+        "columns": {
+          "district": "Bezirk",
+          "orders": "Bestellungen",
+          "revenue": "Umsatz",
+          "aov": "Ø Bestellwert",
+          "repeat": "Wiederkauf",
+          "growth": "Bestellwachstum",
+          "delivery": "Zugestellt",
+          "topDemand": "Top-Nachfrage",
+          "cluster": "Cluster"
+        },
+        "description": "Bestelldichte je Bezirk — samt der Produkte, die dort tatsächlich gekauft werden.",
+        "empty": "Aus den Bestellungen dieses Zeitraums ließ sich kein Bezirk ermitteln.",
+        "legend": {
+          "title": "Bestellungen je Bezirk",
+          "bins": {
+            "zero": "0",
+            "upTo10": "1–10",
+            "upTo30": "11–30",
+            "upTo50": "31–50",
+            "upTo100": "51–100",
+            "upTo200": "101–200",
+            "upTo500": "201–500",
+            "over500": "500+"
+          }
+        },
+        "mapHint": "Auf einen Bezirk klicken, um die Seite zu filtern; erneut klicken, um die Auswahl aufzuheben.",
+        "rankTitle": "Bezirke mit den meisten Bestellungen",
+        "tableTitle": "Top-Bezirke nach Bestellungen",
+        "title": "Geografische Nachfrage"
+      },
+      "playbook": {
+        "title": "Targeting-Playbook",
+        "description": "Die Budgetanteile richten sich nach dem Potenzial des jeweiligen Clusters. Die Bezirksliste lässt sich direkt in das Standort-Targeting einer Kampagne übernehmen.",
+        "empty": "Kein Bezirk hat genug Bestellungen für ein Playbook.",
+        "budgetShare": "Budgetanteil",
+        "objective": "Ziel",
+        "audienceSize": "Kundinnen und Kunden",
+        "angle": "Botschaft",
+        "noAngle": "Keine Kategoriedaten für dieses Cluster.",
+        "districtCount_one": "{{count}} Bezirk",
+        "districtCount_other": "{{count}} Bezirke",
+        "copyDistricts": "Bezirksliste kopieren",
+        "copied": "Bezirksliste kopiert",
+        "copyFailed": "Kopieren in die Zwischenablage nicht möglich.",
+        "exportCsv": "CSV exportieren"
+      },
+      "signals": {
+        "title": "Trendsignale",
+        "description": "Aktueller Zeitraum im Vergleich zu den vorherigen {{days}} Tagen.",
+        "empty": "In diesem Zeitraum gibt es nichts zu vergleichen.",
+        "previousValue": "zuvor {{value}}",
+        "metric": {
+          "orders": "Bestellungen",
+          "revenue": "Umsatz",
+          "aov": "Durchschnittlicher Bestellwert",
+          "uniqueCustomers": "Eindeutige Kundschaft",
+          "repeatRate": "Wiederkäuferquote"
+        },
+        "movers": {
+          "rising": "Wachsende Bezirke",
+          "falling": "Rückläufige Bezirke",
+          "empty": "Kein Bezirk hat genug Bestellungen für einen belastbaren Vergleich.",
+          "orders": "{{current}} statt {{previous}}"
+        }
+      }
+    },
+    "dashboard": {
+      "notAvailable": "—",
+      "empty": "Keine Daten für diesen Zeitraum",
+      "percent": "{{value}} %",
+      "operations": {
+        "title": "Betrieb",
+        "description": "Umsatzqualität, Zahlungen, Fulfilment, Retouren, Bestand und Kundenbindung im gewählten Zeitraum."
+      },
+      "geo": {
+        "title": "Bestellungen nach Bezirk",
+        "description": "Wo sich die Nachfrage konzentriert und welche Bezirke sich bewegen.",
+        "empty": "Für diesen Zeitraum ließen sich keine Bestellungen auf der Karte verorten.",
+        "seeMore": "Mehr anzeigen",
+        "totalOrders": "Verortete Bestellungen",
+        "totalRevenue": "Umsatz",
+        "activeDistricts": "Aktive Bezirke",
+        "tooltipOrders": "{{count}} Bestellungen",
+        "columns": {
+          "district": "Bezirk",
+          "orders": "Bestellungen",
+          "revenue": "Umsatz",
+          "share": "Anteil",
+          "growth": "Wachstum"
+        }
+      },
+      "revenueQuality": {
+        "title": "Umsatzqualität",
+        "description": "Was verkauft wurde, was tatsächlich bezahlt wurde und was Rabatte gekostet haben.",
+        "gmv": "Warenwert (brutto)",
+        "netPaid": "Netto bezahlter Umsatz",
+        "discountRate": "Rabattquote",
+        "paidRatio": "Anteil bezahlter Bestellungen",
+        "ofOrders": "von {{count}} Bestellungen",
+        "aov": "Durchschnittlicher Bestellwert",
+        "shipping": "Vereinnahmte Versandkosten",
+        "couponOrders": "Bestellungen mit Gutschein"
+      },
+      "payment": {
+        "title": "Zahlungsqualität",
+        "description": "Wie zuverlässig Zahlungen abschließen und welche Methoden das Volumen tragen.",
+        "successRate": "Erfolgsquote",
+        "refundRate": "Erstattungsquote",
+        "settledBasis": "{{count}} abgeschlossen",
+        "refunded": "{{count}} erstattet",
+        "paid": "Bezahlt",
+        "pending": "Offen",
+        "failed": "Fehlgeschlagen",
+        "methods": "Nach Methode"
+      },
+      "fulfillment": {
+        "title": "Fulfilment-SLA",
+        "description": "Zeit von der Bestellung bis zur Zustellung — und was noch offen ist.",
+        "median": "Median Lieferzeit",
+        "p90": "90. Perzentil",
+        "onTime": "Pünktlich",
+        "ageing": "Überfällige Bestellungen",
+        "hours": "{{value}} Std.",
+        "days": "{{value}} Tage",
+        "deliveredBasis": "{{count}} zugestellt",
+        "onTimeBasis": "{{count}} mit zugesagtem Termin",
+        "noExpectedDates": "Keine zugesagten Liefertermine erfasst",
+        "openBasis": "{{count}} offen"
+      },
+      "returns": {
+        "title": "Retouren & Stornierungen",
+        "description": "Wie oft Bestellungen scheitern und welche Gründe Kundinnen und Kunden nennen.",
+        "cancelRate": "Stornoquote",
+        "returnRate": "Retourenquote",
+        "cancelledBasis": "{{count}} storniert",
+        "requestsBasis": "{{count}} Anfragen",
+        "topReasons": "Häufigste Gründe",
+        "noReasons": "Keine Retourenanfragen in diesem Zeitraum."
+      },
+      "inventory": {
+        "title": "Bestandsrisiko",
+        "description": "Was demnächst ausverkauft ist, sortiert nach Reichweite des Bestands.",
+        "outOfStock": "Nicht auf Lager",
+        "lowStock": "Geringer Bestand",
+        "tracked": "Verfolgte SKUs",
+        "atRisk": "Gefährdet",
+        "noRisk": "Kein verfolgtes Produkt liegt unter seinem Schwellenwert.",
+        "stockUnits": "{{count}} übrig",
+        "daysOfCover": "{{value}} Tage Reichweite",
+        "noVelocity": "Kein Absatz",
+        "byCategory": "Nach Kategorie"
+      },
+      "retention": {
+        "title": "Kundenbindung",
+        "description": "Wie viel dieses Zeitraums von bereits bestehenden Kundinnen und Kunden kam.",
+        "repeatRate": "Wiederkäuferquote",
+        "returningRevenueShare": "Umsatzanteil Bestandskunden",
+        "customersBasis": "{{count}} Kundinnen und Kunden",
+        "newCustomers": "Neukundschaft",
+        "returningCustomers": "Bestandskundschaft"
+      }
+    },
     "homepageSections": {
       "offInShowcaseManager": "Im Showcase-Manager deaktiviert",
       "productShowcase": "Produkt-Showcase",

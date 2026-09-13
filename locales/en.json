@@ -110,6 +110,223 @@
       "variantRail": "Rail",
       "variantRailHelp": "A swipeable rail — good for ranked lists."
     },
+    "customerTrends": {
+      "title": "Geo Retargeting Command Center",
+      "subtitle": "Where to spend, what to promote, and which districts to scale, defend or test — built only from real orders.",
+      "loading": "Loading targeting data…",
+      "error": "Targeting data could not be loaded.",
+      "retry": "Try again",
+      "notAvailable": "Not available",
+      "noBaseline": "No baseline",
+      "percent": "{{value}}%",
+      "percentChange": "{{value}}%",
+      "methodology": "Every figure is calculated from confirmed, processing, shipped and delivered orders; pending and cancelled orders are excluded. Confidence reflects how many orders sit behind a number, not a prediction.",
+      "empty": {
+        "title": "No data for selected period",
+        "body": "No orders were placed in this period, so there is nothing to target on yet."
+      },
+      "filters": {
+        "period": "Period",
+        "lastDays": "Last {{days}} days",
+        "district": "District",
+        "allDistricts": "All districts",
+        "refresh": "Refresh"
+      },
+      "kpi": {
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "aov": "Average order value",
+        "repeatRate": "Repeat customer rate",
+        "topGrowthDistrict": "Fastest growing district"
+      },
+      "confidence": {
+        "low": "Low confidence",
+        "medium": "Medium confidence",
+        "high": "High confidence",
+        "sample_one": "{{count}} order",
+        "sample_other": "{{count}} orders"
+      },
+      "cluster": {
+        "scale": "Scale",
+        "scaleHint": "Strong and growing — increase spend here.",
+        "defend": "Defend",
+        "defendHint": "High volume but flat — hold it with retention.",
+        "test": "Test",
+        "testHint": "Emerging demand — buy information cheaply.",
+        "watch": "Watch",
+        "watchHint": "Too few orders to act on yet."
+      },
+      "objective": {
+        "conversion": "Conversion",
+        "retention": "Retention",
+        "prospecting": "Prospecting",
+        "awareness": "Awareness"
+      },
+      "geo": {
+        "clearSelection": "Clear district filter",
+        "columns": {
+          "district": "District",
+          "orders": "Orders",
+          "revenue": "Revenue",
+          "aov": "AOV",
+          "repeat": "Repeat",
+          "growth": "Order growth",
+          "delivery": "Delivered",
+          "topDemand": "Top demand",
+          "cluster": "Cluster"
+        },
+        "description": "Order density by district, with the products each district actually buys.",
+        "empty": "No district could be resolved from the orders in this period.",
+        "legend": {
+          "title": "Orders per district",
+          "bins": {
+            "zero": "0",
+            "upTo10": "1–10",
+            "upTo30": "11–30",
+            "upTo50": "31–50",
+            "upTo100": "51–100",
+            "upTo200": "101–200",
+            "upTo500": "201–500",
+            "over500": "500+"
+          }
+        },
+        "mapHint": "Click a district to filter the page; click it again to clear.",
+        "rankTitle": "Busiest districts",
+        "tableTitle": "Top districts by orders",
+        "title": "Geographic demand"
+      },
+      "playbook": {
+        "title": "Targeting playbook",
+        "description": "Budget shares are proportional to the opportunity each cluster carries. Copy a district list straight into a campaign’s location targeting.",
+        "empty": "No district has enough orders to build a playbook from.",
+        "budgetShare": "Budget share",
+        "objective": "Objective",
+        "audienceSize": "Customers",
+        "angle": "Messaging angle",
+        "noAngle": "No category data for this cluster.",
+        "districtCount_one": "{{count}} district",
+        "districtCount_other": "{{count}} districts",
+        "copyDistricts": "Copy district list",
+        "copied": "District list copied",
+        "copyFailed": "Could not copy to the clipboard.",
+        "exportCsv": "Export CSV"
+      },
+      "signals": {
+        "title": "Trend signals",
+        "description": "Current period against the previous {{days}} days.",
+        "empty": "Nothing to compare in this period.",
+        "previousValue": "was {{value}}",
+        "metric": {
+          "orders": "Orders",
+          "revenue": "Revenue",
+          "aov": "Average order value",
+          "uniqueCustomers": "Unique customers",
+          "repeatRate": "Repeat customer rate"
+        },
+        "movers": {
+          "rising": "Rising districts",
+          "falling": "Falling districts",
+          "empty": "No district has enough orders for a reliable comparison.",
+          "orders": "{{current}} vs {{previous}}"
+        }
+      }
+    },
+    "dashboard": {
+      "notAvailable": "—",
+      "empty": "No data for this period",
+      "percent": "{{value}}%",
+      "operations": {
+        "title": "Operations",
+        "description": "Revenue quality, payments, fulfilment, returns, stock and retention for the selected period."
+      },
+      "geo": {
+        "title": "Orders by district",
+        "description": "Where demand is concentrated, and which districts are moving.",
+        "empty": "No orders could be placed on the map for this period.",
+        "seeMore": "See more",
+        "totalOrders": "Orders mapped",
+        "totalRevenue": "Revenue",
+        "activeDistricts": "Active districts",
+        "tooltipOrders": "{{count}} orders",
+        "columns": {
+          "district": "District",
+          "orders": "Orders",
+          "revenue": "Revenue",
+          "share": "Share",
+          "growth": "Growth"
+        }
+      },
+      "revenueQuality": {
+        "title": "Revenue quality",
+        "description": "What was sold, what was actually paid, and what discounting cost.",
+        "gmv": "Gross merchandise value",
+        "netPaid": "Net paid revenue",
+        "discountRate": "Discount rate",
+        "paidRatio": "Paid order ratio",
+        "ofOrders": "of {{count}} orders",
+        "aov": "Average order value",
+        "shipping": "Shipping collected",
+        "couponOrders": "Orders with a coupon"
+      },
+      "payment": {
+        "title": "Payment health",
+        "description": "How reliably payments settle, and which methods carry the volume.",
+        "successRate": "Success rate",
+        "refundRate": "Refund rate",
+        "settledBasis": "{{count}} settled",
+        "refunded": "{{count}} refunded",
+        "paid": "Paid",
+        "pending": "Pending",
+        "failed": "Failed",
+        "methods": "By method"
+      },
+      "fulfillment": {
+        "title": "Fulfilment SLA",
+        "description": "Time from order placed to delivered, and what is still open.",
+        "median": "Median delivery",
+        "p90": "90th percentile",
+        "onTime": "On time",
+        "ageing": "Ageing orders",
+        "hours": "{{value}}h",
+        "days": "{{value}}d",
+        "deliveredBasis": "{{count}} delivered",
+        "onTimeBasis": "{{count}} with a promised date",
+        "noExpectedDates": "No promised delivery dates recorded",
+        "openBasis": "{{count}} open"
+      },
+      "returns": {
+        "title": "Returns & cancellations",
+        "description": "How often orders fall through, and the reasons customers give.",
+        "cancelRate": "Cancellation rate",
+        "returnRate": "Return rate",
+        "cancelledBasis": "{{count}} cancelled",
+        "requestsBasis": "{{count}} requests",
+        "topReasons": "Top reasons",
+        "noReasons": "No return requests in this period."
+      },
+      "inventory": {
+        "title": "Inventory risk",
+        "description": "What is about to sell out, ranked by how long the stock lasts.",
+        "outOfStock": "Out of stock",
+        "lowStock": "Low stock",
+        "tracked": "Tracked SKUs",
+        "atRisk": "At risk",
+        "noRisk": "No tracked product is below its threshold.",
+        "stockUnits": "{{count}} left",
+        "daysOfCover": "{{value}} days cover",
+        "noVelocity": "No sales",
+        "byCategory": "By category"
+      },
+      "retention": {
+        "title": "Retention snapshot",
+        "description": "How much of this period came from customers you already had.",
+        "repeatRate": "Repeat customer rate",
+        "returningRevenueShare": "Returning revenue share",
+        "customersBasis": "{{count}} customers",
+        "newCustomers": "New customers",
+        "returningCustomers": "Returning customers"
+      }
+    },
     "homepageSections": {
       "offInShowcaseManager": "Off in showcase manager",
       "productShowcase": "Product showcase",

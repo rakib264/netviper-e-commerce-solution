@@ -1,6 +1,10 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
+import GeoOrdersHeatmapCard, {
+  type DashboardDistrictRow,
+} from '@/components/admin/dashboard/GeoOrdersHeatmapCard';
+import OperationsPanels from '@/components/admin/dashboard/OperationsPanels';
 import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton';
 import DealsShowcase from '@/components/deals/DealsShowcase';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
@@ -46,6 +50,8 @@ import {
   XAxis, YAxis
 } from 'recharts';
 import { Loader } from '@/components/ui/loader';
+import type { DashboardOperations } from '@/lib/analytics/dashboard';
+import type { DistrictHeatmapDatum } from '@/lib/analytics/targeting';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 
 // Types
@@ -77,6 +83,12 @@ interface DashboardData {
     topSellingProducts: any[];
     highValueCustomers: any[];
   };
+  geoInsights: {
+    totals: { orders: number; revenue: number; districts: number };
+    mapDistricts: DistrictHeatmapDatum[];
+    topDistricts: DashboardDistrictRow[];
+  };
+  operations: DashboardOperations;
 }
 
 export default function AdminDashboard() {
@@ -95,29 +107,17 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      
-      // Add date range
-      const now = new Date();
-      let dateFrom = new Date();
-      
-      switch (timeRange) {
-        case '7d':
-          dateFrom.setDate(now.getDate() - 7);
-          break;
-        case '30d':
-          dateFrom.setDate(now.getDate() - 30);
-          break;
-        case '90d':
-          dateFrom.setDate(now.getDate() - 90);
-          break;
-        case '1y':
-          dateFrom.setFullYear(now.getFullYear() - 1);
-          break;
-      }
-      
-      params.set('dateFrom', dateFrom.toISOString());
-      params.set('dateTo', now.toISOString());
-      
+
+      /*
+       * Send the range token, not a resolved window.
+       *
+       * This used to post `dateFrom`/`dateTo` built from `new Date()`, which
+       * made every request a unique cache key on the server — the analytics
+       * cache could never hit and each range switch paid full aggregation
+       * cost. The server derives the same window from this token.
+       */
+      params.set('range', timeRange);
+
       if (category && category !== 'all') params.set('category', category);
       if (customerType && customerType !== 'all') params.set('customerType', customerType);
 
@@ -776,6 +776,18 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Where demand actually is. Same map component and bin scale as
+            /admin/customer-trends, so a district reads the same on both. */}
+        {data?.geoInsights && (
+          <GeoOrdersHeatmapCard
+            mapDistricts={data.geoInsights.mapDistricts}
+            topDistricts={data.geoInsights.topDistricts}
+            totals={data.geoInsights.totals}
+          />
+        )}
+
+        {data?.operations && <OperationsPanels data={data.operations} />}
 
         {/* Deals the storefront is advertising right now, immediately above the
             orders they are meant to move. Same component as the storefront band
