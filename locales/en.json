@@ -241,7 +241,22 @@
           "city-unresolved": "No Pathao city matches this district. Set the routing manually and retry.",
           "zone-unresolved": "No Pathao zone matches this address. Set the routing manually and retry.",
           "lookup-failed": "Could not reach Pathao to resolve this address."
-        }
+        },
+        "fix": "Fix routing",
+        "title": "Fix the delivery routing",
+        "subtitle": "Correct the address, or name the Pathao city and zone directly.",
+        "address": "Street address",
+        "city": "Town / area",
+        "district": "District",
+        "explicitTitle": "Or choose the Pathao routing",
+        "explicitHelp": "Picking a zone here overrides address matching. Leave it empty to resolve the corrected address again.",
+        "pathaoCity": "City",
+        "pathaoZone": "Zone",
+        "pathaoArea": "Area",
+        "save": "Save and retry",
+        "saved": "Routing updated — dispatch again to send it",
+        "saveError": "Could not update the routing",
+        "pathaoError": "Could not load Pathao locations"
       },
       "operations": {
         "pickupTitle": "Pickup address",

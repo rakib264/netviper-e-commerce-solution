@@ -1,5 +1,8 @@
 'use client';
 
+import FixRoutingDialog, {
+  type FixRoutingTarget,
+} from '@/components/admin/courier/FixRoutingDialog';
 import { useCurrency, useTranslation } from '@/components/providers/LocalizationProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,7 +26,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Loader2, RefreshCw, Send, Truck } from 'lucide-react';
+import { AlertTriangle, Loader2, MapPin, RefreshCw, Send, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -42,7 +45,6 @@ interface CourierRow {
   _id: string;
   courierId: string;
   order: { _id: string; orderNumber: string; total: number } | null;
-  receiver: { name: string; phone: string; city?: string; district?: string };
   parcel: { quantity: number; weight: number; description: string };
   isCOD: boolean;
   codAmount?: number;
@@ -56,6 +58,8 @@ interface CourierRow {
   dispatchedAt?: string;
   lastSyncedAt?: string;
   dispatchError?: string;
+  routingErrorKey?: string;
+  receiver: { name: string; phone: string; address?: string; city?: string; district?: string };
   createdAt: string;
 }
 
@@ -89,6 +93,7 @@ export default function ConsignmentBoard() {
   const [dispatchProvider, setDispatchProvider] = useState<'default' | 'pathao' | 'steadfast'>(
     'default',
   );
+  const [fixing, setFixing] = useState<FixRoutingTarget | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -420,7 +425,10 @@ export default function ConsignmentBoard() {
                     ) : row.dispatchError ? (
                       <span className="flex items-start gap-1 typography-micro text-destructive">
                         <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
-                        {row.dispatchError}
+                        {/* The key is stored for exactly this: the reason was
+                            written server-side and is read here in whichever
+                            language the admin is using. */}
+                        {row.routingErrorKey ? t(row.routingErrorKey) : row.dispatchError}
                       </span>
                     ) : (
                       <span className="typography-micro text-muted-foreground">
@@ -460,21 +468,36 @@ export default function ConsignmentBoard() {
                         </span>
                       </Button>
                     ) : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => dispatch([row._id])}
-                        disabled={busy === row._id}
-                      >
-                        {busy === row._id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Truck className="h-3.5 w-3.5" />
+                      <div className="flex items-center justify-end gap-2">
+                        {row.dispatchError && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setFixing(row)}
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span className="ml-2 hidden sm:inline">
+                              {t('admin.courier.routing.fix')}
+                            </span>
+                          </Button>
                         )}
-                        <span className="ml-2 hidden sm:inline">
-                          {t('admin.courier.consignments.dispatch')}
-                        </span>
-                      </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => dispatch([row._id])}
+                          disabled={busy === row._id}
+                        >
+                          {busy === row._id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Truck className="h-3.5 w-3.5" />
+                          )}
+                          <span className="ml-2 hidden sm:inline">
+                            {t('admin.courier.consignments.dispatch')}
+                          </span>
+                        </Button>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
@@ -483,6 +506,8 @@ export default function ConsignmentBoard() {
           </TableBody>
         </Table>
       </div>
+
+      <FixRoutingDialog target={fixing} onClose={() => setFixing(null)} onFixed={load} />
     </div>
   );
 }

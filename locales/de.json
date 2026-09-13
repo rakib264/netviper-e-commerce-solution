@@ -241,7 +241,22 @@
           "city-unresolved": "Keine Pathao-Stadt passt zu diesem Bezirk. Routing manuell setzen und erneut versuchen.",
           "zone-unresolved": "Keine Pathao-Zone passt zu dieser Adresse. Routing manuell setzen und erneut versuchen.",
           "lookup-failed": "Pathao war für die Auflösung dieser Adresse nicht erreichbar."
-        }
+        },
+        "fix": "Routing korrigieren",
+        "title": "Zustell-Routing korrigieren",
+        "subtitle": "Adresse korrigieren oder Pathao-Stadt und -Zone direkt auswählen.",
+        "address": "Straße",
+        "city": "Ort / Gebiet",
+        "district": "Bezirk",
+        "explicitTitle": "Oder Pathao-Routing wählen",
+        "explicitHelp": "Eine hier gewählte Zone hat Vorrang vor dem Adressabgleich. Leer lassen, um die korrigierte Adresse erneut aufzulösen.",
+        "pathaoCity": "Stadt",
+        "pathaoZone": "Zone",
+        "pathaoArea": "Gebiet",
+        "save": "Speichern und erneut versuchen",
+        "saved": "Routing aktualisiert — zum Senden erneut versenden",
+        "saveError": "Routing konnte nicht aktualisiert werden",
+        "pathaoError": "Pathao-Standorte konnten nicht geladen werden"
       },
       "operations": {
         "pickupTitle": "Abholadresse",
