@@ -58,6 +58,13 @@ export interface ICourier extends Document {
   lastSyncedAt?: Date;
   /** Last dispatch failure, cleared on success, so admins can retry informed. */
   dispatchError?: string;
+  /**
+   * i18n key for a routing failure, beside the English sentence in
+   * `dispatchError`. A failed consignment outlives the request that produced it
+   * and is read by whichever admin opens the lane, possibly in another
+   * language — so the reason is stored as a key, the way notification copy is.
+   */
+  routingErrorKey?: string;
   /** Provider-specific routing the dispatcher resolved (Pathao city/zone/area). */
   providerMeta?: {
     pathaoCityId?: number;
@@ -127,6 +134,7 @@ const CourierSchema = new Schema<ICourier>({
   dispatchedAt: { type: Date },
   lastSyncedAt: { type: Date },
   dispatchError: { type: String },
+  routingErrorKey: { type: String },
   providerMeta: {
     pathaoCityId: { type: Number },
     pathaoZoneId: { type: Number },

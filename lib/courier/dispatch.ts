@@ -1,3 +1,8 @@
+import {
+  pathaoRoutingFailureKey,
+  resolvePathaoRouting,
+  type PathaoRoutingFailure,
+} from '@/lib/courier/pathao-routing';
 import { getCourierProvider, isCourierProviderId } from '@/lib/courier/providers';
 import {
   configuredProviders,
@@ -87,6 +92,30 @@ export function validateDispatchInput(input: CourierDispatchInput): string | nul
 }
 
 /**
+ * A routing failure as a sentence for `dispatchError`.
+ *
+ * `dispatchError` is a free-text column read back by whichever admin opens the
+ * failed lane, so the row also carries `routingErrorKey` for the UI to localise.
+ * This string is the fallback for anything reading the record directly — a log,
+ * an export, an API consumer.
+ */
+function describeRoutingFailure(reason: PathaoRoutingFailure, detail?: string): string {
+  const suffix = detail ? ` (${detail})` : '';
+  switch (reason) {
+    case 'pathao-not-configured':
+      return 'Pathao is not enabled or its credentials are incomplete.';
+    case 'no-district':
+      return 'The shipping address has no district, which Pathao needs to route the parcel.';
+    case 'city-unresolved':
+      return `No Pathao city matches this district${suffix}. Set the routing manually and retry.`;
+    case 'zone-unresolved':
+      return `No Pathao zone matches this address${suffix}. Set the routing manually and retry.`;
+    case 'lookup-failed':
+      return `Could not reach Pathao to resolve the address${suffix}.`;
+  }
+}
+
+/**
  * Dispatches one courier record.
  *
  * `provider` overrides the courier's own `courierPartner`, which in turn
@@ -156,6 +185,54 @@ export async function dispatchCourier(
     courier.dispatchError = invalid;
     await courier.save();
     return { courierId, orderNumber, ok: false, provider: providerId, error: invalid };
+  }
+
+  /*
+   * Pathao routing.
+   *
+   * Pathao cannot take an address as text: `recipient_city` and
+   * `recipient_zone` are required integers. The adapter used to omit them when
+   * unresolved, on the belief that Pathao would infer the routing from the
+   * address — it does not, it returns a validation error, and since nothing in
+   * the codebase ever wrote `providerMeta` they were unresolved on every single
+   * auto-created record. Pathao auto-dispatch could not have worked.
+   *
+   * Resolved once and stored, so a retry does not repeat the lookup and an
+   * admin can see which city and zone the parcel was booked against.
+   */
+  if (providerId === 'pathao' && !courier.providerMeta?.pathaoCityId) {
+    const resolved = await resolvePathaoRouting(
+      {
+        district: courier.receiver?.district,
+        city: courier.receiver?.city,
+        division: courier.receiver?.division,
+        street: courier.receiver?.address,
+      },
+      { settings },
+    );
+
+    if (!resolved.ok) {
+      // Never book blind. An unresolvable address parks the consignment in the
+      // failed lane with the reason attached, where an admin can set the
+      // routing by hand and retry — silently dropping it, or sending it with
+      // missing fields and letting Pathao reject it, both lose the parcel.
+      const error = describeRoutingFailure(resolved.reason, resolved.detail);
+      courier.dispatchError = error;
+      courier.routingErrorKey = pathaoRoutingFailureKey(resolved.reason);
+      await courier.save();
+      return { courierId, orderNumber, ok: false, provider: providerId, error };
+    }
+
+    courier.providerMeta = {
+      ...(courier.providerMeta ?? {}),
+      pathaoCityId: resolved.routing.cityId,
+      pathaoZoneId: resolved.routing.zoneId,
+      pathaoAreaId: resolved.routing.areaId,
+    };
+    courier.routingErrorKey = undefined;
+    input.pathaoCityId = resolved.routing.cityId;
+    input.pathaoZoneId = resolved.routing.zoneId;
+    input.pathaoAreaId = resolved.routing.areaId;
   }
 
   try {
