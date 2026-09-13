@@ -36,4 +36,12 @@ const CouponSchema = new Schema<ICoupon>({
   applicableProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
 } as unknown as Record<keyof Omit<ICoupon, 'createdAt' | 'updatedAt' | 'id'>, any>, { timestamps: true });
 
+/**
+ * The only non-`code` lookup in the codebase: the dashboard's active-coupon
+ * count and list (`isActive` + an `expiryDate` range). `code` is `unique`, so
+ * the validate and checkout paths are already served by its implicit index;
+ * this collection had no other index at all, and that query was a full scan.
+ */
+CouponSchema.index({ isActive: 1, expiryDate: 1 });
+
 export default mongoose.models.Coupon || mongoose.model<ICoupon>('Coupon', CouponSchema);

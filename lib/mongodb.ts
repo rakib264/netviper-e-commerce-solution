@@ -45,6 +45,49 @@ const PRIMARY_MONGODB_URI = ensureDatabaseName(
 );
 const FALLBACK_MONGODB_URI = process.env.MONGODB_URI_FALLBACK || 'mongodb://127.0.0.1:27017/myfood';
 
+/**
+ * Connection-pool sizing for serverless.
+ *
+ * The driver defaults to `maxPoolSize: 100`. On Vercel every warm lambda
+ * instance holds its own pool against the cached `global.mongoose` connection,
+ * and Atlas M0 refuses connections past a hard ceiling of 500 — so the default
+ * caps this deployment at roughly **five** concurrent warm instances, and the
+ * failure past that is `MongoServerSelectionError`, not slowness.
+ *
+ * Ten is deliberate, and `1` would be wrong here. The common serverless advice
+ * to pin the pool at one assumes a handler that issues one query at a time;
+ * this codebase does the opposite — `lib/home/homepage-data.ts` dispatches
+ * every storefront reader in a single `Promise.all`, and the admin dashboard
+ * fans out further still. A pool of one serialises those fan-outs and makes the
+ * homepage slower. Ten keeps them parallel while lifting the instance ceiling
+ * from ~5 to ~50.
+ *
+ * `minPoolSize: 0` lets a cooling instance give its sockets back rather than
+ * holding a floor of them against the same 500, and `maxIdleTimeMS` is what
+ * actually reclaims them — without it an idle warm instance keeps every socket
+ * it ever opened until the platform reaps the whole instance.
+ *
+ * Configurable by env because the pool has to be sized before the first
+ * connection exists, so it cannot come from the DB-backed settings that
+ * CLAUDE.md otherwise prefers.
+ */
+function resolvePoolSize(): number {
+  const parsed = Number.parseInt(process.env.MONGODB_MAX_POOL_SIZE ?? '', 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return 10;
+  // Above ~50 a single instance can exhaust M0 on its own.
+  return Math.min(parsed, 50);
+}
+
+const POOL_OPTIONS = {
+  maxPoolSize: resolvePoolSize(),
+  minPoolSize: 0,
+  /** Reclaim a socket a warm-but-idle instance is no longer using. */
+  maxIdleTimeMS: 30_000,
+  /** A socket that stops answering fails rather than pinning a pool slot forever. */
+  socketTimeoutMS: 45_000,
+  connectTimeoutMS: 10_000,
+} as const;
+
 let cached = (global as any).mongoose as
   | { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null }
   | undefined;
@@ -71,6 +114,7 @@ async function connectDB() {
   const opts = {
     bufferCommands: false,
     serverSelectionTimeoutMS: 5000,
+    ...POOL_OPTIONS,
   } as const;
 
   // First attempt: primary URI (likely Atlas SRV)

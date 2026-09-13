@@ -256,4 +256,14 @@ OrderSchema.index({ paymentStatus: 1, createdAt: -1 });
  */
 OrderSchema.index({ customer: 1, createdAt: -1 });
 
+/**
+ * The admin order list. It routinely filters on `orderStatus` *and*
+ * `paymentStatus` together ("unfulfilled + paid"), and the two single-leg
+ * indexes above can each serve only one of them — the other leg becomes a
+ * filter applied after the scan. This is not redundant with either: a query
+ * naming only `paymentStatus` still needs `{ paymentStatus, createdAt }`,
+ * because this index's leading key is `orderStatus`.
+ */
+OrderSchema.index({ orderStatus: 1, paymentStatus: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
