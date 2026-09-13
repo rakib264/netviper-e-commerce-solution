@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { resolveComboLine } from '@/lib/combo-bundles/resolve';
+import { quoteShipping } from '@/lib/courier/rates';
 import { persistOrderDeals, recalculateCartForRequest } from '@/lib/deals/service';
 import Coupon from '@/lib/models/Coupon';
 import Order from '@/lib/models/Order';
@@ -227,6 +228,33 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    /*
+     * Shipping, re-quoted server-side.
+     *
+     * It used to be `data.shippingCost || 60` — the browser's number, trusted
+     * verbatim and then folded into `total`. A cart that posted
+     * `shippingCost: 0` was delivered free, and the route's own promise to
+     * "re-validate everything server-side" did not cover the one line the
+     * customer could edit for money. The quote is now derived from the
+     * catalogue and the address, exactly as the subtotal and the coupon are.
+     */
+    const shippingQuote = await quoteShipping({
+      address: {
+        district: data.shippingAddress?.district,
+        city: data.shippingAddress?.city,
+        division: data.shippingAddress?.division,
+        street: data.shippingAddress?.street,
+      },
+      lines: validatedItems
+        .filter((item: any) => item.product)
+        .map((item: any) => ({
+          productId: String(item.product),
+          quantity: item.quantity,
+        })),
+      subtotal: calculatedSubtotal - validatedDiscount - dealDiscount,
+    });
+    const shippingCost = shippingQuote.amount;
+
     // Create order data - make customer optional for guest users
     const orderData: any = {
       orderNumber,
@@ -234,13 +262,13 @@ export async function POST(request: NextRequest) {
       subtotal: calculatedSubtotal,
       tax: calculatedTax,
       taxRate: 0,
-      shippingCost: data.shippingCost || 60,
+      shippingCost,
       discountAmount: validatedDiscount,
       couponCode: appliedCouponCode,
       dealDiscount,
       total: Math.max(
         0,
-        calculatedSubtotal + (data.shippingCost || 60) + calculatedTax - validatedDiscount - dealDiscount
+        calculatedSubtotal + shippingCost + calculatedTax - validatedDiscount - dealDiscount
       ),
       paymentMethod: data.paymentMethod || 'cod',
       paymentStatus: 'pending',

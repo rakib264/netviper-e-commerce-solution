@@ -1401,7 +1401,10 @@
       "phoneIsRequired": "Telefonnummer ist erforderlich"
     },
     "variant": "Variante:",
-    "yourEmailCom": "ihre@email.de"
+    "yourEmailCom": "ihre@email.de",
+    "calculatingShipping": "Wird berechnet…",
+    "freeDeliveryApplied": "Kostenlose Lieferung angewendet",
+    "carrierCalculatedRate": "Versandtarif für Ihre Adresse"
   },
   "combos": {
     "addBundle": "Bundle in die Tasche",

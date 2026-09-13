@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { QuantityBadge } from '@/components/ui/quantity-badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { useCourierSettings } from '@/hooks/use-settings';
 import GeonamesService from '@/lib/geonames';
 import { applyCoupon, clearCart, removeCoupon } from '@/lib/store/slices/cartSlice';
 import { RootState } from '@/lib/store/store';
@@ -31,6 +30,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useShippingQuote } from '@/hooks/use-shipping-quote';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 
@@ -190,21 +190,6 @@ export default function CheckoutPage() {
     }
   };
 
-  const { settings: courierSettings } = useCourierSettings();
-
-  const calculateShipping = () => {
-    // The district is captured in step 1 alongside payment, so the rate can be
-    // resolved as soon as it is filled in rather than after a step transition.
-    if (!formik.values.district?.trim()) {
-      return 0;
-    }
-
-    const district = (formik.values.district || formik.values.city || '').toLowerCase().trim();
-    const isDhaka = district.includes('dhaka');
-    const inside = courierSettings?.insideDhaka ?? 60;
-    const outside = courierSettings?.outsideDhaka ?? 120;
-    return isDhaka ? inside : outside;
-  };
 
   const getDeliveryType = () => {
     // Only determine delivery type if we have district information
@@ -330,12 +315,29 @@ export default function CheckoutPage() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const shipping = calculateShipping();
   // The cart's `total` already has the coupon subtracted, so reusing it here
   // would discount twice — once inside it and again on the discount line. The
   // line items are the only unambiguous source, and gift lines price at 0, so
   // this mirrors what `POST /api/orders` recomputes server-side.
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  /*
+   * Delivery is priced by the server, not here.
+   *
+   * The district is captured in step 1 alongside payment, so the rate resolves
+   * as soon as it is filled in rather than after a step transition. Whatever
+   * this shows is a preview: `POST /api/orders` re-quotes with the same rule
+   * and that answer is the one charged, so a tampered total cannot survive.
+   */
+  const shippingQuote = useShippingQuote({
+    district: formik.values.district || '',
+    city: formik.values.city || '',
+    division: formik.values.division || '',
+    street: formik.values.address || '',
+    lines: items.map((item) => ({ productId: item.id, quantity: item.quantity })),
+    subtotal: Math.max(0, subtotal - discount - dealDiscount),
+  });
+  const shipping = shippingQuote.amount;
   const finalTotal = Math.max(0, subtotal - discount - dealDiscount + shipping);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -687,11 +689,19 @@ export default function CheckoutPage() {
                           <div className="min-w-0">
                             <p className="typography-label text-hierarchy-title">{t('checkout.deliveryCharge')}</p>
                             <p className="typography-micro truncate text-muted-foreground">
-                              {formik.values.district?.trim() ? getDeliveryType() : t('checkout.calculatedBasedOnDistrict')}
+                              {shippingQuote.pending
+                                ? t('checkout.calculatedBasedOnDistrict')
+                                : shippingQuote.source === 'free-threshold'
+                                  ? t('checkout.freeDeliveryApplied')
+                                  : shippingQuote.source === 'carrier'
+                                    ? t('checkout.carrierCalculatedRate')
+                                    : getDeliveryType()}
                             </p>
                           </div>
                           <span className="font-price typography-label shrink-0 text-hierarchy-title">
-                            {formatEuroCurrency(shipping)}
+                            {shippingQuote.loading
+                              ? t('checkout.calculatingShipping')
+                              : formatEuroCurrency(shipping)}
                           </span>
                         </div>
                       </div>
@@ -935,7 +945,11 @@ export default function CheckoutPage() {
 
                   <div className="flex items-baseline justify-between gap-4">
                     <dt className="typography-caption text-muted-foreground">{t('checkout.shipping')}</dt>
-                    <dd className="font-price typography-label text-hierarchy-title">{formatEuroCurrency(shipping)}</dd>
+                    <dd className="font-price typography-label text-hierarchy-title">
+                      {shippingQuote.loading
+                        ? t('checkout.calculatingShipping')
+                        : formatEuroCurrency(shipping)}
+                    </dd>
                   </div>
 
                   {hasHydrated && dealDiscount > 0 && (

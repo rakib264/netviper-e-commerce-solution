@@ -73,6 +73,19 @@ export interface ICourierIntegrationSettings extends Document {
   defaultProvider: CourierProviderId;
   /** Push the consignment to the provider as soon as an order is confirmed. */
   autoDispatchOnConfirm: boolean;
+  /**
+   * Quote the customer the carrier's own live price at checkout instead of the
+   * merchant's flat zone rate.
+   *
+   * Off by default, and that default is the industry norm rather than timidity:
+   * a live quote ties the price the customer agreed to to one carrier's API
+   * being up, and to the admin later shipping with *that* carrier. Only Pathao
+   * can quote at all — Steadfast has no price endpoint — so with this on, an
+   * order quoted at Pathao's rate and then dispatched via Steadfast leaves the
+   * merchant carrying the difference. Flat zone rates stay the fallback in
+   * every case: carrier down, address unresolved, or Pathao not configured.
+   */
+  carrierCalculatedRates: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -119,6 +132,7 @@ const CourierIntegrationSettingsSchema = new Schema<ICourierIntegrationSettings>
       default: 'steadfast',
     },
     autoDispatchOnConfirm: { type: Boolean, default: false },
+    carrierCalculatedRates: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -1401,7 +1401,10 @@
       "phoneIsRequired": "ফোন আবশ্যক"
     },
     "variant": "ভ্যারিয়েন্ট:",
-    "yourEmailCom": "your@email.com"
+    "yourEmailCom": "your@email.com",
+    "calculatingShipping": "হিসাব করা হচ্ছে…",
+    "freeDeliveryApplied": "ফ্রি ডেলিভারি প্রযোজ্য",
+    "carrierCalculatedRate": "আপনার ঠিকানার জন্য কুরিয়ার রেট"
   },
   "combos": {
     "addBundle": "বান্ডেল ব্যাগে নিন",
