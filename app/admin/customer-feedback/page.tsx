@@ -1,6 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
+import FeedbackGridSkeleton from '@/components/admin/customer-feedback/FeedbackGridSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -385,9 +386,7 @@ export default function CustomerFeedbackPage() {
 
       {/* Feedback List */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader size="lg" label={null} className="text-primary-500" />
-        </div>
+        <FeedbackGridSkeleton />
       ) : feedbacks.length === 0 ? (
         <Card>
           <CardContent className="py-12">

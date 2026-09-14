@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -291,11 +292,17 @@ export default function AdminReturnsPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
+                /* Cell by cell rather than one bar across all seven columns,
+                   so the column rhythm is already there when rows land. */
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
-                    <TableCell colSpan={7}>
-                      <div className="h-5 animate-pulse rounded bg-muted" />
-                    </TableCell>
+                    {['w-24', 'w-24', 'w-32', 'w-16', 'w-10', 'w-20', 'w-24'].map(
+                      (width) => (
+                        <TableCell key={width}>
+                          <Skeleton className={cn('h-4', width)} />
+                        </TableCell>
+                      ),
+                    )}
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (

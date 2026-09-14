@@ -1,6 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
+import CategoriesPageSkeleton from '@/components/admin/categories/CategoriesPageSkeleton';
 import CategorySortTree, {
   type CategoryTreeNode,
 } from '@/components/admin/categories/CategorySortTree';
@@ -396,9 +397,7 @@ export default function AdminCategories() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="flex h-96 items-center justify-center">
-          <Loader size="lg" label={null} className="text-foreground" />
-        </div>
+        <CategoriesPageSkeleton />
       </AdminLayout>
     );
   }

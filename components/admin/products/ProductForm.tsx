@@ -32,7 +32,6 @@ import {
 } from '@/lib/products/form';
 import { emptyVariant, type VariantMode } from '@/lib/products/types';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Save, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -278,7 +277,7 @@ export default function ProductForm({
               <Form className="space-y-6">
                 <AutosaveWatcher values={values} onChange={scheduleAutosave} />
                 {/* General Info */}
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                <div>
                   <Card>
                     <CardHeader>
                       <CardTitle>General Info</CardTitle>
@@ -487,7 +486,7 @@ export default function ProductForm({
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
 
                 {/* Variant toggle */}
                 <Card>

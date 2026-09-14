@@ -2,7 +2,7 @@
 
 import ProductForm from '@/components/admin/products/ProductForm';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { AdminDetailPageSkeleton } from '@/components/admin/ui/loading';
+import { ProductFormSkeleton } from '@/components/admin/products/ProductPageSkeletons';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -33,7 +33,7 @@ export default function EditProductPage() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminDetailPageSkeleton />
+        <ProductFormSkeleton />
       </AdminLayout>
     );
   }

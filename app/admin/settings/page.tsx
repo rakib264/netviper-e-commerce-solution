@@ -50,7 +50,6 @@ import {
 } from "@/lib/theme/typography";
 import { useFormik } from "formik";
 import { motion } from "framer-motion";
-import { gsap } from "gsap";
 import {
   Bell,
   Coins,
@@ -81,7 +80,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as Yup from "yup";
 import MuscariMartLogo from "@/lib/assets/images/muscarimart.jpg";
 import FavIconIco from "@/lib/assets/images/favicon.ico";
-import { AdminPageLoader } from '@/components/admin/ui/loading';
+import SettingsPageSkeleton from '@/components/admin/settings/SettingsPageSkeleton';
 import { formatCurrency } from '@/lib/currency/format';
 import ReturnPolicyEditor from "@/components/admin/returns/ReturnPolicyEditor";
 import { useTranslation } from "@/components/providers/LocalizationProvider";
@@ -210,9 +209,6 @@ export default function AdminSettings() {
   );
 
   // Animation refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
 
   const [authSettings, setAuthSettings] = useState<AuthSettings>({
     googleAuthEnabled: false,
@@ -457,43 +453,6 @@ export default function AdminSettings() {
     }
   };
 
-  useEffect(() => {
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-
-    if (headerRef.current) {
-      tl.fromTo(
-        headerRef.current,
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" },
-      );
-    }
-
-    if (statsRef.current) {
-      tl.fromTo(
-        statsRef.current.children,
-        { opacity: 0, y: 20, scale: 0.9 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "back.out(1.7)",
-        },
-        "-=0.4",
-      );
-    }
-
-    if (containerRef.current) {
-      tl.fromTo(
-        containerRef.current.children,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2",
-      );
-    }
-  }, []);
 
   const availableFonts = useMemo(
     () =>
@@ -612,7 +571,7 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminPageLoader />
+        <SettingsPageSkeleton />
       </AdminLayout>
     );
   }
@@ -620,14 +579,10 @@ export default function AdminSettings() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div
-            ref={headerRef}
+          <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/10"></div>
@@ -669,7 +624,7 @@ export default function AdminSettings() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           <Tabs defaultValue="general" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 gap-1 sm:grid-cols-4 lg:grid-cols-7">

@@ -1,7 +1,7 @@
 'use client';
 
 import ComboBundleEditorDialog from '@/components/admin/combo-bundles/ComboBundleEditorDialog';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -380,7 +380,31 @@ export default function ComboBundlesPanel() {
       </div>
 
       {loading ? (
-        <AdminListPageSkeleton rows={4} columns={4} />
+        /* The list is sortable rows, not a table: handle, 48px image, name
+           with a type badge, then the toggle and action buttons. */
+        <div className="space-y-2" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-wrap items-center gap-3 border border-border bg-card px-3 py-3"
+            >
+              <Skeleton className="h-4 w-4 shrink-0" />
+              <Skeleton className="h-12 w-12 shrink-0" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-3.5 w-44" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <Skeleton className="h-3 w-60 max-w-full" />
+              </div>
+              <Skeleton className="h-6 w-11 shrink-0 rounded-full" />
+              <div className="flex shrink-0 items-center gap-1">
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-8" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : combos.length === 0 ? (
         <div className="border border-border bg-muted/40 px-6 py-14 text-center">
           <p className="font-navigation text-sm font-medium text-foreground">

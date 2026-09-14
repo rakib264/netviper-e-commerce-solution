@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable from '@/components/admin/DataTable';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminDataTableSkeleton } from '@/components/admin/ui/hero-page-skeleton';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
 import EventPreview from '@/components/events/EventPreview';
 import ActionConfirmationDialog from '@/components/ui/action-confirmation-dialog';
@@ -725,7 +725,12 @@ export default function QuickDealsPanel() {
       </div>
 
       {loading ? (
-        <AdminListPageSkeleton rows={6} columns={5} />
+        <div className="border border-border bg-card p-4 sm:p-5">
+          <AdminDataTableSkeleton
+            rows={6}
+            columnWidths={['w-40', 'w-24', 'w-28', 'w-24', 'w-20', 'w-24']}
+          />
+        </div>
       ) : (
         <div className="border border-border bg-card p-4 sm:p-5">
           <DataTable

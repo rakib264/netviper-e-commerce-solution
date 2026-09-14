@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AdminDetailPageSkeleton } from '@/components/admin/ui/loading';
+import { ProductDetailSkeleton } from '@/components/admin/products/ProductPageSkeletons';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 
 interface Product {
@@ -186,7 +186,7 @@ export default function ProductView() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminDetailPageSkeleton />
+        <ProductDetailSkeleton />
       </AdminLayout>
     );
   }
