@@ -14,8 +14,6 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { motion } from 'framer-motion';
-import gsap from 'gsap';
 import {
   Ban, BarChart3, Calendar,
   DollarSign,
@@ -29,7 +27,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
+import { AdminRefreshIndicator } from '@/components/admin/ui/loading';
+import { useTranslation } from '@/components/providers/LocalizationProvider';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 
 interface Customer {
@@ -83,12 +83,19 @@ const editCustomerSchema = Yup.object().shape({
 });
 
 export default function AdminCustomers() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   
   const [customers, setCustomers] = useState<Customer[]>([]);
+  /*
+   * `loading` is the first paint only.
+   *
+   * It used to be raised by every refetch, and with the page-level gate below
+   * that turned a search or a filter change into a full-page skeleton — the
+   * control you had just used included. Later fetches raise `refreshing`, and
+   * the list stays on screen behind a marker until the new rows arrive.
+   */
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -141,32 +148,8 @@ export default function AdminCustomers() {
     fetchCustomers();
   }, [debouncedSearchQuery, filters, currentPage, pageSize, sortConfig]);
 
-  // GSAP animations
-  useEffect(() => {
-    if (!loading) {
-      const tl = gsap.timeline();
-      
-      // Animate header
-      if (headerRef.current) {
-        tl.fromTo(headerRef.current, 
-          { y: -50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
-        );
-      }
-      
-      // Animate stats cards
-      if (statsRef.current) {
-        tl.fromTo(statsRef.current.children,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" },
-          "-=0.4"
-        );
-      }
-    }
-  }, [loading]);
-
   const fetchCustomers = async () => {
-    setLoading(true);
+    setRefreshing(true);
     try {
       // Clean filters - remove 'all' values as they should not be sent to API
       const cleanedFilters = Object.fromEntries(
@@ -207,6 +190,7 @@ export default function AdminCustomers() {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -795,7 +779,15 @@ export default function AdminCustomers() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton showStats={false} rows={8} columns={5} />
+        <AdminHeroPageSkeleton
+          header="muted"
+          withAction
+          statVariant="glass"
+          tints={['primary', 'success', 'info', 'warning', 'primary']}
+          rows={8}
+          leading="avatar"
+          columnWidths={['w-40', 'w-44', 'w-32', 'w-16', 'w-24', 'w-24', 'w-20']}
+        />
       </AdminLayout>
     );
   }
@@ -803,15 +795,11 @@ export default function AdminCustomers() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-        <motion.div 
-            ref={headerRef}
+        <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
+        >
             {/* Animated Background Elements */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-secondary-600/90" />
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl" />
@@ -859,15 +847,12 @@ export default function AdminCustomers() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Enhanced Stats Cards */}
-        <div ref={statsRef} className="px-6 mb-8">
+        <div className="px-6 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+            <div
               className="group"
             >
               <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -887,12 +872,9 @@ export default function AdminCustomers() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+            <div
               className="group"
             >
               <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -912,12 +894,9 @@ export default function AdminCustomers() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            <div
               className="group"
             >
               <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -937,12 +916,9 @@ export default function AdminCustomers() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+            <div
               className="group"
             >
               <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -964,12 +940,9 @@ export default function AdminCustomers() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+            <div
               className="group"
             >
               <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -991,7 +964,7 @@ export default function AdminCustomers() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </div>
 
@@ -999,7 +972,10 @@ export default function AdminCustomers() {
         <div className="px-6 pb-8">
           <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl">
             <CardHeader className="bg-gradient-to-r from-muted to-accent rounded-t-xl">
-              <CardTitle className="text-xl font-semibold text-foreground">Customer Database</CardTitle>
+              <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-3">
+                <span>Customer Database</span>
+                {refreshing && <AdminRefreshIndicator label={t('common.loading')} />}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <DataTable

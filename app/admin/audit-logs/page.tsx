@@ -10,7 +10,6 @@ import { useDeleteConfirmationDialog } from '@/components/ui/delete-confirmation
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToastWithTypes } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
 import {
   AlertTriangle,
   Calendar,
@@ -24,7 +23,7 @@ import {
   X
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
 
 interface AuditLog {
   _id: string;
@@ -65,9 +64,6 @@ export default function AdminAuditLogs() {
   const { success, error: showError } = useToastWithTypes();
   
   // Animation refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
 
   // Debounced search
   const debouncedSearch = useCallback(
@@ -93,33 +89,7 @@ export default function AdminAuditLogs() {
 
   useEffect(() => {
     fetchAuditLogs();
-    
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-    
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-    
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children, 
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-    
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
-  }, []);
+      }, []);
 
   const fetchAuditLogs = async () => {
     try {
@@ -429,7 +399,14 @@ export default function AdminAuditLogs() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton rows={10} columns={5} />
+        <AdminHeroPageSkeleton
+          header="muted"
+          statVariant="glass"
+          tints={['primary', 'success', 'primary', 'warning']}
+          rows={10}
+          selectable={false}
+          columnWidths={['w-32', 'w-36', 'w-20', 'w-28', 'w-40', 'w-28']}
+        />
       </AdminLayout>
     );
   }
@@ -437,14 +414,10 @@ export default function AdminAuditLogs() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div 
-            ref={headerRef}
+          <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/10"></div>
@@ -488,11 +461,10 @@ export default function AdminAuditLogs() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Stats Cards */}
-          <motion.div 
-            ref={statsRef}
+          <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           >
             <motion.div
@@ -574,7 +546,7 @@ export default function AdminAuditLogs() {
                 </CardContent>
               </Card>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Audit Logs Table */}
           <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl">

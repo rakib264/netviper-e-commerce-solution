@@ -10,10 +10,9 @@ import { Button } from '@/components/ui/button';
 import { useDeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
 import { AdminUser, useAdminManager } from '@/hooks/use-admin-manager';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
 import { Download, Plus, Trash2, UserCheck, UserX, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
 
 export default function AdminManagerPage() {
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
@@ -33,9 +32,6 @@ export default function AdminManagerPage() {
   const { showDeleteConfirmation, DeleteConfirmationComponent } = useDeleteConfirmationDialog();
 
   // Animation refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
 
   const {
     loading,
@@ -172,38 +168,19 @@ export default function AdminManagerPage() {
 
   useEffect(() => {
     fetchAdmins();
-
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current,
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children,
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
   }, []);
 
   if (loading && admins.length === 0) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton showStats={false} rows={6} columns={4} />
+        {/* No stat row on this screen — the hero sits straight on the table. */}
+        <AdminHeroPageSkeleton
+          header="plain"
+          withAction
+          rows={6}
+          leading="avatar"
+          columnWidths={['w-40', 'w-24', 'w-20', 'w-28', 'w-24', 'w-20']}
+        />
       </AdminLayout>
     );
   }
@@ -211,14 +188,10 @@ export default function AdminManagerPage() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div
-            ref={headerRef}
+          <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/10"></div>
@@ -260,7 +233,7 @@ export default function AdminManagerPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Bulk Actions */}
           {selectedAdmins.length > 0 && (

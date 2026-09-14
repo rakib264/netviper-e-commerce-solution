@@ -259,23 +259,47 @@ export function AdminDataTableSkeleton({
   );
 }
 
-/** The card the DataTable sits in, with its own gradient header strip. */
-export function AdminTableCardSkeleton(
-  props: React.ComponentProps<typeof AdminDataTableSkeleton>,
-) {
+/**
+ * The card the DataTable sits in. Two header strips exist across these screens:
+ * Products and Orders carry a tinted strip with an icon tile and a count line
+ * beneath the title; the rest carry a plain or muted strip with the title only.
+ */
+export function AdminTableCardSkeleton({
+  header = 'primary',
+  ...table
+}: React.ComponentProps<typeof AdminDataTableSkeleton> & {
+  header?: 'primary' | 'muted' | 'plain';
+}) {
   return (
-    <Card className="overflow-hidden rounded-3xl border-0 bg-card/80 shadow-xl backdrop-blur-lg">
-      <CardHeader className="border-b border-primary-100 bg-gradient-to-r from-primary-50 to-secondary-50 p-6">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-9 w-9 rounded-xl" />
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-36" />
+    <Card
+      className={cn(
+        'overflow-hidden border-0 shadow-xl',
+        header === 'primary'
+          ? 'rounded-3xl bg-card/80 backdrop-blur-lg'
+          : 'bg-card/70 backdrop-blur-sm',
+      )}
+    >
+      <CardHeader
+        className={cn(
+          header === 'primary' &&
+            'border-b border-primary-100 bg-gradient-to-r from-primary-50 to-secondary-50 p-6',
+          header === 'muted' && 'rounded-t-xl bg-gradient-to-r from-muted to-accent',
+        )}
+      >
+        {header === 'primary' ? (
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-9 w-9 rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-36" />
+            </div>
           </div>
-        </div>
+        ) : (
+          <Skeleton className="h-6 w-44" />
+        )}
       </CardHeader>
       <CardContent className="p-6">
-        <AdminDataTableSkeleton {...props} />
+        <AdminDataTableSkeleton {...table} />
       </CardContent>
     </Card>
   );
@@ -293,6 +317,7 @@ export function AdminHeroPageSkeleton({
   columnWidths,
   selectable,
   leading,
+  header,
   children,
 }: {
   withAction?: boolean;
@@ -302,6 +327,7 @@ export function AdminHeroPageSkeleton({
   columnWidths?: string[];
   selectable?: boolean;
   leading?: 'text' | 'thumbnail' | 'avatar';
+  header?: 'primary' | 'muted' | 'plain';
   /** Replaces the table card, for screens whose body is not a DataTable. */
   children?: React.ReactNode;
 }) {
@@ -322,6 +348,7 @@ export function AdminHeroPageSkeleton({
             columnWidths={columnWidths}
             selectable={selectable}
             leading={leading}
+            header={header}
           />
         )}
       </div>

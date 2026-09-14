@@ -22,13 +22,14 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
 import { BarChart3, Calendar, Edit, Eye, FileText, Globe, Plus, Star, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
+import { AdminRefreshIndicator } from '@/components/admin/ui/loading';
+import { useTranslation } from '@/components/providers/LocalizationProvider';
 
 interface Blog {
   _id: string;
@@ -148,18 +149,25 @@ const BlogValidationSchema = Yup.object().shape({
 });
 
 export default function BlogsPage() {
+  const { t } = useTranslation();
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   
   // Animation refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
   
   // State management
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  /*
+   * `loading` is the first paint only.
+   *
+   * It used to be raised by every refetch, and with the page-level gate below
+   * that turned a search or a filter change into a full-page skeleton — the
+   * control you had just used included. Later fetches raise `refreshing`, and
+   * the list stays on screen behind a marker until the new rows arrive.
+   */
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedBlogs, setSelectedBlogs] = useState<Blog[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -218,7 +226,7 @@ export default function BlogsPage() {
   // Fetch blogs with server-side pagination, search, and filters
   const fetchBlogs = useCallback(async () => {
     try {
-      setLoading(true);
+      setRefreshing(true);
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
@@ -244,6 +252,7 @@ export default function BlogsPage() {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [pagination.page, pagination.limit, sortKey, sortDirection, searchQuery, filterValues]);
 
@@ -280,33 +289,7 @@ export default function BlogsPage() {
 
   useEffect(() => {
     fetchBlogs();
-    
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-    
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-    
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children, 
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-    
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
-  }, []);
+      }, []);
 
   // Form handlers
   const resetForm = () => {
@@ -788,7 +771,15 @@ export default function BlogsPage() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton rows={6} columns={5} />
+        <AdminHeroPageSkeleton
+          header="plain"
+          withAction
+          statVariant="glass"
+          tints={['primary', 'success', 'primary', 'warning']}
+          rows={6}
+          leading="thumbnail"
+          columnWidths={['w-12', 'w-44', 'w-20', 'w-28', 'w-32', 'w-20', 'w-24', 'w-24']}
+        />
       </AdminLayout>
     );
   }
@@ -797,16 +788,11 @@ export default function BlogsPage() {
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
         <div 
-          ref={containerRef} 
-          className="space-y-8 p-4 sm:p-6 lg:p-8"
+                    className="space-y-8 p-4 sm:p-6 lg:p-8"
         >
           {/* Stunning Header Section */}
-          <motion.div 
-            ref={headerRef}
+          <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/10"></div>
@@ -848,11 +834,10 @@ export default function BlogsPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Stats Cards */}
-          <motion.div 
-            ref={statsRef}
+          <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           >
             <motion.div
@@ -940,12 +925,15 @@ export default function BlogsPage() {
                 </CardContent>
               </Card>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Data Table */}
           <Card className="bg-card/70 backdrop-blur-sm border-0 shadow-xl">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-foreground">Blog Database</CardTitle>
+              <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-3">
+                <span>Blog Database</span>
+                {refreshing && <AdminRefreshIndicator label={t('common.loading')} />}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <DataTable

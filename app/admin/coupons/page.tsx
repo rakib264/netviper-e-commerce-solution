@@ -17,7 +17,6 @@ import { PAGE_SIZE_OPTIONS } from '@/constants';
 import { useToastWithTypes } from '@/hooks/use-toast';
 import { ErrorMessage, Field, Formik, Form as FormikForm } from 'formik';
 import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
 import {
   BarChart3,
   Calendar,
@@ -27,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 
 interface Coupon {
@@ -90,9 +89,6 @@ export default function AdminCoupons() {
   const [pendingAction, setPendingAction] = useState<null | 'activate' | 'deactivate' | 'delete'>(null);
   const [pendingRows, setPendingRows] = useState<Coupon[]>([]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
   
   const [formData, setFormData] = useState<CouponFormData>({
     code: '',
@@ -145,33 +141,7 @@ export default function AdminCoupons() {
 
   useEffect(() => {
     fetchCoupons();
-    
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-    
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-    
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children, 
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-    
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
-  }, [page, pageSize, search, serverFiltersValues, sortKey, sortOrder]);
+      }, [page, pageSize, search, serverFiltersValues, sortKey, sortOrder]);
 
   const buildQueryString = (): string => {
     const params = new URLSearchParams();
@@ -537,7 +507,12 @@ export default function AdminCoupons() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton rows={6} columns={5} />
+        <AdminHeroPageSkeleton
+          withAction
+          tints={['primary', 'success', 'primary', 'warning']}
+          rows={6}
+          columnWidths={['w-28', 'w-24', 'w-24', 'w-20', 'w-36', 'w-20', 'w-24']}
+        />
       </AdminLayout>
     );
   }
@@ -545,14 +520,10 @@ export default function AdminCoupons() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div 
-            ref={headerRef}
+          <div
             className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Animated Background Elements */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-secondary-600/90" />
@@ -563,10 +534,7 @@ export default function AdminCoupons() {
             <div className="relative p-6 sm:p-8 lg:p-12">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div className="space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
+                  <div
                     className="flex items-center gap-3"
                   >
                     <div className="p-3 bg-card/20 backdrop-blur-sm rounded-2xl border border-white/20">
@@ -580,23 +548,17 @@ export default function AdminCoupons() {
                         Create discounts with style and precision
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                   
-                  <motion.p 
+                  <p
                     className="text-white/90 text-sm sm:text-base max-w-2xl leading-relaxed"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
                   >
                     Design and manage discount coupons that drive sales and delight customers with our comprehensive coupon management system.
-                  </motion.p>
+                  </p>
                 </div>
 
                 {/* Action Buttons */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
+                <div
                   className="flex flex-col sm:flex-row gap-3"
                 >
                   <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -771,14 +733,13 @@ export default function AdminCoupons() {
                       </Formik>
                     </DialogContent>
                   </Dialog>
-                </motion.div>
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Stats Cards */}
-          <motion.div 
-            ref={statsRef}
+          <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           >
             <motion.div
@@ -868,14 +829,10 @@ export default function AdminCoupons() {
                 </CardContent>
               </Card>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Coupons Grid/List View */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
+          <div>
             <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-lg rounded-3xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100 p-6">
                 <div className="flex items-center justify-between">
@@ -921,7 +878,7 @@ export default function AdminCoupons() {
                 />
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         <DeleteConfirmationDialog
