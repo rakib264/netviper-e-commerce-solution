@@ -5,7 +5,8 @@ import GeoOrdersHeatmapCard, {
   type DashboardDistrictRow,
 } from '@/components/admin/dashboard/GeoOrdersHeatmapCard';
 import OperationsPanels from '@/components/admin/dashboard/OperationsPanels';
-import { DashboardSkeleton } from '@/components/admin/DashboardSkeleton';
+import { DashboardDataSkeleton } from '@/components/admin/DashboardSkeleton';
+import { AdminRefreshIndicator } from '@/components/admin/ui/loading';
 import DealsShowcase from '@/components/deals/DealsShowcase';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { motion } from 'framer-motion';
 import {
   AlertTriangle,
   CheckCircle,
@@ -95,7 +95,17 @@ export default function AdminDashboard() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const [data, setData] = useState<DashboardData | null>(null);
+  /*
+   * Two flags, not one.
+   *
+   * `loading` is the first paint and nothing else. Changing the range or a
+   * filter used to set it too, which threw away the whole dashboard — filter
+   * bar included — every time someone touched the filter bar. Subsequent
+   * fetches now only raise `refreshing`, which shows a marker beside the
+   * heading and leaves the numbers on screen until the new ones arrive.
+   */
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState('30d');
   const [category, setCategory] = useState('all');
   const [customerType, setCustomerType] = useState('all');
@@ -105,7 +115,7 @@ export default function AdminDashboard() {
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
+      setRefreshing(true);
       const params = new URLSearchParams();
 
       /*
@@ -130,6 +140,7 @@ export default function AdminDashboard() {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -241,14 +252,6 @@ export default function AdminDashboard() {
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <DashboardSkeleton />
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -275,14 +278,9 @@ export default function AdminDashboard() {
                     {getGreeting(now)}{firstName ? `, ${firstName}` : ''}
                   </h1>
                 </div>
-                <motion.p
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="text-sm md:text-base text-muted-foreground"
-                >
+                <p className="text-sm md:text-base text-muted-foreground">
                   Here's what's happening with your store today.
-                </motion.p>
+                </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {session?.user?.role && (
                     <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-1 text-xs font-medium border border-primary/20">
@@ -294,10 +292,7 @@ export default function AdminDashboard() {
                   </span>
                 </div>
               </div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
+              <div
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-card/90 backdrop-blur px-3 py-1.5 shadow-sm"
                 aria-label="Current time"
               >
@@ -309,24 +304,29 @@ export default function AdminDashboard() {
                 <span className="text-xs font-medium text-foreground tabular-nums">
                   {formatTime(now)}
                 </span>
-              </motion.div>
+              </div>
             </div>
           </div>
           {/* Filters Section */}
           <div className="space-y-4">
             {/* Filter Label */}
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Filters & Controls
-              </h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                  Filters & Controls
+                </h3>
+                {refreshing && !loading && (
+                  <AdminRefreshIndicator label={t('common.loading')} />
+                )}
+              </div>
               <Button
                 onClick={fetchDashboardData}
                 variant="outline"
                 size="sm"
-                disabled={loading}
+                disabled={refreshing}
                 className="h-8 px-3 text-xs font-medium border-primary text-primary hover:bg-primary/5"
               >
-                {loading ? (
+                {refreshing ? (
                   <Loader size="xs" label={null} className="mr-1.5" />
                 ) : (
                   <RefreshCw size={14} className="mr-1.5" />
@@ -436,14 +436,16 @@ export default function AdminDashboard() {
           </div>
           </div>
         </div>
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Total Revenue */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+
+        {/* Everything below the header needs the payload. The header does
+            not, so it stays put and the wait happens here. */}
+        {loading ? (
+          <DashboardDataSkeleton />
+        ) : (
+          <>
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Total Revenue */}
             <Card className="relative overflow-hidden border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -460,14 +462,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Delivered Revenue */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
+            {/* Delivered Revenue */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -484,14 +480,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Total Orders */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+            {/* Total Orders */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -508,14 +498,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Active Customers */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
+            {/* Active Customers */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -532,14 +516,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Total Customers */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
+            {/* Total Customers */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -556,14 +534,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Total Products */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-          >
+            {/* Total Products */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -580,14 +552,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Total Coupons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+            {/* Total Coupons */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -604,14 +570,8 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* Conversion Rate */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-          >
+            {/* Conversion Rate */}
             <Card className="border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -628,444 +588,445 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Revenue Chart */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <span>Revenue Overview</span>
-                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/5">
-                  <Link href="/admin/orders">
-                    <Eye size={16} className="mr-2" />
-                    View Details
-                  </Link>
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={data?.charts.revenueOvertime || []}>
-                  <defs>
-                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => [
-                      name === 'revenue' ? formatCurrency(Number(value)) : value,
-                      name === 'revenue' ? 'Revenue' : 'Orders'
-                    ]}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="hsl(var(--chart-1))" 
-                    fill="url(#revenueGradient)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Order Status Distribution */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="text-foreground">Order Status Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center">
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue Chart */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <span>Revenue Overview</span>
+                  <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/5">
+                    <Link href="/admin/orders">
+                      <Eye size={16} className="mr-2" />
+                      View Details
+                    </Link>
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={data?.charts.orderStatusDistribution || []}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="count"
-                    >
-                      {(data?.charts.orderStatusDistribution || []).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value, name) => [value, 'Orders']} />
-                  </PieChart>
+                  <AreaChart data={data?.charts.revenueOvertime || []}>
+                    <defs>
+                      <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [
+                        name === 'revenue' ? formatCurrency(Number(value)) : value,
+                        name === 'revenue' ? 'Revenue' : 'Orders'
+                      ]}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="hsl(var(--chart-1))" 
+                      fill="url(#revenueGradient)" 
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                {(data?.charts.orderStatusDistribution || []).map((entry) => (
-                  <div key={entry.name} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: entry.color }}
-                      />
-                      <span className="text-sm text-muted-foreground capitalize">{entry.name}</span>
-                    </div>
-                    <span className="text-sm font-medium text-foreground">{entry.count}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
 
-        {/* Second Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Customer Growth */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <span>Customer Growth</span>
-                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/5">
-                  <Link href="/admin/customers">
-                    <Eye size={16} className="mr-2" />
-                    View All
-                  </Link>
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data?.charts.customerGrowth || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [value, 'New Customers']} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="customers" 
-                    stroke="hsl(var(--chart-3))" 
-                    strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Product Sales by Category */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="text-foreground">Product Sales by Category</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data?.charts.productSalesByCategory || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="_id" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => [
-                      name === 'revenue' ? formatCurrency(Number(value)) : value,
-                      name === 'revenue' ? 'Revenue' : 'Sales'
-                    ]}
-                  />
-                  <Bar dataKey="sales" fill="hsl(var(--chart-2))" name="sales" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Where demand actually is. Same map component and bin scale as
-            /admin/customer-trends, so a district reads the same on both. */}
-        {data?.geoInsights && (
-          <GeoOrdersHeatmapCard
-            mapDistricts={data.geoInsights.mapDistricts}
-            topDistricts={data.geoInsights.topDistricts}
-            totals={data.geoInsights.totals}
-          />
-        )}
-
-        {data?.operations && <OperationsPanels data={data.operations} />}
-
-        {/* Deals the storefront is advertising right now, immediately above the
-            orders they are meant to move. Same component as the storefront band
-            in its compact form, so the dashboard cannot describe a deal
-            differently from the cart it appears in. */}
-        <DealsShowcase
-          variant="compact"
-          autoplay={false}
-          className="rounded-xl border border-border bg-card p-4 shadow-sm md:p-5"
-          heading={
-            <div>
-              <h2 className="font-title text-base font-semibold text-foreground">
-                {t('deals.showcase.adminTitle')}
-              </h2>
-              <p className="font-caption text-xs text-muted-foreground">
-                {t('deals.showcase.adminSubtitle')}
-              </p>
-            </div>
-          }
-          action={
-            <Link
-              href="/admin/marketing"
-              className="font-caption text-xs font-medium text-primary hover:underline"
-            >
-              {t('deals.showcase.manage')}
-            </Link>
-          }
-        />
-
-
-        {/* Bottom Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Orders */}
-          <Card className="lg:col-span-2 border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <span>Recent Orders</span>
-                <Link href="/admin/orders">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {(data?.widgets.recentOrders || []).slice(0, 5).map((order) => (
-                  <div key={order._id} className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                        {getStatusIcon(order.orderStatus)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{order.orderNumber}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : 'Guest Order'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-foreground">{formatCurrency(order.total)}</p>
+            {/* Order Status Distribution */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="text-foreground">Order Status Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={data?.charts.orderStatusDistribution || []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
+                        dataKey="count"
+                      >
+                        {(data?.charts.orderStatusDistribution || []).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value, name) => [value, 'Orders']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  {(data?.charts.orderStatusDistribution || []).map((entry) => (
+                    <div key={entry.name} className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Badge className={`text-xs ${getStatusColor(order.orderStatus)}`}>
-                          {order.orderStatus}
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-sm text-muted-foreground capitalize">{entry.name}</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{entry.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Second Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Customer Growth */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <span>Customer Growth</span>
+                  <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/5">
+                    <Link href="/admin/customers">
+                      <Eye size={16} className="mr-2" />
+                      View All
+                    </Link>
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={data?.charts.customerGrowth || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [value, 'New Customers']} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="customers" 
+                      stroke="hsl(var(--chart-3))" 
+                      strokeWidth={3}
+                      dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 2, r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Product Sales by Category */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="text-foreground">Product Sales by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={data?.charts.productSalesByCategory || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="_id" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [
+                        name === 'revenue' ? formatCurrency(Number(value)) : value,
+                        name === 'revenue' ? 'Revenue' : 'Sales'
+                      ]}
+                    />
+                    <Bar dataKey="sales" fill="hsl(var(--chart-2))" name="sales" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Where demand actually is. Same map component and bin scale as
+              /admin/customer-trends, so a district reads the same on both. */}
+          {data?.geoInsights && (
+            <GeoOrdersHeatmapCard
+              mapDistricts={data.geoInsights.mapDistricts}
+              topDistricts={data.geoInsights.topDistricts}
+              totals={data.geoInsights.totals}
+            />
+          )}
+
+          {data?.operations && <OperationsPanels data={data.operations} />}
+
+          {/* Deals the storefront is advertising right now, immediately above the
+              orders they are meant to move. Same component as the storefront band
+              in its compact form, so the dashboard cannot describe a deal
+              differently from the cart it appears in. */}
+          <DealsShowcase
+            variant="compact"
+            autoplay={false}
+            className="rounded-xl border border-border bg-card p-4 shadow-sm md:p-5"
+            heading={
+              <div>
+                <h2 className="font-title text-base font-semibold text-foreground">
+                  {t('deals.showcase.adminTitle')}
+                </h2>
+                <p className="font-caption text-xs text-muted-foreground">
+                  {t('deals.showcase.adminSubtitle')}
+                </p>
+              </div>
+            }
+            action={
+              <Link
+                href="/admin/marketing"
+                className="font-caption text-xs font-medium text-primary hover:underline"
+              >
+                {t('deals.showcase.manage')}
+              </Link>
+            }
+          />
+
+
+          {/* Bottom Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent Orders */}
+            <Card className="lg:col-span-2 border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <span>Recent Orders</span>
+                  <Link href="/admin/orders">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {(data?.widgets.recentOrders || []).slice(0, 5).map((order) => (
+                    <div key={order._id} className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                          {getStatusIcon(order.orderStatus)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{order.orderNumber}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : 'Guest Order'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-foreground">{formatCurrency(order.total)}</p>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={`text-xs ${getStatusColor(order.orderStatus)}`}>
+                            {order.orderStatus}
+                          </Badge>
+                          <span className="text-xs font-caption text-subtle-foreground">{formatRelativeTime(order.createdAt)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Customers */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <span>Recent Customers</span>
+                  <Link href="/admin/customers">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(data?.widgets.recentCustomers || []).slice(0, 5).map((customer) => (
+                    <div key={customer._id} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Users size={14} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {customer.firstName} {customer.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{customer.email}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-subtle-foreground">{formatRelativeTime(customer.createdAt)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Second Row of Widgets */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Low Stock Alerts */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle size={20} className="text-destructive-600" />
+                    <span>Low Stock Alerts</span>
+                  </div>
+                  <Link href="/admin/products">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(data?.widgets.lowStockProducts || []).slice(0, 5).map((item) => (
+                    <div key={item._id} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.sku}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-destructive-600">{item.quantity} left</p>
+                        <p className="text-xs text-subtle-foreground">Min: {item.lowStockThreshold || 10}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Active Coupons */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <div className="flex items-center space-x-2">
+                    <Gift size={20} className="text-primary" />
+                    <span>Active Coupons</span>
+                  </div>
+                  <Link href="/admin/coupons">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(data?.widgets.activeCoupons || []).slice(0, 5).map((coupon) => (
+                    <div key={coupon._id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-foreground font-medium">{coupon.code}</span>
+                        <Badge variant="outline" className="border-primary text-primary">
+                          {coupon.type === 'percentage' ? `${coupon.value}%` : formatCurrency(coupon.value)}
                         </Badge>
-                        <span className="text-xs font-caption text-subtle-foreground">{formatRelativeTime(order.createdAt)}</span>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Customers */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <span>Recent Customers</span>
-                <Link href="/admin/customers">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(data?.widgets.recentCustomers || []).slice(0, 5).map((customer) => (
-                  <div key={customer._id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Users size={14} className="text-primary" />
+                      <div className="flex items-center justify-between text-xs font-caption text-muted-foreground">
+                        <span>{coupon.currentUsage}/{coupon.usageLimit || '∞'} used</span>
+                        <span>
+                          {coupon.usageLimit 
+                            ? `${Math.round((coupon.currentUsage / coupon.usageLimit) * 100)}%`
+                            : '∞'
+                          }
+                        </span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {customer.firstName} {customer.lastName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{customer.email}</p>
-                      </div>
+                      {coupon.usageLimit && (
+                        <Progress value={(coupon.currentUsage / coupon.usageLimit) * 100} className="h-1" />
+                      )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-subtle-foreground">{formatRelativeTime(customer.createdAt)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Second Row of Widgets */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Low Stock Alerts */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <div className="flex items-center space-x-2">
-                  <AlertTriangle size={20} className="text-destructive-600" />
-                  <span>Low Stock Alerts</span>
+                  ))}
                 </div>
-                <Link href="/admin/products">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(data?.widgets.lowStockProducts || []).slice(0, 5).map((item) => (
-                  <div key={item._id} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.sku}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-destructive-600">{item.quantity} left</p>
-                      <p className="text-xs text-subtle-foreground">Min: {item.lowStockThreshold || 10}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Active Coupons */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <div className="flex items-center space-x-2">
-                  <Gift size={20} className="text-primary" />
-                  <span>Active Coupons</span>
-                </div>
-                <Link href="/admin/coupons">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(data?.widgets.activeCoupons || []).slice(0, 5).map((coupon) => (
-                  <div key={coupon._id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground font-medium">{coupon.code}</span>
-                      <Badge variant="outline" className="border-primary text-primary">
-                        {coupon.type === 'percentage' ? `${coupon.value}%` : formatCurrency(coupon.value)}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-xs font-caption text-muted-foreground">
-                      <span>{coupon.currentUsage}/{coupon.usageLimit || '∞'} used</span>
-                      <span>
-                        {coupon.usageLimit 
-                          ? `${Math.round((coupon.currentUsage / coupon.usageLimit) * 100)}%`
-                          : '∞'
-                        }
-                      </span>
-                    </div>
-                    {coupon.usageLimit && (
-                      <Progress value={(coupon.currentUsage / coupon.usageLimit) * 100} className="h-1" />
-                    )}
+            {/* Top Selling Products */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <div className="flex items-center space-x-2">
+                    <Star size={20} className="text-sandy" />
+                    <span>Top Products</span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <Link href="/admin/products">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(data?.widgets.topSellingProducts || []).slice(0, 5).map((product) => (
+                    <div key={product._id} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-sandy/20 rounded-full flex items-center justify-center">
+                          <Star size={14} className="text-sandy" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">{product.totalSales} sales</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-foreground">{formatCurrency(product.revenue)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Top Selling Products */}
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <div className="flex items-center space-x-2">
-                  <Star size={20} className="text-sandy" />
-                  <span>Top Products</span>
-                </div>
-                <Link href="/admin/products">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(data?.widgets.topSellingProducts || []).slice(0, 5).map((product) => (
-                  <div key={product._id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-sandy/20 rounded-full flex items-center justify-center">
-                        <Star size={14} className="text-sandy" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.totalSales} sales</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">{formatCurrency(product.revenue)}</p>
-                    </div>
+          {/* High Value Customers */}
+          <div className="grid grid-cols-1 gap-6">
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-foreground">
+                  <div className="flex items-center space-x-2">
+                    <DollarSign size={20} className="text-success-600" />
+                    <span>High Value Customers</span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* High Value Customers */}
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-foreground">
-                <div className="flex items-center space-x-2">
-                  <DollarSign size={20} className="text-success-600" />
-                  <span>High Value Customers</span>
+                  <Link href="/admin/customers">
+                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
+                      View All
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {(data?.widgets.highValueCustomers || []).slice(0, 5).map((customer) => (
+                    <div key={customer._id} className="p-4 bg-muted rounded-lg border border-border">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
+                          <DollarSign size={16} className="text-success-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {customer.customer.firstName} {customer.customer.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{customer.customer.email}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Total Spent:</span>
+                          <span className="font-medium text-foreground">{formatCurrency(customer.totalSpent)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Orders:</span>
+                          <span className="font-medium text-foreground">{customer.orderCount}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Avg Order:</span>
+                          <span className="font-medium text-foreground">{formatCurrency(customer.averageOrderValue)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <Link href="/admin/customers">
-                  <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5">
-                    View All
-                  </Button>
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                {(data?.widgets.highValueCustomers || []).slice(0, 5).map((customer) => (
-                  <div key={customer._id} className="p-4 bg-muted rounded-lg border border-border">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
-                        <DollarSign size={16} className="text-success-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {customer.customer.firstName} {customer.customer.lastName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{customer.customer.email}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Total Spent:</span>
-                        <span className="font-medium text-foreground">{formatCurrency(customer.totalSpent)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Orders:</span>
-                        <span className="font-medium text-foreground">{customer.orderCount}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Avg Order:</span>
-                        <span className="font-medium text-foreground">{formatCurrency(customer.averageOrderValue)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+          </>
+        )}
       </div>
     </AdminLayout>
   );
