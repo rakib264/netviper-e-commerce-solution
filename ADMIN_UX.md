@@ -188,3 +188,79 @@ they are the building blocks the new page-specific skeletons compose from.
   external caller before those routes could be removed.
 - Real column widths in the DataTable at ≥1280px, to tune the skeleton cell
   widths against a populated table.
+
+---
+
+# Outcome
+
+Everything in the plan above was implemented. `yarn build` and `yarn test`
+(195 tests) pass.
+
+## Measured: first-load JS per admin route
+
+Two full production builds, one at `8754327` (before) and one at the final
+commit. Numbers are the First Load JS column from `next build`, in kB.
+
+| Route | Before | After | Δ |
+| --- | ---: | ---: | ---: |
+| `/admin/settings` | 655 | 629 | **−26** |
+| `/admin/blogs` | 481 | 455 | **−26** |
+| `/admin/coupons` | 437 | 411 | **−26** |
+| `/admin/customers` | 437 | 411 | **−26** |
+| `/admin/orders` | 417 | 391 | **−26** |
+| `/admin/messaging` | 415 | 389 | **−26** |
+| `/admin/audit-logs` | 410 | 384 | **−26** |
+| `/admin/products` | 410 | 384 | **−26** |
+| `/admin/admin-manager` | 389 | 363 | **−26** |
+| `/admin/customer-target` | 491 | **gone** | −491 |
+| everything else | — | — | ±1 |
+
+The uniform −26 kB is GSAP leaving the nine pages that imported it. The ±1 kB
+elsewhere is the new skeleton components. Shared chunk is unchanged at 102 kB.
+
+`/admin` itself is flat at 485 kB: its weight is Recharts and the choropleth,
+neither of which this work touched.
+
+## What changed, by screen
+
+| Screen | Before | After |
+| --- | --- | --- |
+| shell (all 26) | full-screen spinner until `useSession()` resolved, *then* the page's own wait | chrome paints immediately; nav items and account block placeheld |
+| `/admin` | whole page → `DashboardSkeleton`, on first load **and every filter change** | header + filters stay; data region only, shaped band-for-band; refetch shows a marker |
+| products | generic skeleton; full-page reset per keystroke | hero + tinted stats + thumbnail-led table; search keeps rows up |
+| orders | generic skeleton | hero + 6 stats + insight cards + table |
+| coupons / blogs / customers / messaging / audit-logs / admin-manager | generic skeleton, two of them claiming no stat row while rendering five | own hero, own stat count, own column rhythm |
+| categories | centred spinner in an `h-96` box | header, stats, filter pills, indented tree rows |
+| customer-feedback | centred spinner | review-card grid |
+| settings | `AdminPageLoader` spinner | hero + 7-tab strip + form field rhythm |
+| returns | one bar spanning 7 columns | 7 cells |
+| products/[id], /edit | one shared 2/1 skeleton for two different layouts | a detail shape and a form shape |
+| Quick Deals / Combo Bundles panels | a whole-*page* skeleton drawn *inside* a panel that had already rendered its header and stats | data region only |
+
+## Deleted
+
+- `app/admin/customer-target/page.tsx` — zero references repo-wide.
+- `components/admin/{CustomerAnalyticsDashboard,CustomerMap,DataExportManager,MLPredictionEngine,TimeSeriesAnimationMap,CustomerMapHeatmap}.tsx` — ~158 KB, each reachable only from that page or from each other. `CustomerMapHeatmap` had no importer at all.
+- Dependencies: `gsap` and the eight `@deck.gl/*` packages.
+- Retired exports: `AdminListPageSkeleton`, `AdminDetailPageSkeleton`, `AdminPageLoader`, `AdminInlineLoader`, `SkeletonText`, `SkeletonStatCards`, `SkeletonTable`, `SkeletonPageHeader`. `components/admin/ui/loading.tsx` is now one export, `AdminRefreshIndicator`.
+- Kept: all four redirect stubs.
+
+## Still needs live data to verify
+
+1. **Every skeleton's fidelity.** They were built by reading each page's JSX.
+   Column widths in particular are estimates — a populated table at ≥1280px is
+   the only way to tune them.
+2. **`/admin/orders` fetches `/api/admin/orders` with no pagination params** and
+   filters client-side. On a store with real order volume that is the page's
+   dominant cost, and no skeleton work fixes it. Not touched here: it changes
+   what the page requests.
+3. **`/api/admin/geospatial/{orders,analytics}` and `/api/admin/heatmap/districts`**
+   now have no caller in this repo. Confirm nothing external calls them before
+   removing the routes.
+4. **`/admin` and `/admin/settings` remain the heaviest routes** (485 kB / 629 kB)
+   — Recharts, the choropleth, and the settings form. Reducing those means code
+   splitting, which is a separate piece of work.
+5. **i18n debt.** The list pages are almost entirely hardcoded English
+   ("Total Revenue", "Manage your product catalog with elegance"). New copy
+   added here uses `t('common.loading')`, but the existing strings are
+   pre-existing and out of scope for a loading-states change.
