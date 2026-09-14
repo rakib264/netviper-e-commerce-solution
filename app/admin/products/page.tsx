@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DeleteConfirmationDialog from '@/components/ui/delete-confirmation-dialog';
+import { useTranslation } from '@/components/providers/LocalizationProvider';
 import { useToastWithTypes } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
 import { AlertTriangle, BarChart3, Eye, Package, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import { AdminHeroPageSkeleton } from '@/components/admin/ui/hero-page-skeleton';
+import { AdminRefreshIndicator } from '@/components/admin/ui/loading';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 
 interface Product {
@@ -50,8 +51,16 @@ interface Product {
 }
 
 export default function AdminProducts() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
+  /*
+   * `loading` is the first paint only. It used to be raised by every
+   * refetch, and the page-level gate below meant a debounced keystroke in
+   * the search box replaced the entire screen with a skeleton — header,
+   * stats, search box and all — every 400ms while someone typed.
+   */
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [categories, setCategories] = useState<Array<{ label: string; value: string }>>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
@@ -77,10 +86,6 @@ export default function AdminProducts() {
   const [pendingAction, setPendingAction] = useState<null | 'activate' | 'deactivate' | 'delete'>(null);
   const [pendingRows, setPendingRows] = useState<Product[]>([]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-
   // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => {
@@ -104,37 +109,11 @@ export default function AdminProducts() {
       }
     };
     fetchCategories();
-    
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-    
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-    
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children, 
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-    
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
   }, []);
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
+      setRefreshing(true);
 
       // cancel previous
       if (abortRef.current) abortRef.current.abort();
@@ -175,6 +154,7 @@ export default function AdminProducts() {
       }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -521,7 +501,13 @@ export default function AdminProducts() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton rows={8} columns={6} />
+        <AdminHeroPageSkeleton
+          withAction
+          tints={['primary', 'success', 'primary', 'warning']}
+          rows={8}
+          leading="thumbnail"
+          columnWidths={['w-12', 'w-40', 'w-24', 'w-20', 'w-16', 'w-20', 'w-16', 'w-24']}
+        />
       </AdminLayout>
     );
   }
@@ -529,15 +515,9 @@ export default function AdminProducts() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div 
-            ref={headerRef}
-            className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-secondary-600/90" />
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl" />
@@ -547,12 +527,7 @@ export default function AdminProducts() {
             <div className="relative p-6 sm:p-8 lg:p-12">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div className="space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="flex items-center gap-3"
-                  >
+                  <div className="flex items-center gap-3">
                     <div className="p-3 bg-card/20 backdrop-blur-sm rounded-2xl border border-white/20">
                       <Package className="text-white" size={28} />
                     </div>
@@ -564,25 +539,15 @@ export default function AdminProducts() {
                         Manage your product catalog with elegance
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                   
-                  <motion.p 
-                    className="text-white/90 text-sm sm:text-base max-w-2xl leading-relaxed"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
-                  >
+                  <p className="text-white/90 text-sm sm:text-base max-w-2xl leading-relaxed">
                     Create stunning product listings with advanced inventory management, SEO optimization, and seamless organization for your e-commerce platform.
-                  </motion.p>
+                  </p>
                 </div>
 
                 {/* Action Buttons */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className="flex flex-col sm:flex-row gap-3"
-                >
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/admin/products/new">
                     <motion.div
                       whileHover={{ scale: 1.05, y: -2 }}
@@ -598,16 +563,13 @@ export default function AdminProducts() {
                       </Button>
                     </motion.div>
                   </Link>
-                </motion.div>
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Stats Cards */}
-          <motion.div 
-            ref={statsRef}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <motion.div
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ duration: 0.3 }}
@@ -695,14 +657,10 @@ export default function AdminProducts() {
                 </CardContent>
               </Card>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Products Grid/List View */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
+          <div>
             <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-lg rounded-3xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100 p-6">
                 <div className="flex items-center justify-between">
@@ -712,9 +670,12 @@ export default function AdminProducts() {
                     </div>
                     <div>
                       <CardTitle className="text-2xl font-bold text-foreground">Product Management</CardTitle>
-                      <p className="text-muted-foreground mt-1">
-                        {products.length} of {total} products
-                        {searchInput && ` matching "${searchInput}"`}
+                      <p className="text-muted-foreground mt-1 flex items-center gap-2">
+                        <span>
+                          {products.length} of {total} products
+                          {searchInput && ` matching "${searchInput}"`}
+                        </span>
+                        {refreshing && <AdminRefreshIndicator label={t('common.loading')} />}
                       </p>
                     </div>
                   </div>
@@ -758,7 +719,7 @@ export default function AdminProducts() {
                 />
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         {/* Delete confirmation */}

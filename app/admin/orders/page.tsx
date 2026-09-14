@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
 import {
   BarChart3,
   Calendar,
@@ -38,7 +37,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@/components/ui/loader';
-import { AdminListPageSkeleton } from '@/components/admin/ui/loading';
+import {
+  AdminHeroPageSkeleton,
+  AdminTableCardSkeleton,
+} from '@/components/admin/ui/hero-page-skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency as formatStoreCurrency } from '@/lib/currency/format';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -128,38 +131,9 @@ export default function AdminOrders() {
   /** Guards against re-opening the dialog on every `orders` refetch. */
   const handledDeepLinkRef = useRef<string | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchOrders();
-    
-    // Enhanced GSAP animations with staggered entrance
-    const tl = gsap.timeline({ delay: 0.2 });
-    
-    if (headerRef.current) {
-      tl.fromTo(headerRef.current, 
-        { opacity: 0, y: -30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
-      );
-    }
-    
-    if (statsRef.current) {
-      tl.fromTo(statsRef.current.children, 
-        { opacity: 0, y: 20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)" },
-        "-=0.4"
-      );
-    }
-    
-    if (containerRef.current) {
-      tl.fromTo(containerRef.current.children, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-        "-=0.2"
-      );
-    }
   }, []);
 
   const fetchOrders = async () => {
@@ -927,7 +901,40 @@ export default function AdminOrders() {
   if (loading) {
     return (
       <AdminLayout>
-        <AdminListPageSkeleton rows={8} columns={6} />
+        <AdminHeroPageSkeleton
+          tints={['primary', 'warning', 'primary', 'success', 'warning', 'info']}
+        >
+          {/* Orders has a band the other list screens do not: two insight
+              cards between the stats and the table. */}
+          <div className="flex w-full flex-col space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+            {['success', 'info'].map((tone) => (
+              <Card
+                key={tone}
+                className={
+                  tone === 'success'
+                    ? 'bg-gradient-to-br from-success-50 to-success-100 border-success-200'
+                    : 'bg-gradient-to-br from-info-50 to-info-50 border-info-200'
+                }
+              >
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-5 w-44" />
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="flex items-center justify-between gap-4">
+                      <Skeleton className="h-3.5 w-32" />
+                      <Skeleton className="h-3.5 w-14" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <AdminTableCardSkeleton
+            rows={8}
+            columnWidths={['w-28', 'w-36', 'w-44', 'w-24', 'w-24', 'w-28', 'w-28']}
+          />
+        </AdminHeroPageSkeleton>
       </AdminLayout>
     );
   }
@@ -935,15 +942,9 @@ export default function AdminOrders() {
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50/30 via-white to-secondary-50/30">
-        <div ref={containerRef} className="space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {/* Stunning Header Section */}
-          <motion.div 
-            ref={headerRef}
-            className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20"
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 rounded-3xl shadow-2xl border border-primary-200/20">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-secondary-600/90" />
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl" />
@@ -953,12 +954,7 @@ export default function AdminOrders() {
             <div className="relative p-6 sm:p-8 lg:p-12">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div className="space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="flex items-center gap-3"
-                  >
+                  <div className="flex items-center gap-3">
                     <div className="p-3 bg-card/20 backdrop-blur-sm rounded-2xl border border-white/20">
                       <ShoppingBag className="text-white" size={28} />
                     </div>
@@ -970,26 +966,18 @@ export default function AdminOrders() {
                         Manage orders with precision and elegance
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                   
-                  <motion.p 
-                    className="text-white/90 text-sm sm:text-base max-w-2xl leading-relaxed"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
-                  >
+                  <p className="text-white/90 text-sm sm:text-base max-w-2xl leading-relaxed">
                     Track customer orders, manage fulfillment, and provide exceptional service with our comprehensive order management system.
-                  </motion.p>
+                  </p>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Enhanced Stats Cards */}
-          <motion.div 
-            ref={statsRef}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6">
             <motion.div
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ duration: 0.3 }}
@@ -1121,15 +1109,11 @@ export default function AdminOrders() {
                 </CardContent>
               </Card>
             </motion.div>
-          </motion.div>
+          </div>
 
         {/* Mobile-First Insights Cards */}
         <div className="flex flex-col space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
+          <div>
             <Card className="bg-gradient-to-br from-success-50 to-success-100 border-success-200 hover:shadow-xl transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base sm:text-lg flex items-center justify-center sm:justify-start space-x-2 text-success-800">
@@ -1162,13 +1146,9 @@ export default function AdminOrders() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
+          <div>
             <Card className="bg-gradient-to-br from-info-50 to-info-50 border-info-200 hover:shadow-xl transition-all duration-300">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base sm:text-lg flex items-center justify-center sm:justify-start space-x-2 text-info-800">
@@ -1218,15 +1198,11 @@ export default function AdminOrders() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
           {/* Orders Grid/List View */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
+          <div>
             <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-lg rounded-3xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100 p-6">
                 <div className="flex items-center justify-between">
@@ -1260,7 +1236,7 @@ export default function AdminOrders() {
                 />
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         {/* Enhanced Mobile-Responsive Order Details Dialog */}
