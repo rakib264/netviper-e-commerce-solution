@@ -40,7 +40,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader } from '@/components/ui/loader';
+import { Skeleton } from '@/components/ui/skeleton';
 import NotificationBell from '@/components/notifications/NotificationBell';
 
 interface AdminLayoutProps {
@@ -101,6 +101,53 @@ const sidebarGroups = [
  * matching surface and its baked-in background disappears. */
 const BRAND_LOGO_BG = '#1f3a2b';
 
+/**
+ * Rail placeholder for the moment before `useSession()` resolves.
+ *
+ * Row heights and the icon/label rhythm match the real nav items, so the rail
+ * does not resize when the items arrive. The group labels are deliberately
+ * blank: which groups a role can see is exactly what is not known yet, and
+ * printing "System" only to remove it for a manager is a worse flicker than a
+ * grey bar.
+ */
+function AdminNavSkeleton({
+  expanded,
+  groups = [1, 4, 5, 4, 3],
+}: {
+  expanded: boolean;
+  groups?: number[];
+}) {
+  return (
+    <div aria-hidden="true">
+      {groups.map((rows, groupIndex) => (
+        <div key={groupIndex} className={cn(groupIndex > 0 && 'mt-5')}>
+          {expanded ? (
+            <div className="px-3 pb-2">
+              <Skeleton className="h-2.5 w-16" />
+            </div>
+          ) : (
+            groupIndex > 0 && <div className="mx-auto mb-3 h-px w-6 bg-border/70" />
+          )}
+          <div className="space-y-1">
+            {Array.from({ length: rows }).map((_, rowIndex) => (
+              <div
+                key={rowIndex}
+                className={cn(
+                  'flex items-center rounded-lg px-3 py-2.5',
+                  !expanded && 'justify-center px-0',
+                )}
+              >
+                <Skeleton className="h-[19px] w-[19px] shrink-0 rounded-md" />
+                {expanded && <Skeleton className="ml-3 h-3 w-24" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -155,6 +202,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
 
 
+  /*
+   * The shell does not wait for the session.
+   *
+   * The rail, the topbar and the page body are identical for every admin
+   * role; only the nav items and the account block differ. Holding all of it
+   * behind `useSession()` put a bare spinner in front of every admin page —
+   * a first wait the page's own skeleton then followed. Now the chrome paints
+   * immediately and only the two role-dependent pieces are placeheld.
+   */
+  const sessionPending = status === 'loading';
   const role = session?.user?.role || '';
   const visibleGroups = sidebarGroups
     .map((group) => ({
@@ -167,14 +224,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     href === '/admin'
       ? pathname === '/admin'
       : pathname === href || pathname.startsWith(`${href}/`);
-
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-muted flex items-center justify-center">
-        <Loader size="lg" label={null} />
-      </div>
-    );
-  }
 
   return (
     <TooltipProvider>
@@ -266,6 +315,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Desktop/Tablet Navigation */}
           <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-4 [scrollbar-width:thin]">
             <TooltipProvider>
+              {sessionPending && <AdminNavSkeleton expanded={sidebarOpen} />}
               {visibleGroups.map((group, groupIndex) => (
                 <div key={group.label} className={cn(groupIndex > 0 && 'mt-5')}>
                   {sidebarOpen ? (
@@ -374,12 +424,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   transition={{ duration: 0.2 }}
                   className="flex-1 min-w-0"
                 >
-                  <p className="text-sm font-title font-medium text-foreground truncate">
-                    {session?.user?.name}
-                  </p>
-                  <p className="text-xs font-caption text-subtle-foreground capitalize truncate">
-                    {session?.user?.role}
-                  </p>
+                  {sessionPending ? (
+                    <div className="space-y-1.5 py-0.5">
+                      <Skeleton className="h-3.5 w-24" />
+                      <Skeleton className="h-3 w-14" />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-title font-medium text-foreground truncate">
+                        {session?.user?.name}
+                      </p>
+                      <p className="text-xs font-caption text-subtle-foreground capitalize truncate">
+                        {session?.user?.role}
+                      </p>
+                    </>
+                  )}
                 </motion.div>
               </div>
             )}
@@ -431,6 +490,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
                   {/* Mobile Navigation */}
           <nav className="px-3 py-4 flex-1 overflow-y-auto">
+            {sessionPending && <AdminNavSkeleton expanded />}
             {visibleGroups.map((group, groupIndex) => (
               <div key={group.label} className={cn(groupIndex > 0 && 'mt-5')}>
                 <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
@@ -489,12 +549,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-title font-medium text-foreground truncate">
-                  {session?.user?.name}
-                </p>
-                <p className="text-xs font-caption text-subtle-foreground capitalize truncate">
-                  {session?.user?.role}
-                </p>
+                {sessionPending ? (
+                  <div className="space-y-1.5 py-0.5">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-3 w-14" />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm font-title font-medium text-foreground truncate">
+                      {session?.user?.name}
+                    </p>
+                    <p className="text-xs font-caption text-subtle-foreground capitalize truncate">
+                      {session?.user?.role}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
