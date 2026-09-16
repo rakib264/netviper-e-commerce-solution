@@ -2028,7 +2028,10 @@
     "shop": "Shop",
     "signIn": "Anmelden",
     "signOut": "Abmelden",
-    "wishlist": "Merkliste"
+    "wishlist": "Merkliste",
+    "products": "Produkte",
+    "categories": "Kategorien",
+    "deals": "Angebote"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -3121,5 +3124,9 @@
     "wishlist": "Merkliste",
     "wishlistSummary": "Merkliste – Übersicht",
     "yourWishlistIsEmpty": "Ihre Merkliste ist leer"
+  },
+  "brand": {
+    "tagline": "Koreanische Ramen, Lebensmittel und Alltagsbedarf, direkt geliefert.",
+    "description": "Ramen Bhai ist ein Online-Lebensmittelmarkt für koreanische Nudeln, Instant-Ramen, Bibigo-Produkte, Sushi-Zutaten, Tang, Rooh Afza, Kaffee, Tee, Popcorn und Hunderte Alltagsprodukte zu günstigen Preisen, mit schneller Lieferung in ganz Bangladesch."
   }
 }

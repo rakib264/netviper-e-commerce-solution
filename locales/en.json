@@ -2028,7 +2028,10 @@
     "shop": "Shop",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "products": "Products",
+    "categories": "Categories",
+    "deals": "Deals"
   },
   "notifications": {
     "title": "Notifications",
@@ -3121,5 +3124,9 @@
     "wishlist": "Wishlist",
     "wishlistSummary": "Wishlist Summary",
     "yourWishlistIsEmpty": "Your wishlist is empty"
+  },
+  "brand": {
+    "tagline": "Korean ramen, groceries and daily essentials, delivered.",
+    "description": "Ramen Bhai is an online food marketplace for Korean noodles, instant ramen, Bibigo products, sushi ingredients, Tang, Rooh Afza, coffee, tea, popcorn and hundreds of daily essentials at affordable prices, with fast doorstep delivery across Bangladesh."
   }
 }

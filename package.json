@@ -11,6 +11,7 @@
     "test:typography": "node --test --experimental-strip-types --import ./tests/ts-resolve.mjs tests/typography-settings.test.ts tests/typography-centralization.test.ts",
     "db:test": "node scripts/test-mongodb-connection.js",
     "db:seed-admin": "node scripts/seed-admin-user.js",
+    "brand:assets": "node --experimental-strip-types --no-warnings scripts/generate-brand-assets.mjs",
     "db:seed-deals": "node scripts/seed-deals.js",
     "test": "node --test --experimental-strip-types --import ./tests/ts-resolve.mjs \"tests/*.test.ts\"",
     "test:theme": "node --test --experimental-strip-types --import ./tests/ts-resolve.mjs tests/color-theme.test.ts"
