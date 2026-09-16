@@ -64,10 +64,21 @@ export interface BrandDelivery {
   handlingDays: { min: number; max: number };
 }
 
+/**
+ * The two values a rebrand actually turns on.
+ *
+ * Declared above `BRAND` so everything derived from them — the title template,
+ * the default title, the domain, the short name — follows automatically. They
+ * used to be repeated as literals further down, which meant "change the name"
+ * was really "change the name in four places and hope you found them all".
+ */
+const NAME = 'Ramen Bhai';
+const URL = 'https://ramenbhai.com';
+
 export const BRAND = {
   /* ── Identity ──────────────────────────────────────────────────────── */
 
-  name: 'Ramen Bhai',
+  name: NAME,
   /**
    * The registered trading entity, used for `Organization.legalName`. Left as a
    * placeholder: this must match company registration exactly, and a guess here
@@ -75,10 +86,11 @@ export const BRAND = {
    */
   legalName: 'TODO_LEGAL_ENTITY_NAME',
   /** Header wordmark and PWA manifest `short_name` (12 characters or fewer). */
-  shortName: 'Ramen Bhai',
+  shortName: NAME,
 
-  domain: 'ramenbhai.com',
-  url: 'https://ramenbhai.com',
+  url: URL,
+  /** Hostname only — derived, so it cannot disagree with `url`. */
+  domain: URL.replace(/^https?:\/\//, '').replace(/\/+$/, ''),
 
   /* ── Locale and market ─────────────────────────────────────────────── */
 
@@ -105,9 +117,9 @@ export const BRAND = {
   taglineKey: 'brand.tagline',
   descriptionKey: 'brand.description',
 
-  titleTemplate: '%s | Ramen Bhai',
+  titleTemplate: `%s | ${NAME}`,
   /** Kept under 60 characters so it survives `buildMetadata`'s truncation. */
-  defaultTitle: 'Ramen Bhai — Korean Ramen & Groceries in Bangladesh',
+  defaultTitle: `${NAME} \u2014 Korean Ramen & Groceries in Bangladesh`,
 
   /**
    * Tagline baked into the generated social card.
@@ -337,7 +349,7 @@ export type Brand = typeof BRAND;
  * `next.config.js`, so a canonical can never disagree with the URL that
  * actually serves it.
  */
-export function urlFor(path = '/', base: string = BRAND.url): string {
+export function urlFor(path = '/', base: string = URL): string {
   const origin = base.replace(/\/+$/, '');
   if (!path || path === '/') return origin;
 
