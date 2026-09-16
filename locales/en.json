@@ -1665,18 +1665,6 @@
     },
     "weAreHereToHelpYou": "We are here to help you with any questions or concerns you may have."
   },
-  "datenschutz": {
-    "datenschutz": "Datenschutz",
-    "mascariMartGmbhExampleStreet10": "Mascari Mart GmbH, Example Street 10, 10115 Berlin, Germany, clientcare@mascarimart.com",
-    "n1DataController": "1. Data Controller",
-    "n2DataWeProcess": "2. Data We Process",
-    "n3YourRights": "3. Your Rights",
-    "n4Contact": "4. Contact",
-    "pleaseContactUsAtClientcareMascarimart": "Please contact us at clientcare@mascarimart.com for privacy-related requests.",
-    "thisPrivacyPageIsAStarter": "This privacy page is a starter structure for GDPR compliance. Replace the placeholders with your final legal copy reviewed by your legal advisor.",
-    "weProcessAccountOrderPaymentAnd": "We process account, order, payment, and support data to provide our services. We also process technical logs to keep the storefront secure and reliable.",
-    "youCanRequestAccessCorrectionDeletion": "You can request access, correction, deletion, and portability of your personal data. You may also object to processing and withdraw consent where applicable."
-  },
   "deals": {
     "activeEvents2": "Active Events",
     "checkBackSoonForAmazingDeals": "Check back soon for amazing deals and event offers!",
@@ -1891,13 +1879,11 @@
       "accessibility": "Accessibility",
       "contactUs": "Contact Us",
       "craftsmanship": "Craftsmanship",
-      "datenschutz": "Datenschutz",
       "faq": "FAQ",
       "faqs": "FAQs",
       "giftGuide": "Gift Guide",
       "giftServices": "Gift Services",
       "handbags": "Handbags",
-      "impressum": "Impressum",
       "journal": "Journal",
       "newArrivals": "New Arrivals",
       "orders": "Orders",
@@ -1976,22 +1962,6 @@
       "securePayment": "Secure Payment",
       "support247": "24/7 Support"
     }
-  },
-  "impressum": {
-    "amtsgerichtBerlinCharlottenburgHrbXxxxx": "Amtsgericht Berlin Charlottenburg, HRB XXXXX",
-    "clientcareMascarimartCom": "clientcare@mascarimart.com",
-    "commercialRegister": "Commercial Register:",
-    "companyName": "Company Name:",
-    "contact": "Contact:",
-    "dexxxxxxxxx": "DEXXXXXXXXX",
-    "exampleStreet1010115BerlinGermany": "Example Street 10, 10115 Berlin, Germany",
-    "impressum": "Impressum",
-    "managingDirectorName": "Managing Director Name",
-    "mascariMartGmbh": "Mascari Mart GmbH",
-    "registeredAddress": "Registered Address:",
-    "representedBy": "Represented by:",
-    "thisPageContainsMandatoryLegalInformation": "This page contains mandatory legal information for operations in Germany. Please replace the placeholder details below with your registered business information before going live.",
-    "vatId": "VAT ID:"
   },
   "layout": {
     "footer": {
@@ -3128,5 +3098,50 @@
   "brand": {
     "tagline": "Korean ramen, groceries and daily essentials, delivered.",
     "description": "Ramen Bhai is an online food marketplace for Korean noodles, instant ramen, Bibigo products, sushi ingredients, Tang, Rooh Afza, coffee, tea, popcorn and hundreds of daily essentials at affordable prices, with fast doorstep delivery across Bangladesh."
+  },
+  "seo": {
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "How {{brand}} collects, uses, shares and protects your personal information when you shop with us in Bangladesh."
+    }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lead": "{{brand}} collects only what an order needs: your name, phone number, delivery address, email and order history. Card details are handled by our payment gateway and never reach our servers. We share your address with delivery partners only, and never sell your data to anyone.",
+    "lastUpdated": "Last updated {{date}}",
+    "sections": {
+      "controller": {
+        "title": "Who is responsible for your data",
+        "body": "{{brand}} operates this online store and is responsible for the personal information collected through it. For any question about this policy, or to exercise any of the rights described below, write to us at {{email}}."
+      },
+      "collect": {
+        "title": "What we collect",
+        "body": "To create an account and deliver an order we collect your name, phone number, email address and delivery address. We keep a record of what you have ordered. If you contact support we keep that correspondence. We also record basic technical information such as your device type and the pages you visited, which is what tells us the site is working."
+      },
+      "payment": {
+        "title": "Payments",
+        "body": "Card and mobile wallet payments are processed by our payment gateway. Your card number, PIN and one-time codes are entered on the gateway's own page and are never sent to, stored by, or visible to {{brand}}. We receive only a confirmation that a payment succeeded or failed. Cash on delivery involves no payment data at all."
+      },
+      "sharing": {
+        "title": "Who we share it with",
+        "body": "Your name, phone number and address go to the courier carrying your parcel, because otherwise it cannot be delivered. Our payment gateway, email provider and SMS provider each receive only what their part of the job requires. We do not sell your personal information, and we do not share it for anyone else's advertising."
+      },
+      "cookies": {
+        "title": "Cookies and browser storage",
+        "body": "We use cookies and browser storage to keep you signed in, to remember your cart and wishlist between visits, and to remember the language you chose. Clearing your browser storage removes all of it, and the store still works without it — you will simply start with an empty cart."
+      },
+      "retention": {
+        "title": "How long we keep it",
+        "body": "Order records are kept for as long as we need them for accounting and for handling returns or disputes. Account details are kept until you ask us to delete your account. Support conversations are kept while they are useful for helping you."
+      },
+      "rights": {
+        "title": "Your choices",
+        "body": "You can ask us for a copy of the information we hold about you, correct anything that is wrong, or ask us to delete your account. Marketing emails and push notifications are off unless you turn them on, and you can turn them off again at any time from your profile."
+      },
+      "contact": {
+        "title": "Contact us",
+        "body": "Write to {{email}} with any privacy question or request, and we will respond as quickly as we can."
+      }
+    }
   }
 }

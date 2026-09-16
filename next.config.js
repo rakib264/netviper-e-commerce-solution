@@ -107,20 +107,6 @@ const nextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [
-      {
-        source: '/muscarimart',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/well-rise',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;

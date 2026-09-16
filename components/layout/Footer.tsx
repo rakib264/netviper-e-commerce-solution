@@ -51,15 +51,13 @@ const FOOTER_GROUPS: Array<{
       { labelKey: "footer.links.signIn", href: "/auth/signin" },
       { labelKey: "footer.links.orders", href: "/dashboard/orders" },
       { labelKey: "footer.links.wishlist", href: "/wishlist" },
-      { labelKey: "footer.links.impressum", href: "/impressum" },
     ],
   },
 ];
 
 const LEGAL_LINKS: Array<{ labelKey: string; href: string }> = [
   { labelKey: "footer.links.termsOfUse", href: "/terms-conditions" },
-  { labelKey: "footer.links.privacyPolicy", href: "/datenschutz" },
-  { labelKey: "footer.links.impressum", href: "/impressum" },
+  { labelKey: "footer.links.privacyPolicy", href: "/privacy-policy" },
   { labelKey: "footer.links.accessibility", href: "/faqs" },
   { labelKey: "footer.groups.customerCare", href: "/contact" },
   { labelKey: "footer.links.siteMap", href: "/sitemap.xml" },
@@ -148,7 +146,7 @@ function NewsletterSignup() {
 
       <p className="mt-4 font-caption text-xs leading-relaxed text-subtle-foreground">
         {t("footer.newsletterConsent")}{" "}
-        <Link href="/datenschutz" className="font-caption underline hover:text-foreground">
+        <Link href="/privacy-policy" className="font-caption underline hover:text-foreground">
           {t("footer.privacyPolicy")}
         </Link>
         {t("footer.newsletterConsentSuffix")}

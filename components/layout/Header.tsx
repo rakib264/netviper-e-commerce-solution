@@ -132,8 +132,7 @@ const FOOTER_NAV = [
     labelKey: "footer.groups.aboutUs",
     children: [
       { labelKey: "footer.links.theAtelier", href: "/about" },
-      { labelKey: "footer.links.impressum", href: "/impressum" },
-      { labelKey: "footer.links.datenschutz", href: "/datenschutz" },
+      { labelKey: "footer.links.privacyPolicy", href: "/privacy-policy" },
     ],
   },
 ] as const;

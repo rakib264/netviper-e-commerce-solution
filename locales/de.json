@@ -1665,18 +1665,6 @@
     },
     "weAreHereToHelpYou": "Wir helfen Ihnen bei allen Fragen und Anliegen gerne weiter."
   },
-  "datenschutz": {
-    "datenschutz": "Datenschutz",
-    "mascariMartGmbhExampleStreet10": "Mascari Mart GmbH, Example Street 10, 10115 Berlin, Deutschland, clientcare@mascarimart.com",
-    "n1DataController": "1. Verantwortlicher",
-    "n2DataWeProcess": "2. Verarbeitete Daten",
-    "n3YourRights": "3. Ihre Rechte",
-    "n4Contact": "4. Kontakt",
-    "pleaseContactUsAtClientcareMascarimart": "Für datenschutzbezogene Anfragen kontaktieren Sie uns bitte unter clientcare@mascarimart.com.",
-    "thisPrivacyPageIsAStarter": "Diese Datenschutzseite ist eine Vorlage für die DSGVO-Konformität. Ersetzen Sie die Platzhalter durch Ihren final geprüften Rechtstext.",
-    "weProcessAccountOrderPaymentAnd": "Wir verarbeiten Konto-, Bestell-, Zahlungs- und Supportdaten zur Erbringung unserer Leistungen sowie technische Protokolle, um den Shop sicher und zuverlässig zu betreiben.",
-    "youCanRequestAccessCorrectionDeletion": "Sie können Auskunft, Berichtigung, Löschung und Übertragbarkeit Ihrer personenbezogenen Daten verlangen sowie der Verarbeitung widersprechen und Einwilligungen widerrufen."
-  },
   "deals": {
     "activeEvents2": "Laufende Events",
     "checkBackSoonForAmazingDeals": "Schauen Sie bald wieder vorbei für tolle Angebote!",
@@ -1891,13 +1879,11 @@
       "accessibility": "Barrierefreiheit",
       "contactUs": "Kontakt",
       "craftsmanship": "Handwerkskunst",
-      "datenschutz": "Datenschutz",
       "faq": "FAQ",
       "faqs": "FAQs",
       "giftGuide": "Geschenkideen",
       "giftServices": "Geschenkservice",
       "handbags": "Handtaschen",
-      "impressum": "Impressum",
       "journal": "Journal",
       "newArrivals": "Neuheiten",
       "orders": "Bestellungen",
@@ -1976,22 +1962,6 @@
       "securePayment": "Sichere Zahlung",
       "support247": "Support rund um die Uhr"
     }
-  },
-  "impressum": {
-    "amtsgerichtBerlinCharlottenburgHrbXxxxx": "Amtsgericht Berlin Charlottenburg, HRB XXXXX",
-    "clientcareMascarimartCom": "clientcare@mascarimart.com",
-    "commercialRegister": "Handelsregister:",
-    "companyName": "Firmenname:",
-    "contact": "Kontakt:",
-    "dexxxxxxxxx": "DEXXXXXXXXX",
-    "exampleStreet1010115BerlinGermany": "Example Street 10, 10115 Berlin, Deutschland",
-    "impressum": "Impressum",
-    "managingDirectorName": "Name des Geschäftsführers",
-    "mascariMartGmbh": "Mascari Mart GmbH",
-    "registeredAddress": "Eingetragene Adresse:",
-    "representedBy": "Vertreten durch:",
-    "thisPageContainsMandatoryLegalInformation": "Diese Seite enthält die für den Betrieb in Deutschland gesetzlich vorgeschriebenen Angaben. Bitte ersetzen Sie die Platzhalter vor dem Live-Gang durch Ihre eingetragenen Unternehmensdaten.",
-    "vatId": "USt-IdNr.:"
   },
   "layout": {
     "footer": {
@@ -3128,5 +3098,50 @@
   "brand": {
     "tagline": "Koreanische Ramen, Lebensmittel und Alltagsbedarf, direkt geliefert.",
     "description": "Ramen Bhai ist ein Online-Lebensmittelmarkt für koreanische Nudeln, Instant-Ramen, Bibigo-Produkte, Sushi-Zutaten, Tang, Rooh Afza, Kaffee, Tee, Popcorn und Hunderte Alltagsprodukte zu günstigen Preisen, mit schneller Lieferung in ganz Bangladesch."
+  },
+  "seo": {
+    "privacyPolicy": {
+      "title": "Datenschutzerklärung",
+      "description": "Wie {{brand}} Ihre personenbezogenen Daten beim Einkauf in Bangladesch erhebt, nutzt, weitergibt und schützt."
+    }
+  },
+  "privacyPolicy": {
+    "title": "Datenschutzerklärung",
+    "lead": "{{brand}} erhebt nur, was eine Bestellung erfordert: Name, Telefonnummer, Lieferadresse, E-Mail und Bestellverlauf. Kartendaten verarbeitet unser Zahlungsdienstleister; sie erreichen unsere Server nie. Ihre Adresse geben wir ausschließlich an Lieferpartner weiter und verkaufen Ihre Daten niemals.",
+    "lastUpdated": "Zuletzt aktualisiert am {{date}}",
+    "sections": {
+      "controller": {
+        "title": "Wer für Ihre Daten verantwortlich ist",
+        "body": "{{brand}} betreibt diesen Online-Shop und ist für die darüber erhobenen personenbezogenen Daten verantwortlich. Bei Fragen zu dieser Richtlinie oder zur Ausübung der unten genannten Rechte schreiben Sie an {{email}}."
+      },
+      "collect": {
+        "title": "Welche Daten wir erheben",
+        "body": "Für Konto und Lieferung erheben wir Name, Telefonnummer, E-Mail-Adresse und Lieferadresse sowie eine Aufzeichnung Ihrer Bestellungen. Kontaktieren Sie den Support, bewahren wir diesen Schriftwechsel auf. Zusätzlich erfassen wir technische Basisdaten wie Gerätetyp und besuchte Seiten, woran wir erkennen, dass die Website funktioniert."
+      },
+      "payment": {
+        "title": "Zahlungen",
+        "body": "Karten- und Mobile-Wallet-Zahlungen wickelt unser Zahlungsdienstleister ab. Kartennummer, PIN und Einmalcodes geben Sie auf dessen eigener Seite ein; sie werden nie an {{brand}} übermittelt, dort gespeichert oder sichtbar. Wir erhalten nur die Bestätigung über Erfolg oder Fehlschlag. Bei Nachnahme fallen überhaupt keine Zahlungsdaten an."
+      },
+      "sharing": {
+        "title": "An wen wir Daten weitergeben",
+        "body": "Name, Telefonnummer und Adresse erhält der Kurier, der Ihr Paket ausliefert — anders ist eine Zustellung nicht möglich. Zahlungsdienstleister, E-Mail- und SMS-Anbieter erhalten jeweils nur das, was ihre Aufgabe erfordert. Wir verkaufen Ihre Daten nicht und geben sie nicht für fremde Werbung weiter."
+      },
+      "cookies": {
+        "title": "Cookies und Browser-Speicher",
+        "body": "Cookies und Browser-Speicher halten Sie angemeldet, merken sich Warenkorb und Wunschliste zwischen Besuchen und Ihre Sprachwahl. Leeren Sie den Browser-Speicher, verschwindet all das; der Shop funktioniert weiterhin — Sie beginnen lediglich mit leerem Warenkorb."
+      },
+      "retention": {
+        "title": "Wie lange wir Daten speichern",
+        "body": "Bestelldaten bewahren wir so lange auf, wie wir sie für Buchhaltung sowie Rückgaben oder Streitfälle benötigen. Kontodaten bleiben gespeichert, bis Sie die Löschung Ihres Kontos verlangen. Support-Konversationen bewahren wir auf, solange sie Ihnen weiterhelfen."
+      },
+      "rights": {
+        "title": "Ihre Wahlmöglichkeiten",
+        "body": "Sie können eine Kopie der über Sie gespeicherten Daten anfordern, Unrichtiges berichtigen lassen oder die Löschung Ihres Kontos verlangen. Marketing-E-Mails und Push-Benachrichtigungen sind deaktiviert, bis Sie sie einschalten, und lassen sich jederzeit im Profil wieder abschalten."
+      },
+      "contact": {
+        "title": "Kontakt",
+        "body": "Schreiben Sie bei Fragen oder Anliegen zum Datenschutz an {{email}}; wir antworten so schnell wie möglich."
+      }
+    }
   }
 }

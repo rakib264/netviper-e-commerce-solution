@@ -19,7 +19,27 @@ import {
   type TypographySettings,
 } from '@/lib/theme/typography';
 
-const OLD_HARDCODED_SITE_NAMES = ['TSR Gallery', 'NextEcom', 'TSRGallery'];
+/**
+ * Pre-rebrand site names, treated as "unset" rather than as a deliberate
+ * choice. A settings row written before a rebrand keeps its old `siteName`
+ * forever, and without this list one stale row silently resurrects a dead
+ * brand across every page title and JSON-LD node.
+ *
+ * Kept in step with `LEGACY_SITE_NAMES` in `lib/seo/config.ts`, which applies
+ * the same guard on the SEO read path.
+ */
+const OLD_HARDCODED_SITE_NAMES = [
+  'TSR Gallery',
+  'TSRGallery',
+  'NextEcom',
+  'Mascari Mart',
+  'Muscari Mart',
+  'muscari-mart',
+  'muscarimart',
+];
+
+/** The market the store operates in. See `lib/seo/brand.ts`. */
+const DEFAULT_TIMEZONE = 'Asia/Dhaka';
 const OLD_HARDCODED_DESCRIPTIONS = ['Your Trusted Online Shopping Destination'];
 
 export interface GeneralSettingsLike {
@@ -185,10 +205,11 @@ export function buildPublicGeneralSettingsPayload(
     settings?.allowedLanguages,
     normalizedLanguage,
   );
-  const normalizedTimezone =
-    !settings?.timezone || settings.timezone === 'Asia/Dhaka'
-      ? 'Europe/Berlin'
-      : settings.timezone;
+  // The admin's own choice, honoured. This used to rewrite a stored
+  // `Asia/Dhaka` into `Europe/Berlin` during the Germany rebrand, which meant
+  // the one timezone the store actually operates in was the one value the
+  // settings screen could not save.
+  const normalizedTimezone = settings?.timezone?.trim() || '';
 
   return {
     siteName: cleanSiteName || process.env.NEXT_PUBLIC_SITE_NAME || '',
@@ -212,7 +233,7 @@ export function buildPublicGeneralSettingsPayload(
     },
     socialLinks: settings?.socialLinks || {},
     currency: normalizedCurrency,
-    timezone: normalizedTimezone || process.env.NEXT_PUBLIC_TIMEZONE || 'Europe/Berlin',
+    timezone: normalizedTimezone || process.env.NEXT_PUBLIC_TIMEZONE || DEFAULT_TIMEZONE,
     language: normalizedLanguage,
     allowedLanguages: normalizedAllowedLanguages,
     typography: resolvedTypography.settings,

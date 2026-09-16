@@ -91,8 +91,17 @@ export const LOCALE_STORAGE_KEY = 'site-locale';
 /** One year — a language preference should outlive a session. */
 export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
-/** With nothing configured, every supported locale is offered. */
-export const DEFAULT_ALLOWED_LOCALES: Locale[] = [...SUPPORTED_LOCALES];
+/**
+ * Locales offered to visitors when the admin has configured nothing.
+ *
+ * Narrower than `SUPPORTED_LOCALES` on purpose. The store serves Bangladesh, so
+ * German is not one of the languages a visitor should be able to switch into —
+ * but `de` stays *supported*, with its dictionary intact, because
+ * `tests/localization` enforces an identical key tree across all three files
+ * and that parity check is what stops a translation silently going missing.
+ * Dropping the locale would drop the check with it.
+ */
+export const DEFAULT_ALLOWED_LOCALES: Locale[] = ['en', 'bn'];
 
 /**
  * Coerce a stored/posted "allowed languages" list onto the supported set.
