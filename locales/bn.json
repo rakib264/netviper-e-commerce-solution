@@ -1614,7 +1614,8 @@
     "tryAgain": "আবার চেষ্টা করুন",
     "uploadIndex": "আপলোড {{index}}",
     "viewAll": "সব দেখুন",
-    "viewAllOf": "সব {{section}} দেখুন"
+    "viewAllOf": "সব {{section}} দেখুন",
+    "productImageAlt": "{{name}} — {{category}}"
   },
   "contact": {
     "address": "ঠিকানা",

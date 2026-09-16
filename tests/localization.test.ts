@@ -265,9 +265,23 @@ test('the public payload exposes a usable allow-list', async () => {
 
 /* ── Coverage ────────────────────────────────────────────────────────── */
 
-test('every t() key used in the app exists in English', () => {
-  const english = readDictionary('en');
+/**
+ * Matches a `t()` / `tPlural()` call whose key is a static string literal, in
+ * any of the three quotings TypeScript allows.
+ *
+ * The double-quoted and backticked forms were previously invisible to this
+ * check: it matched `'...'` only, so an entire file written with double quotes
+ * could reference keys that do not exist and this test would pass. Prettier and
+ * two different editor configs mean both quotings occur throughout the repo.
+ *
+ * A backtick literal is only checked when it contains no `${...}` hole — a
+ * computed key cannot be resolved statically, and those are asserted
+ * separately below.
+ */
+const STATIC_TRANSLATION_CALL =
+  /\b(t|tPlural)\(\s*(?:'([\w.]+)'|"([\w.]+)"|`([\w.]+)`)/g;
 
+function sourceFiles(): string[] {
   const walk = (dir: string, out: string[] = []): string[] => {
     for (const entry of readdirSync(join(REPO, dir))) {
       if (['node_modules', '.next', '.git'].includes(entry)) continue;
@@ -277,20 +291,134 @@ test('every t() key used in the app exists in English', () => {
     }
     return out;
   };
+  return [...walk('app'), ...walk('components'), ...walk('lib')];
+}
 
+test('every t() key used in the app exists in English', () => {
+  const english = readDictionary('en');
   const missing: string[] = [];
-  for (const file of [...walk('app'), ...walk('components'), ...walk('lib')]) {
+
+  for (const file of sourceFiles()) {
     const src = readFileSync(join(REPO, file), 'utf8');
-    for (const m of src.matchAll(/\bt\(\s*'([\w.]+)'/g)) {
-      if (!(m[1] in english)) missing.push(`${file}: ${m[1]}`);
-    }
-    for (const m of src.matchAll(/\btPlural\(\s*'([\w.]+)'/g)) {
-      for (const suffix of ['_one', '_other']) {
-        if (!(`${m[1]}${suffix}` in english)) missing.push(`${file}: ${m[1]}${suffix}`);
+
+    for (const match of src.matchAll(STATIC_TRANSLATION_CALL)) {
+      const [, fn, single, double, backtick] = match;
+      const key = single ?? double ?? backtick;
+      if (!key) continue;
+
+      if (fn === 'tPlural') {
+        // Both forms are required: `translatePlural` picks between them by
+        // count, so a missing `_other` renders the raw key on every plural.
+        for (const suffix of ['_one', '_other']) {
+          if (!(`${key}${suffix}` in english)) missing.push(`${file}: ${key}${suffix}`);
+        }
+      } else if (!(key in english)) {
+        missing.push(`${file}: ${key}`);
       }
     }
   }
-  assert.deepEqual(missing, [], `keys referenced in code but absent from locales/en.json`);
+
+  assert.deepEqual(missing, [], 'keys referenced in code but absent from locales/en.json');
+});
+
+test('every computed translation key resolves', async () => {
+  // Keys built by interpolation — `t(`faq.${id}.question`)` — are invisible to
+  // the static scan above. They are also the ones that fail loudest: the FAQ
+  // registry feeds both the visible copy and the FAQPage JSON-LD, so a missing
+  // key publishes a raw dotted key to search engines as an answer.
+  const english = readDictionary('en');
+  const missing: string[] = [];
+  const expect = (key: string, source: string) => {
+    if (!(key in english)) missing.push(`${source}: ${key}`);
+  };
+
+  const { GENERAL_FAQS, RETURNS_FAQS, SHIPPING_FAQS, faqsForCategory, faqsForProduct } =
+    await import('../lib/seo/faq.ts');
+
+  // Every reachable FAQ set, including the category matchers, which are only
+  // reachable through `faqsForCategory` and would otherwise go untested.
+  const categoryProbes = [
+    'korean-ramen',
+    'bibigo-dumplings',
+    'sushi-ingredients',
+    'drink-mixes',
+    'snacks-popcorn',
+    'something-with-no-match',
+  ];
+  const sets = [
+    GENERAL_FAQS,
+    SHIPPING_FAQS,
+    RETURNS_FAQS,
+    ...categoryProbes.map((slug) => faqsForCategory({ slug, name: slug })),
+    faqsForProduct({ name: 'Buldak 2x', categoryName: 'Korean Ramen' }),
+  ];
+
+  for (const set of sets) {
+    for (const faq of set) {
+      expect(faq.questionKey, 'lib/seo/faq.ts');
+      expect(faq.answerKey, 'lib/seo/faq.ts');
+    }
+  }
+
+  // `app/privacy-policy/page.tsx` renders one section per key in SECTION_KEYS.
+  for (const section of [
+    'controller',
+    'collect',
+    'payment',
+    'sharing',
+    'cookies',
+    'retention',
+    'rights',
+    'contact',
+  ]) {
+    expect(`privacyPolicy.sections.${section}.title`, 'app/privacy-policy/page.tsx');
+    expect(`privacyPolicy.sections.${section}.body`, 'app/privacy-policy/page.tsx');
+  }
+
+  // `returns.rules.status.<status>` is rendered from the lifecycle enum by the
+  // customer tracker and three admin screens.
+  const { RETURN_STATUSES } = await import('../lib/returns/policy.ts');
+  for (const status of RETURN_STATUSES) {
+    expect(`returns.rules.status.${status}`, 'lib/returns/policy.ts');
+  }
+
+  assert.deepEqual(missing, [], 'computed keys referenced in code but absent from locales/en.json');
+});
+
+test('SEO and answer-block copy exists for every route that renders it', () => {
+  // These are resolved through `buildMetadata` and the answer blocks, which read
+  // the key from a variable — so a route added without its copy would ship the
+  // brand default silently rather than failing.
+  const english = readDictionary('en');
+  const missing: string[] = [];
+
+  const SEO_ROUTES = [
+    'products', 'categories', 'deals', 'blogs', 'events', 'explore', 'faqs',
+    'about', 'contact', 'shippingDelivery', 'termsConditions', 'privacyPolicy',
+    'privilegeMembers', 'comboBundles', 'productsFeatured',
+    'productsNewArrivals', 'productsBestSelling', 'productsLimitedEdition',
+  ];
+  for (const route of SEO_ROUTES) {
+    for (const field of ['title', 'description']) {
+      if (!(`seo.${route}.${field}` in english)) missing.push(`seo.${route}.${field}`);
+    }
+  }
+
+  // Private routes carry a title but share one description.
+  for (const route of ['cart', 'checkout', 'wishlist', 'returns', 'profile', 'signin', 'signup', 'forgotPassword']) {
+    if (!(`seo.${route}.title` in english)) missing.push(`seo.${route}.title`);
+  }
+  if (!('seo.privateDescription' in english)) missing.push('seo.privateDescription');
+
+  for (const answer of ['home', 'products', 'categories', 'deals', 'faqs', 'about', 'contact', 'shippingDelivery']) {
+    if (!(`answer.${answer}` in english)) missing.push(`answer.${answer}`);
+  }
+
+  for (const key of ['brand.tagline', 'brand.description', 'faq.sectionHeading']) {
+    if (!(key in english)) missing.push(key);
+  }
+
+  assert.deepEqual(missing, [], 'SEO copy missing from locales/en.json');
 });
 
 test('placeholders match across every locale', () => {

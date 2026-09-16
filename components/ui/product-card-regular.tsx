@@ -50,14 +50,21 @@ export default function ProductCardRegular({
 
         {/*
           Descriptive rather than bare: an alt of just the product name repeats
-          the link text next to it, where "<name> — <category>" tells a screen
+          the link text beside it, where "<name> — <category>" tells a screen
           reader (and an image crawler) what the thing actually is.
+
+          Composed through a key rather than a template literal even though both
+          halves are data: the separator and the order are presentation, and a
+          language that writes the category first needs to be able to say so.
         */}
         <Image
           src={card.activeImage}
           alt={
             product.category?.name
-              ? `${product.name} — ${product.category.name}`
+              ? t('common.productImageAlt', {
+                  name: product.name,
+                  category: product.category.name,
+                })
               : product.name
           }
           fill

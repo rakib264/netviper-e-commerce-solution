@@ -1614,7 +1614,8 @@
     "tryAgain": "Try again",
     "uploadIndex": "Upload {{index}}",
     "viewAll": "View All",
-    "viewAllOf": "View all {{section}}"
+    "viewAllOf": "View all {{section}}",
+    "productImageAlt": "{{name}} — {{category}}"
   },
   "contact": {
     "address": "Address",
