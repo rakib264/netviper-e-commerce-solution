@@ -3103,7 +3103,123 @@
     "privacyPolicy": {
       "title": "Privacy Policy",
       "description": "How {{brand}} collects, uses, shares and protects your personal information when you shop with us in Bangladesh."
-    }
+    },
+    "products": {
+      "title": "All Products",
+      "description": "Browse every product at {{brand}} — Korean ramen, instant noodles, Bibigo, sushi ingredients, snacks, drinks and daily groceries, delivered across Bangladesh."
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "description": "Every category at {{brand}}, from Korean ramen and Bibigo to sushi ingredients, drink mixes, coffee, tea and everyday groceries."
+    },
+    "deals": {
+      "title": "Deals & Offers",
+      "description": "Live discounts and bundle offers on Korean ramen, snacks and groceries at {{brand}}. Prices drop while the deal runs — check what is active today."
+    },
+    "blogs": {
+      "title": "Blog",
+      "description": "Recipes, cooking guides and product notes from {{brand}} — how to cook Korean ramen, what to buy for sushi at home, and which noodles suit which heat level."
+    },
+    "events": {
+      "title": "Events",
+      "description": "Campaigns and limited-time events at {{brand}}, with special pricing on Korean ramen, snacks and groceries while each one runs."
+    },
+    "explore": {
+      "title": "Explore Products",
+      "description": "Filter the full {{brand}} catalogue by category, price and brand to find exactly the ramen, snack or grocery item you are after."
+    },
+    "faqs": {
+      "title": "Frequently Asked Questions",
+      "description": "Delivery times and charges, payment methods, returns, halal status and product sourcing — the questions customers ask {{brand}} most, answered."
+    },
+    "about": {
+      "title": "About Us",
+      "description": "{{brand}} is an online food marketplace in Bangladesh for Korean ramen, Bibigo, sushi ingredients, drinks, snacks and daily groceries at affordable prices."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "Reach {{brand}} about an order, a delivery, a return or a product question. Support hours, email and phone are all listed here."
+    },
+    "shippingDelivery": {
+      "title": "Shipping & Delivery",
+      "description": "Delivery times, charges and coverage for {{brand}}: inside Dhaka in {{dhakaMin}}–{{dhakaMax}} days, nationwide in {{natMin}}–{{natMax}} days."
+    },
+    "termsConditions": {
+      "title": "Terms & Conditions",
+      "description": "The terms that apply when you order from {{brand}}: ordering, pricing, payment, delivery, cancellation, returns and account use."
+    },
+    "privilegeMembers": {
+      "title": "Privilege Members",
+      "description": "Membership at {{brand}}: what each tier includes, how delivery benefits work, and how to join or change your plan."
+    },
+    "comboBundles": {
+      "title": "Combo Bundles",
+      "description": "Ramen and grocery bundles at {{brand}}, priced below buying each item separately. Built around the packs customers reorder most."
+    },
+    "productsFeatured": {
+      "title": "Featured Products",
+      "description": "Hand-picked products at {{brand}} — the Korean ramen, snacks and groceries worth starting with if you are ordering for the first time."
+    },
+    "productsNewArrivals": {
+      "title": "New Arrivals",
+      "description": "The newest stock at {{brand}} — freshly landed Korean ramen, Bibigo lines, snacks and drinks, listed as they arrive."
+    },
+    "productsBestSelling": {
+      "title": "Best Sellers",
+      "description": "What customers order most from {{brand}} — the Korean ramen, snacks and grocery staples that reorder fastest."
+    },
+    "productsLimitedEdition": {
+      "title": "Limited Edition",
+      "description": "Limited-run imports at {{brand}} — seasonal Korean ramen flavours and small-batch snacks that are gone once the stock is."
+    },
+    "product": {
+      "titleFallback": "{{name}}",
+      "descriptionFallback": "Buy {{name}} from {{brand}}, delivered across Bangladesh. Cash on delivery available, with free delivery over the order threshold.",
+      "notFoundTitle": "Product not found",
+      "notFoundDescription": "This product is no longer available. Browse the rest of the {{brand}} catalogue instead."
+    },
+    "category": {
+      "descriptionFallback": "Shop {{name}} at {{brand}} — browse the full range, compare prices and get it delivered across Bangladesh.",
+      "notFoundTitle": "Category not found"
+    },
+    "blog": {
+      "descriptionFallback": "Read {{name}} on the {{brand}} blog.",
+      "notFoundTitle": "Post not found"
+    },
+    "event": {
+      "descriptionFallback": "{{name}} at {{brand}} — see what is included and how long the offer runs."
+    },
+    "combo": {
+      "descriptionFallback": "{{name}} from {{brand}} — a bundle priced below buying each item on its own, delivered across Bangladesh."
+    },
+    "cart": {
+      "title": "Your Cart"
+    },
+    "checkout": {
+      "title": "Checkout"
+    },
+    "wishlist": {
+      "title": "Your Wishlist"
+    },
+    "returns": {
+      "title": "Returns & Exchanges"
+    },
+    "profile": {
+      "title": "Your Account"
+    },
+    "orders": {
+      "title": "Your Order"
+    },
+    "signin": {
+      "title": "Sign In"
+    },
+    "signup": {
+      "title": "Create an Account"
+    },
+    "forgotPassword": {
+      "title": "Reset Your Password"
+    },
+    "privateDescription": "A personal page on {{brand}}, visible only to you when you are signed in."
   },
   "privacyPolicy": {
     "title": "Privacy Policy",

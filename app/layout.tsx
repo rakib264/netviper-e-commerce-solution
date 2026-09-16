@@ -19,6 +19,7 @@ import {
   resolveActiveLocale,
 } from "@/lib/i18n/config";
 import StoreProvider from "@/lib/providers/StoreProvider";
+import { BRAND } from "@/lib/seo/brand";
 import {
   getCachedLocalizationSettings,
   getCachedThemeSettings,
@@ -33,71 +34,30 @@ import {
   resolveTypography,
   typographyVariablesToInlineCss,
 } from "@/lib/theme/typography";
+import { buildMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import "./globals.css";
 
-const BASE_URL = "https://www.muscarimart.com";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
-  title: {
-    default: "Mascari Mart",
-    template: "%s | Mascari Mart",
-  },
-  description:
-    "Mascari Mart is a Germany-based premium leather goods house for women and men. Discover handbags, shoulder bags, backpacks, wallets, shoes, and travel essentials crafted for modern timeless style.",
-  keywords: [
-    "Mascari Mart",
-    "premium leather goods",
-    "luxury handbags",
-    "wallets and small leather goods",
-    "backpacks",
-    "Germany fashion brand",
-    "european luxury accessories",
-  ],
-  openGraph: {
-    type: "website",
-    title: "Mascari Mart | Premium Leather Goods",
-    description:
-      "Premium leather goods for women and men, designed in Germany.",
-    siteName: "Mascari Mart",
-    url: BASE_URL,
-    locale: "de_DE",
-    alternateLocale: ["en_GB", "en_US"],
-    images: [
-      {
-        url: "/logo.png",
-        width: 1200,
-        height: 630,
-        alt: "Mascari Mart",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Mascari Mart | Premium Leather Goods",
-    description:
-      "Premium leather goods for women and men, designed in Germany.",
-    images: ["/logo.png"],
-  },
-  alternates: {
-    canonical: BASE_URL,
-    languages: {
-      "de-DE": BASE_URL,
-      "en-GB": `${BASE_URL}/en-gb`,
-      "en-US": `${BASE_URL}/en-us`,
-    },
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  other: {
-    "meta-country": "DE",
-  },
-};
+/**
+ * Site-wide defaults.
+ *
+ * Every field here comes from `lib/seo/brand.ts` by way of `buildMetadata`, so
+ * this file holds no brand string, no base URL and no locale of its own. The
+ * previous version hardcoded all three, and disagreed with `app/page.tsx` about
+ * two of them.
+ *
+ * `absoluteTitle` because the root title *is* the brand — running it through
+ * the `%s | Ramen Bhai` template would render the name twice. Pages override
+ * this wholesale; a page that somehow exports no metadata inherits it.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
+    path: "/",
+    absoluteTitle: true,
+    keywords: [...BRAND.keywordSeeds],
+  });
+}
 
 export default async function RootLayout({
   children,
@@ -191,45 +151,6 @@ export default async function RootLayout({
           content={themeSettings?.primaryColor || "#1A1A1A"}
         />
 
-        <Script
-          id="organization-schema"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Mascari Mart",
-              url: BASE_URL,
-              logo: `${BASE_URL}/logo.png`,
-              description:
-                "Germany-based premium leather goods house for women and men.",
-              sameAs: [
-                "https://www.facebook.com/muscarimart",
-                "https://www.instagram.com/muscarimart",
-              ],
-            }),
-          }}
-        />
-
-        <Script
-          id="website-schema"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Mascari Mart",
-              url: BASE_URL,
-              potentialAction: {
-                "@type": "SearchAction",
-                target: `${BASE_URL}/products?search={search_term_string}`,
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          }}
-        />
       </head>
       <body suppressHydrationWarning>
         <NextAuthProvider>

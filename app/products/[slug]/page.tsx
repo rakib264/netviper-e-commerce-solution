@@ -1,14 +1,25 @@
-import { getPublicProductDetail } from "@/lib/products/detail-server";
-import type { Metadata } from "next";
-import Script from "next/script";
-import ProductPageClient from "./ProductPageClient";
-import { DEFAULT_CURRENCY } from "@/lib/currency/config";
 import { getServerCurrency } from "@/lib/currency/server";
+import { getPublicProductDetail } from "@/lib/products/detail-server";
+import { getCachedReturnPolicy } from "@/lib/returns/policy-settings-server";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { productSchema, type ProductSchemaInput } from "@/lib/seo/schema";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import ProductPageClient from "./ProductPageClient";
 
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://muscarimart.com"
-    : "http://localhost:3000";
+/** Strip stored HTML down to the plain prose a description field wants. */
+function toPlainText(html?: string): string {
+  return (html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** The images a product has, richest source first. */
+function productImages(product: Record<string, any>): string[] {
+  const images: string[] = Array.isArray(product.images) ? product.images : [];
+  const all = images.length ? images : [product.thumbnailImage];
+  return all.filter((image): image is string => Boolean(image));
+}
 
 export async function generateMetadata({
   params,
@@ -17,87 +28,44 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  try {
-    // Shared cache entry with the page body below and with
-    // `/api/products/[slug]`, so all three cost one read.
-    const [{ product }, currency] = await Promise.all([
-      getPublicProductDetail(slug),
-      getServerCurrency(),
-    ]);
+  // Shared cache entry with the page body below and with
+  // `/api/products/[slug]`, so all three cost one read.
+  const [detail, { seo, t }] = await Promise.all([
+    getPublicProductDetail(slug).catch(() => null),
+    getSeoContext(),
+  ]);
 
-    if (!product) {
-      return {
-        title: "Product Not Found | Mascari Mart",
-        description: "The product you are looking for does not exist.",
-      };
-    }
+  const product = detail?.product as Record<string, any> | undefined;
 
-    const productData = product as any;
-    const title = productData.metaTitle || `${productData.name} | Mascari Mart`;
-    const description =
-      productData.metaDescription ||
-      productData.shortDescription ||
-      (productData.description
-        ? productData.description.substring(0, 160).replace(/<[^>]*>/g, "")
-        : `Discover ${productData.name} at Mascari Mart. Premium leather goods designed for modern timeless style.`);
-
-    const images =
-      productData.images && productData.images.length > 0
-        ? productData.images
-        : [productData.thumbnailImage];
-
-    const price =
-      productData.comparePrice && productData.comparePrice > productData.price
-        ? productData.comparePrice
-        : productData.price;
-
-    const availability =
-      productData.quantity > 0
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock";
-    const categoryName = (productData.category as any)?.name || "Leather Goods";
-
-    return {
-      title,
-      description,
-      keywords: productData.seoKeywords ||
-        productData.tags || [productData.name, categoryName],
-      openGraph: {
-        title,
-        description,
-        url: `${BASE_URL}/products/${slug}`,
-        siteName: "Mascari Mart",
-        images: images.slice(0, 4).map((img: string) => ({
-          url: img,
-          width: 1200,
-          height: 630,
-          alt: productData.name,
-        })),
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: [productData.thumbnailImage],
-      },
-      alternates: {
-        canonical: `${BASE_URL}/products/${slug}`,
-      },
-      other: {
-        "product:price:amount": price.toString(),
-        "product:price:currency": currency,
-        "product:availability": availability,
-        "product:condition": "new",
-      },
-    };
-  } catch (error) {
-    console.error("Error generating product metadata:", error);
-    return {
-      title: "Product | Mascari Mart",
-      description: "Browse premium leather goods at Mascari Mart.",
-    };
+  if (!product) {
+    return buildMetadata({
+      titleKey: "seo.product.notFoundTitle",
+      descriptionKey: "seo.product.notFoundDescription",
+      descriptionValues: { brand: seo.name },
+      path: `/products/${slug}`,
+      noindex: true,
+    });
   }
+
+  // Admin-authored SEO fields win; otherwise the product's own copy, and only
+  // then a generated sentence. `buildMetadata` handles the length limits, so
+  // none of these branches has to think about truncation.
+  const description =
+    product.metaDescription ||
+    product.shortDescription ||
+    toPlainText(product.description) ||
+    t("seo.product.descriptionFallback", { name: product.name, brand: seo.name });
+
+  return buildMetadata({
+    title: product.metaTitle || product.name,
+    description,
+    path: `/products/${slug}`,
+    type: "product",
+    images: productImages(product)
+      .slice(0, 4)
+      .map((url) => ({ url, alt: product.name })),
+    keywords: product.seoKeywords || product.tags || undefined,
+  });
 }
 
 export default async function ProductPage({
@@ -109,101 +77,82 @@ export default async function ProductPage({
 
   // One read for the JSON-LD block *and* for the page content: the client
   // component receives the product as a prop instead of refetching it after
-  // hydration, so the PDP is server-rendered.
-  let product: Record<string, any> | null = null;
-  let relatedProducts: Array<Record<string, any>> = [];
-  // Schema.org requires an ISO code; it must be the store's, not a baked-in EUR.
-  let currency: string = DEFAULT_CURRENCY;
-  try {
-    const [detail, resolvedCurrency] = await Promise.all([
-      getPublicProductDetail(slug),
-      getServerCurrency(),
-    ]);
-    product = detail.product;
-    relatedProducts = detail.relatedProducts;
-    currency = resolvedCurrency;
-  } catch (error) {
-    console.error("Error fetching product:", error);
-  }
+  // hydration, so the PDP is server-rendered. The currency, returns policy and
+  // SEO context are all cached reads with no dependency on the product, so they
+  // resolve in the same round rather than behind it.
+  const [detail, currency, returnPolicy, context] = await Promise.all([
+    getPublicProductDetail(slug).catch((error) => {
+      console.error("Error fetching product:", error);
+      return null;
+    }),
+    getServerCurrency(),
+    getCachedReturnPolicy().catch(() => null),
+    getSeoContext(),
+  ]);
+
+  // An unknown slug is a 404, not a 200 rendering an empty shell. Without this
+  // the page answered 200 for every mistyped URL, which is how a catalogue ends
+  // up with thousands of indexed near-empty pages.
+  if (!detail?.product) notFound();
+
+  const product = detail.product as Record<string, any>;
+  const { seo, t } = context;
+  const category = product.category as { name?: string; slug?: string } | undefined;
+
+  const schemaInput: ProductSchemaInput = {
+    name: product.name,
+    description:
+      product.shortDescription || toPlainText(product.description).slice(0, 500),
+    images: productImages(product),
+    slug,
+    price: product.price,
+    comparePrice: product.comparePrice,
+    quantity: product.quantity,
+    // Emitted only when the product actually carries them — an invented SKU is
+    // a duplicate-product signal and an invented GTIN is a feed rejection.
+    sku: product.sku || undefined,
+    barcode: product.barcode || undefined,
+    brandName: product.brand || undefined,
+    categoryName: category?.name,
+    averageRating: product.averageRating,
+    totalReviews: product.totalReviews,
+    reviews: Array.isArray(product.reviews) ? product.reviews : undefined,
+  };
+
+  const { graph } = await buildPageGraph(
+    {
+      path: `/products/${slug}`,
+      name: product.name,
+      description: schemaInput.description,
+      primaryImage: productImages(product)[0],
+      breadcrumbs: [
+        { name: t("seo.products.title"), path: "/products" },
+        ...(category?.slug && category.name
+          ? [{ name: category.name, path: `/categories/${category.slug}` }]
+          : []),
+        { name: product.name, path: `/products/${slug}` },
+      ],
+      nodes: [
+        productSchema(seo, schemaInput, {
+          currency,
+          returnPolicy: returnPolicy
+            ? {
+                returnWindowDays: returnPolicy.returnWindowDays,
+                freeReturnShipping: returnPolicy.freeReturnShipping,
+              }
+            : undefined,
+        }),
+      ],
+    },
+    context,
+  );
 
   return (
     <>
-      {product &&
-        (() => {
-          const productData = product as any;
-          return (
-            <Script
-              id="product-schema"
-              type="application/ld+json"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                  "@context": "https://schema.org",
-                  "@type": "Product",
-                  name: productData.name,
-                  description:
-                    productData.shortDescription ||
-                    (productData.description
-                      ? productData.description
-                          .replace(/<[^>]*>/g, "")
-                          .substring(0, 500)
-                      : ""),
-                  image:
-                    productData.images && productData.images.length > 0
-                      ? productData.images
-                      : [productData.thumbnailImage],
-                  sku: productData.sku,
-                  brand: {
-                    "@type": "Brand",
-                    name: "Mascari Mart",
-                  },
-                  offers: {
-                    "@type": "Offer",
-                    url: `${BASE_URL}/products/${slug}`,
-                    priceCurrency: currency,
-                    price: productData.price,
-                    priceValidUntil: new Date(
-                      Date.now() + 365 * 24 * 60 * 60 * 1000,
-                    )
-                      .toISOString()
-                      .split("T")[0],
-                    itemCondition: "https://schema.org/NewCondition",
-                    availability:
-                      productData.quantity > 0
-                        ? "https://schema.org/InStock"
-                        : "https://schema.org/OutOfStock",
-                    seller: {
-                      "@type": "Organization",
-                      name: "Mascari Mart",
-                    },
-                  },
-                  aggregateRating:
-                    productData.averageRating > 0
-                      ? {
-                          "@type": "AggregateRating",
-                          ratingValue: productData.averageRating,
-                          reviewCount: productData.totalReviews || 0,
-                          bestRating: "5",
-                          worstRating: "1",
-                        }
-                      : undefined,
-                  category:
-                    (productData.category as any)?.name || "Leather Goods",
-                  additionalProperty: [
-                    {
-                      "@type": "PropertyValue",
-                      name: "Total Sales",
-                      value: productData.totalSales || 0,
-                    },
-                  ],
-                }),
-              }}
-            />
-          );
-        })()}
+      <JsonLd graph={graph} />
       <ProductPageClient
         initialProduct={product as never}
-        initialRelatedProducts={relatedProducts as never}
+        initialRelatedProducts={detail.relatedProducts as never}
       />
     </>
   );

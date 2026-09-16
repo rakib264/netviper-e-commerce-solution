@@ -65,6 +65,9 @@ export const revalidateDeals = () =>
   revalidateStorefront(CACHE_TAGS.deals, CACHE_TAGS.homepage);
 
 
+/** Blogs have their own listing and detail pages, and feed no homepage band. */
+export const revalidateBlogs = () => revalidateStorefront(CACHE_TAGS.blogs);
+
 export const revalidateReturnPolicy = () =>
   revalidateStorefront(CACHE_TAGS.returnPolicy);
 

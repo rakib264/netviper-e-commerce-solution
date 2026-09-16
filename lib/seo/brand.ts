@@ -106,7 +106,8 @@ export const BRAND = {
   descriptionKey: 'brand.description',
 
   titleTemplate: '%s | Ramen Bhai',
-  defaultTitle: 'Ramen Bhai — Korean Ramen, Instant Noodles & Groceries in Bangladesh',
+  /** Kept under 60 characters so it survives `buildMetadata`'s truncation. */
+  defaultTitle: 'Ramen Bhai — Korean Ramen & Groceries in Bangladesh',
 
   /**
    * Tagline baked into the generated social card.

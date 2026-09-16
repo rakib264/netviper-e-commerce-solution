@@ -103,13 +103,57 @@ const LEGACY_SITE_NAME_SET = new Set(
   LEGACY_SITE_NAMES.map((name) => name.trim().toLowerCase()),
 );
 
-/** A stored value that is blank, placeholder, or a known dead brand. */
+/**
+ * Hosts this store used to serve from.
+ *
+ * A stale `siteUrl` is every bit as damaging as a stale `siteName` and far
+ * easier to miss: it silently points every canonical, every `@id` and the
+ * sitemap at a domain the store no longer owns, which tells Google the real
+ * site is a copy of one that no longer exists. Matched on hostname, so `www.`
+ * and a stray path or port do not smuggle one past.
+ */
+export const LEGACY_DOMAINS = [
+  'muscarimart.com',
+  'mascarimart.com',
+  'tsrgallery.com',
+  'wellrise.com',
+];
+
+function isLegacyHost(value: string): boolean {
+  try {
+    const host = new URL(value).hostname.toLowerCase().replace(/^www\./, '');
+    return LEGACY_DOMAINS.some(
+      (domain) => host === domain || host.endsWith(`.${domain}`),
+    );
+  } catch {
+    // Not a URL at all — `usable` handles it as ordinary text.
+    return false;
+  }
+}
+
+/**
+ * A stored value, or `undefined` when it must not be trusted.
+ *
+ * Rejects blanks, `TODO_` placeholders, exact dead brand names, any URL on a
+ * dead domain, and — the case a name-only check misses — any prose that merely
+ * *mentions* a dead brand. That last rule is what catches the site description
+ * left over from a previous incarnation of the store: it is not equal to an old
+ * name, it contains one, and it would otherwise sail into every `<meta
+ * name="description">` on the site.
+ */
 function usable(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   if (!trimmed) return undefined;
   if (isPlaceholder(trimmed)) return undefined;
-  if (LEGACY_SITE_NAME_SET.has(trimmed.toLowerCase())) return undefined;
+
+  const lowered = trimmed.toLowerCase();
+  if (LEGACY_SITE_NAME_SET.has(lowered)) return undefined;
+  if (isLegacyHost(trimmed)) return undefined;
+  if (LEGACY_SITE_NAMES.some((name) => lowered.includes(name.toLowerCase()))) {
+    return undefined;
+  }
+
   return trimmed;
 }
 

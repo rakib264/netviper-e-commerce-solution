@@ -1,3 +1,5 @@
+import { attachStorefrontInvalidation } from '@/lib/cache/model-invalidation';
+import { revalidateBlogs } from '@/lib/cache/revalidate';
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IBlog extends Document {
@@ -99,6 +101,8 @@ BlogSchema.pre('save', function(next) {
   
   next();
 });
+
+attachStorefrontInvalidation(BlogSchema, revalidateBlogs);
 
 export default mongoose.models.Blog || mongoose.model<IBlog>('Blog', BlogSchema);
 

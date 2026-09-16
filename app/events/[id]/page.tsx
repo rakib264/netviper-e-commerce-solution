@@ -1,11 +1,48 @@
-import type { Metadata } from "next";
-import connectDB from "@/lib/mongodb";
+import { CACHE_TAGS } from "@/lib/cache/tags";
+import { toPlainJson } from "@/lib/home/serialize";
 import Event from "@/lib/models/Event";
+import connectDB from "@/lib/mongodb";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { eventSchema } from "@/lib/seo/schema";
+import mongoose from "mongoose";
+import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
+import { notFound } from "next/navigation";
 import EventPageClient from "./EventPageClient";
-import Script from "next/script";
-import { getServerCurrency } from "@/lib/currency/server";
 
-const BASE_URL = process.env.NODE_ENV === 'production' ? "https://muscarimart.com" : "http://localhost:3000";
+interface EventRecord {
+  title: string;
+  subtitle?: string;
+  bannerImage?: string;
+  discountText?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+/**
+ * One event, cached and tagged — shared by `generateMetadata` and the body,
+ * which previously ran the same uncached query twice per request.
+ */
+const loadEvent = unstable_cache(
+  async (id: string) => {
+    // The id comes straight from the URL. Without this guard a malformed one
+    // reaches Mongoose as a cast error — a 500 where the honest answer is 404.
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+
+    await connectDB();
+    const event = await Event.findOne({ _id: id, isActive: true })
+      .select("-__v")
+      .lean();
+
+    return event ? toPlainJson(event as unknown as EventRecord) : null;
+  },
+  ["event-detail-v1"],
+  // 60s rather than 300: an event's visibility turns on a clock, so a longer
+  // window would keep showing one that has already ended.
+  { tags: [CACHE_TAGS.events], revalidate: 60 },
+);
 
 export async function generateMetadata({
   params,
@@ -14,73 +51,32 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
 
-  try {
-    await connectDB();
-    const event = await Event.findOne({ _id: id, isActive: true }).lean();
+  const [event, { seo, t }] = await Promise.all([
+    loadEvent(id).catch(() => null),
+    getSeoContext(),
+  ]);
 
-    if (!event) {
-      return {
-        title: "Event Not Found | Muscari Mart",
-        description: "The event you are looking for does not exist.",
-      };
-    }
-
-    const eventData = event as any;
-    const title = `${eventData.title} | Muscari Mart Events`;
-    const description =
-      eventData.subtitle ||
-      eventData.discountText ||
-      `Don't miss ${eventData.title} at Muscari Mart. Special offers and discounts on premium sarees.`;
-
-    const startDate = new Date(eventData.startDate).toISOString();
-    const endDate = new Date(eventData.endDate).toISOString();
-    const now = new Date();
-    const eventStatus =
-      now < eventData.startDate
-        ? "upcoming"
-        : now > eventData.endDate
-          ? "expired"
-          : "active";
-
-    return {
-      title,
-      description,
-      keywords: ["Muscari Mart", "events", "sarees", "discounts", "sales"],
-      openGraph: {
-        title,
-        description,
-        url: `${BASE_URL}/events/${id}`,
-        siteName: "Muscari Mart",
-        images: eventData.bannerImage
-          ? [
-              {
-                url: eventData.bannerImage,
-                width: 1200,
-                height: 630,
-                alt: eventData.title,
-              },
-            ]
-          : [],
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: eventData.bannerImage ? [eventData.bannerImage] : [],
-      },
-      alternates: {
-        canonical: `${BASE_URL}/events/${id}`,
-      },
-    };
-  } catch (error) {
-    console.error("Error generating event metadata:", error);
-    return {
-      title: "Event | Muscari Mart",
-      description:
-        "Discover our latest events and special offers at Muscari Mart.",
-    };
+  if (!event) {
+    return buildMetadata({
+      titleKey: "seo.events.title",
+      descriptionKey: "seo.events.description",
+      descriptionValues: { brand: seo.name },
+      path: `/events/${id}`,
+      noindex: true,
+    });
   }
+
+  return buildMetadata({
+    title: event.title,
+    description:
+      event.subtitle ||
+      event.discountText ||
+      t("seo.event.descriptionFallback", { name: event.title, brand: seo.name }),
+    path: `/events/${id}`,
+    images: event.bannerImage
+      ? [{ url: event.bannerImage, alt: event.title }]
+      : undefined,
+  });
 }
 
 export default async function EventPage({
@@ -90,67 +86,49 @@ export default async function EventPage({
 }) {
   const { id } = await params;
 
-  // Fetch event for structured data
-  let event = null;
-  try {
-    await connectDB();
-    event = await Event.findOne({ _id: id, isActive: true }).lean();
-  } catch (error) {
-    console.error("Error fetching event for structured data:", error);
-  }
+  const [event, context] = await Promise.all([
+    loadEvent(id).catch((error) => {
+      console.error("Error fetching event:", error);
+      return null;
+    }),
+    getSeoContext(),
+  ]);
 
-  // Schema.org requires an ISO code, and it has to be the store's — this block
-  // hardcoded BDT while the product schema hardcoded EUR.
-  const eventCurrency = await getServerCurrency();
+  if (!event) notFound();
+
+  const { seo, t } = context;
+  const description =
+    event.subtitle ||
+    event.discountText ||
+    t("seo.event.descriptionFallback", { name: event.title, brand: seo.name });
+
+  const { graph } = await buildPageGraph(
+    {
+      path: `/events/${id}`,
+      name: event.title,
+      description,
+      primaryImage: event.bannerImage,
+      breadcrumbs: [
+        { name: t("seo.events.title"), path: "/events" },
+        { name: event.title, path: `/events/${id}` },
+      ],
+      nodes: [
+        eventSchema(seo, {
+          canonical: seo.absolute(`/events/${id}`),
+          name: event.title,
+          description,
+          image: event.bannerImage,
+          startDate: event.startDate,
+          endDate: event.endDate,
+        }),
+      ],
+    },
+    context,
+  );
 
   return (
     <>
-      {event &&
-        (() => {
-          const eventData = event as any;
-          return (
-            <Script
-              id="event-schema"
-              type="application/ld+json"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                  "@context": "https://schema.org",
-                  "@type": "Event",
-                  name: eventData.title,
-                  description:
-                    eventData.subtitle ||
-                    eventData.discountText ||
-                    eventData.title,
-                  image: eventData.bannerImage ? [eventData.bannerImage] : [],
-                  startDate: new Date(eventData.startDate).toISOString(),
-                  endDate: new Date(eventData.endDate).toISOString(),
-                  eventStatus: "https://schema.org/EventScheduled",
-                  eventAttendanceMode:
-                    "https://schema.org/OnlineEventAttendanceMode",
-                  location: {
-                    "@type": "VirtualLocation",
-                    url: `${BASE_URL}/events/${id}`,
-                  },
-                  organizer: {
-                    "@type": "Organization",
-                    name: "Muscari Mart",
-                    url: BASE_URL,
-                  },
-                  offers: {
-                    "@type": "Offer",
-                    url: `${BASE_URL}/events/${id}`,
-                    price: "0",
-                    priceCurrency: eventCurrency,
-                    availability: "https://schema.org/InStock",
-                    validFrom: new Date(eventData.startDate).toISOString(),
-                    validThrough: new Date(eventData.endDate).toISOString(),
-                  },
-                }),
-              }}
-            />
-          );
-        })()}
+      <JsonLd graph={graph} />
       <EventPageClient params={Promise.resolve({ id })} />
     </>
   );

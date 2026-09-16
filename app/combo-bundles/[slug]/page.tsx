@@ -1,20 +1,26 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
+import { notFound } from 'next/navigation';
 
 import { findComboBundleBySlug } from '@/lib/combo-bundles/resolve';
-import ComboBundlePageClient from './ComboBundlePageClient';
 import { getServerCurrency } from '@/lib/currency/server';
-
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://muscarimart.com'
-    : 'http://localhost:3000';
+import { JsonLd } from '@/lib/seo/JsonLd';
+import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { comboProductSchema } from '@/lib/seo/schema';
+import ComboBundlePageClient from './ComboBundlePageClient';
 
 /**
  * Server half: metadata and structured data only, with the interactive page
  * rendered by its client sibling — the pattern `products/[slug]` and
  * `categories/[slug]` already use.
  */
+
+/** Live means active *and* inside its schedule window. */
+async function loadLiveCombo(slug: string) {
+  const combo = await findComboBundleBySlug(slug).catch(() => null);
+  return combo && combo.isActive && combo.isScheduleLive ? combo : null;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -22,46 +28,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  try {
-    const combo = await findComboBundleBySlug(slug);
+  const [combo, { seo, t }] = await Promise.all([
+    loadLiveCombo(slug),
+    getSeoContext(),
+  ]);
 
-    if (!combo || !combo.isActive || !combo.isScheduleLive) {
-      return {
-        title: 'Offer Not Found | Mascari Mart',
-        description: 'This combo or bundle is no longer available.',
-      };
-    }
-
-    const kind = combo.comboType === 'bundle' ? 'Bundle' : 'Combo';
-    const title = `${combo.name} | ${kind} | Mascari Mart`;
-    const description =
-      combo.description?.slice(0, 160) ||
-      `${combo.name} — ${combo.componentCount} Mascari Mart pieces sold together as one ${kind.toLowerCase()}.`;
-
-    return {
-      title,
-      description,
-      alternates: { canonical: `${BASE_URL}/combo-bundles/${combo.slug}` },
-      openGraph: {
-        title,
-        description,
-        url: `${BASE_URL}/combo-bundles/${combo.slug}`,
-        siteName: 'Mascari Mart',
-        type: 'website',
-        images: combo.images.slice(0, 4).map((image) => ({
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: combo.name,
-        })),
-      },
-    };
-  } catch {
-    return {
-      title: 'Combos & Bundles | Mascari Mart',
-      description: 'Fixed-price combos and bundles from Mascari Mart.',
-    };
+  if (!combo) {
+    return buildMetadata({
+      titleKey: 'seo.comboBundles.title',
+      descriptionKey: 'seo.comboBundles.description',
+      descriptionValues: { brand: seo.name },
+      path: `/combo-bundles/${slug}`,
+      noindex: true,
+    });
   }
+
+  return buildMetadata({
+    title: combo.name,
+    description:
+      combo.description ||
+      t('seo.combo.descriptionFallback', { name: combo.name, brand: seo.name }),
+    path: `/combo-bundles/${combo.slug}`,
+    images: combo.images.slice(0, 4).map((url) => ({ url, alt: combo.name })),
+  });
 }
 
 export default async function ComboBundleDetailPage({
@@ -70,46 +59,62 @@ export default async function ComboBundleDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const combo = await findComboBundleBySlug(slug);
 
-  const jsonLd =
-    combo && combo.isActive && combo.isScheduleLive
-      ? {
-          '@context': 'https://schema.org',
-          // A combo is a bundle of goods sold at one price, which is exactly
-          // what schema.org models here.
-          '@type': 'Product',
-          name: combo.name,
-          description: combo.description || undefined,
-          image: combo.images.slice(0, 4),
-          url: `${BASE_URL}/combo-bundles/${combo.slug}`,
-          isRelatedTo: combo.components.map((component) => ({
-            '@type': 'Product',
-            name: component.name,
-            url: component.slug ? `${BASE_URL}/products/${component.slug}` : undefined,
-          })),
-          offers: {
-            '@type': 'Offer',
+  const [combo, currency, context] = await Promise.all([
+    loadLiveCombo(slug),
+    getServerCurrency(),
+    getSeoContext(),
+  ]);
+
+  // An expired or unknown bundle is a 404. This used to render the client shell
+  // with a 200 and no structured data, which is an indexable empty page.
+  if (!combo) notFound();
+
+  const { seo, t } = context;
+  const description =
+    combo.description ||
+    t('seo.combo.descriptionFallback', { name: combo.name, brand: seo.name });
+
+  const { graph } = await buildPageGraph(
+    {
+      path: `/combo-bundles/${combo.slug}`,
+      name: combo.name,
+      description,
+      primaryImage: combo.images[0],
+      breadcrumbs: [
+        { name: t('seo.comboBundles.title'), path: '/combo-bundles' },
+        { name: combo.name, path: `/combo-bundles/${combo.slug}` },
+      ],
+      nodes: [
+        comboProductSchema(
+          seo,
+          {
+            canonical: seo.absolute(`/combo-bundles/${combo.slug}`),
+            name: combo.name,
+            description: combo.description || undefined,
+            image: combo.images[0],
             price: combo.price,
-            priceCurrency: await getServerCurrency(),
-            availability: combo.inStock
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-            url: `${BASE_URL}/combo-bundles/${combo.slug}`,
+            inStock: combo.inStock,
+            items: combo.components.map((component) => ({
+              name: component.name,
+              slug: component.slug || undefined,
+            })),
           },
-        }
-      : null;
+          currency,
+        ),
+      ],
+    },
+    context,
+  );
 
   return (
     <>
-      {jsonLd ? (
-        <Script
-          id={`combo-bundle-jsonld-${slug}`}
-          type="application/ld+json"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      ) : null}
+      {/*
+        Server-rendered, not `next/script` with `afterInteractive`. Structured
+        data has to be in the initial HTML; injecting it after hydration means a
+        crawler that does not run JavaScript never sees it at all.
+      */}
+      <JsonLd graph={graph} />
       <ComboBundlePageClient slug={slug} />
     </>
   );

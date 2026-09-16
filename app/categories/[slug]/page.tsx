@@ -3,18 +3,17 @@ import { sortCategories } from "@/lib/categories/sort";
 import { toPlainJson } from "@/lib/home/serialize";
 import Category from "@/lib/models/Category";
 import connectDB from "@/lib/mongodb";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { BRAND } from "@/lib/seo/brand";
+import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { collectionPageSchema, schemaId } from "@/lib/seo/schema";
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import CategoryPageClient, {
   type CategorySummary,
 } from "./CategoryPageClient";
-
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://muscarimart.com"
-    : "http://localhost:3000";
 
 interface CategoryRecord {
   _id: unknown;
@@ -86,56 +85,36 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  try {
-    const loaded = await loadCategory(slug);
+  const [loaded, { seo, t }] = await Promise.all([
+    loadCategory(slug).catch(() => null),
+    getSeoContext(),
+  ]);
 
-    if (!loaded) {
-      return {
-        title: "Category Not Found | Muscari Mart",
-        description: "The category you are looking for does not exist.",
-      };
-    }
+  if (!loaded) {
+    return buildMetadata({
+      titleKey: "seo.category.notFoundTitle",
+      descriptionKey: "seo.categories.description",
+      descriptionValues: { brand: seo.name },
+      path: `/categories/${slug}`,
+      noindex: true,
+    });
+  }
 
-    const { category } = loaded;
-    const title = category.metaTitle || `${category.name} | Muscari Mart`;
-    const description =
+  const { category } = loaded;
+
+  return buildMetadata({
+    title: category.metaTitle || category.name,
+    description:
       category.metaDescription ||
       category.description ||
-      `Browse ${category.name} at Muscari Mart — premium leather goods, crafted for everyday use.`;
-
-    return {
-      title,
-      description,
-      keywords: [
-        category.name,
-        "leather goods",
-        "handbags",
-        "premium",
-        "Muscari Mart",
-      ],
-      openGraph: {
-        title,
-        description,
-        url: `${BASE_URL}/categories/${slug}`,
-        siteName: "Muscari Mart",
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-      },
-      alternates: {
-        canonical: `${BASE_URL}/categories/${slug}`,
-      },
-    };
-  } catch (error) {
-    console.error("Error generating category metadata:", error);
-    return {
-      title: "Category | Muscari Mart",
-      description: "Browse our leather goods categories at Muscari Mart.",
-    };
-  }
+      t("seo.category.descriptionFallback", {
+        name: category.name,
+        brand: seo.name,
+      }),
+    path: `/categories/${slug}`,
+    images: category.image ? [{ url: category.image, alt: category.name }] : undefined,
+    keywords: [category.name, ...BRAND.keywordSeeds.slice(0, 8)],
+  });
 }
 
 export default async function CategoryPage({
@@ -145,48 +124,57 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
 
-  let loaded: Awaited<ReturnType<typeof loadCategory>> = null;
-  try {
-    loaded = await loadCategory(slug);
-  } catch (error) {
-    console.error("Error loading category:", error);
-  }
+  const [loaded, context] = await Promise.all([
+    loadCategory(slug).catch((error) => {
+      console.error("Error loading category:", error);
+      return null;
+    }),
+    getSeoContext(),
+  ]);
 
   // An unknown slug is a 404, not a 200 rendering an apology. `not-found.tsx`
   // in this segment supplies the branded page.
   if (!loaded) notFound();
 
   const { category, children } = loaded;
+  const { seo, t } = context;
   const parent = category.parent;
+  const canonical = seo.absolute(`/categories/${slug}`);
 
-  const breadcrumbItems = [
-    { name: "Home", item: BASE_URL },
-    { name: "Categories", item: `${BASE_URL}/categories` },
-    ...(parent
-      ? [{ name: parent.name, item: `${BASE_URL}/categories/${parent.slug}` }]
-      : []),
-    { name: category.name, item: `${BASE_URL}/categories/${slug}` },
-  ];
+  const description =
+    category.metaDescription ||
+    category.description ||
+    t("seo.category.descriptionFallback", {
+      name: category.name,
+      brand: seo.name,
+    });
+
+  const { graph } = await buildPageGraph(
+    {
+      path: `/categories/${slug}`,
+      name: category.name,
+      description,
+      primaryImage: category.image || undefined,
+      breadcrumbs: [
+        { name: t("seo.categories.title"), path: "/categories" },
+        ...(parent
+          ? [{ name: parent.name, path: `/categories/${parent.slug}` }]
+          : []),
+        { name: category.name, path: `/categories/${slug}` },
+      ],
+      webPageNode: collectionPageSchema(seo, {
+        canonical,
+        name: category.name,
+        description,
+        breadcrumbId: schemaId.breadcrumb(canonical),
+      }),
+    },
+    context,
+  );
 
   return (
     <>
-      <Script
-        id="category-breadcrumb-schema"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: breadcrumbItems.map((entry, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              name: entry.name,
-              item: entry.item,
-            })),
-          }),
-        }}
-      />
+      <JsonLd graph={graph} />
       <CategoryPageClient
         category={toSummary(category)}
         subcategories={sortCategories(children).map(toSummary)}

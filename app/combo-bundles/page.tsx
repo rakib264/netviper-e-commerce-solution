@@ -1,27 +1,50 @@
 import type { Metadata } from 'next';
 
+import { JsonLd } from '@/lib/seo/JsonLd';
+import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { collectionPageSchema, schemaId } from '@/lib/seo/schema';
 import ComboBundlesListingClient from './ComboBundlesListingClient';
 
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://muscarimart.com'
-    : 'http://localhost:3000';
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getSeoContext();
 
-export const metadata: Metadata = {
-  title: 'Combos & Bundles | Mascari Mart',
-  description:
-    'Fixed-price combos and bundles: two or more Mascari Mart pieces sold together as one unit, for less than the sum of their parts.',
-  alternates: { canonical: `${BASE_URL}/combo-bundles` },
-  openGraph: {
-    title: 'Combos & Bundles | Mascari Mart',
-    description:
-      'Fixed-price combos and bundles, sold as one unit for less than the sum of their parts.',
-    url: `${BASE_URL}/combo-bundles`,
-    siteName: 'Mascari Mart',
-    type: 'website',
-  },
-};
+  return buildMetadata({
+    titleKey: 'seo.comboBundles.title',
+    descriptionKey: 'seo.comboBundles.description',
+    descriptionValues: { brand: seo.name },
+    path: '/combo-bundles',
+  });
+}
 
-export default function ComboBundlesPage() {
-  return <ComboBundlesListingClient />;
+export default async function ComboBundlesPage() {
+  const context = await getSeoContext();
+  const { seo, t } = context;
+
+  const canonical = seo.absolute('/combo-bundles');
+  const name = t('seo.comboBundles.title');
+  const description = t('seo.comboBundles.description', { brand: seo.name });
+
+  const { graph } = await buildPageGraph(
+    {
+      path: '/combo-bundles',
+      name,
+      description,
+      breadcrumbs: [{ name, path: '/combo-bundles' }],
+      webPageNode: collectionPageSchema(seo, {
+        canonical,
+        name,
+        description,
+        breadcrumbId: schemaId.breadcrumb(canonical),
+      }),
+    },
+    context,
+  );
+
+  return (
+    <>
+      <JsonLd graph={graph} />
+      <ComboBundlesListingClient />
+    </>
+  );
 }

@@ -28,6 +28,8 @@ export const CACHE_TAGS = {
   comboBundles: 'storefront:combo-bundles',
   /** Scheduled events shown on the landing page. */
   events: 'storefront:events',
+  /** Blog posts and their listing. */
+  blogs: 'storefront:blogs',
   /** Running deals. */
   deals: 'storefront:deals',
   /** Customer feedback used by the social-proof band. */

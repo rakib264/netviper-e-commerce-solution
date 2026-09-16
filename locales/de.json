@@ -3103,7 +3103,123 @@
     "privacyPolicy": {
       "title": "Datenschutzerklärung",
       "description": "Wie {{brand}} Ihre personenbezogenen Daten beim Einkauf in Bangladesch erhebt, nutzt, weitergibt und schützt."
-    }
+    },
+    "products": {
+      "title": "Alle Produkte",
+      "description": "Alle Produkte bei {{brand}}: koreanische Ramen, Instantnudeln, Bibigo, Sushi-Zutaten, Snacks, Getränke und Lebensmittel, geliefert in ganz Bangladesch."
+    },
+    "categories": {
+      "title": "Nach Kategorie einkaufen",
+      "description": "Alle Kategorien bei {{brand}}: von koreanischen Ramen und Bibigo bis zu Sushi-Zutaten, Getränkepulver, Kaffee, Tee und Lebensmitteln."
+    },
+    "deals": {
+      "title": "Angebote & Aktionen",
+      "description": "Laufende Rabatte und Bundle-Angebote auf koreanische Ramen, Snacks und Lebensmittel bei {{brand}}. Preise gelten, solange die Aktion läuft."
+    },
+    "blogs": {
+      "title": "Blog",
+      "description": "Rezepte, Kochanleitungen und Produktnotizen von {{brand}}: koreanische Ramen zubereiten, Sushi zu Hause, und welche Nudeln welche Schärfe haben."
+    },
+    "events": {
+      "title": "Veranstaltungen",
+      "description": "Kampagnen und zeitlich begrenzte Aktionen bei {{brand}} mit Sonderpreisen auf koreanische Ramen, Snacks und Lebensmittel."
+    },
+    "explore": {
+      "title": "Produkte entdecken",
+      "description": "Filtern Sie den gesamten {{brand}}-Katalog nach Kategorie, Preis und Marke und finden Sie genau die gesuchte Ramen, Snacks oder Lebensmittel."
+    },
+    "faqs": {
+      "title": "Häufige Fragen",
+      "description": "Lieferzeiten und -kosten, Zahlungsarten, Rückgaben, Halal-Status und Herkunft der Produkte — die häufigsten Fragen an {{brand}}, beantwortet."
+    },
+    "about": {
+      "title": "Über uns",
+      "description": "{{brand}} ist ein Online-Lebensmittelmarkt in Bangladesch für koreanische Ramen, Bibigo, Sushi-Zutaten, Getränke, Snacks und Lebensmittel."
+    },
+    "contact": {
+      "title": "Kontakt",
+      "description": "Erreichen Sie {{brand}} zu Bestellung, Lieferung, Rückgabe oder Produktfragen. Supportzeiten, E-Mail und Telefon finden Sie hier."
+    },
+    "shippingDelivery": {
+      "title": "Versand & Lieferung",
+      "description": "Lieferzeiten, Kosten und Gebiete für {{brand}}: in Dhaka in {{dhakaMin}}–{{dhakaMax}} Tagen, landesweit in {{natMin}}–{{natMax}} Tagen."
+    },
+    "termsConditions": {
+      "title": "Allgemeine Geschäftsbedingungen",
+      "description": "Die Bedingungen für Bestellungen bei {{brand}}: Bestellung, Preise, Zahlung, Lieferung, Stornierung, Rückgabe und Kontonutzung."
+    },
+    "privilegeMembers": {
+      "title": "Privilege-Mitglieder",
+      "description": "Mitgliedschaft bei {{brand}}: Leistungen je Stufe, wie Liefervorteile funktionieren und wie Sie beitreten oder wechseln."
+    },
+    "comboBundles": {
+      "title": "Kombi-Pakete",
+      "description": "Ramen- und Lebensmittelpakete bei {{brand}}, günstiger als der Einzelkauf. Zusammengestellt aus den am häufigsten nachbestellten Artikeln."
+    },
+    "productsFeatured": {
+      "title": "Empfohlene Produkte",
+      "description": "Handverlesene Produkte bei {{brand}}: die koreanischen Ramen, Snacks und Lebensmittel, mit denen sich der erste Einkauf lohnt."
+    },
+    "productsNewArrivals": {
+      "title": "Neuheiten",
+      "description": "Neu bei {{brand}}: frisch eingetroffene koreanische Ramen, Bibigo-Produkte, Snacks und Getränke, gelistet sobald sie ankommen."
+    },
+    "productsBestSelling": {
+      "title": "Bestseller",
+      "description": "Was Kundinnen und Kunden bei {{brand}} am häufigsten bestellen: die meistnachgefragten koreanischen Ramen, Snacks und Grundnahrungsmittel."
+    },
+    "productsLimitedEdition": {
+      "title": "Limitierte Edition",
+      "description": "Limitierte Importe bei {{brand}}: saisonale koreanische Ramen-Sorten und Snacks in Kleinstmengen — weg, sobald der Vorrat endet."
+    },
+    "product": {
+      "titleFallback": "{{name}}",
+      "descriptionFallback": "{{name}} bei {{brand}} kaufen, Lieferung in ganz Bangladesch. Nachnahme möglich, ab einem Bestellwert versandkostenfrei.",
+      "notFoundTitle": "Produkt nicht gefunden",
+      "notFoundDescription": "Dieses Produkt ist nicht mehr verfügbar. Sehen Sie sich stattdessen den übrigen {{brand}}-Katalog an."
+    },
+    "category": {
+      "descriptionFallback": "{{name}} bei {{brand}} kaufen — gesamtes Sortiment ansehen, Preise vergleichen und in ganz Bangladesch liefern lassen.",
+      "notFoundTitle": "Kategorie nicht gefunden"
+    },
+    "blog": {
+      "descriptionFallback": "{{name}} im {{brand}}-Blog lesen.",
+      "notFoundTitle": "Beitrag nicht gefunden"
+    },
+    "event": {
+      "descriptionFallback": "{{name}} bei {{brand}} — sehen Sie, was enthalten ist und wie lange das Angebot läuft."
+    },
+    "combo": {
+      "descriptionFallback": "{{name}} von {{brand}} — ein Paket günstiger als der Einzelkauf, geliefert in ganz Bangladesch."
+    },
+    "cart": {
+      "title": "Ihr Warenkorb"
+    },
+    "checkout": {
+      "title": "Kasse"
+    },
+    "wishlist": {
+      "title": "Ihre Wunschliste"
+    },
+    "returns": {
+      "title": "Rückgabe & Umtausch"
+    },
+    "profile": {
+      "title": "Ihr Konto"
+    },
+    "orders": {
+      "title": "Ihre Bestellung"
+    },
+    "signin": {
+      "title": "Anmelden"
+    },
+    "signup": {
+      "title": "Konto erstellen"
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen"
+    },
+    "privateDescription": "Eine persönliche Seite bei {{brand}}, nur für Sie sichtbar, wenn Sie angemeldet sind."
   },
   "privacyPolicy": {
     "title": "Datenschutzerklärung",
