@@ -56,6 +56,7 @@ export function buildGraph(...nodes: Array<SchemaNode | null | undefined | false
 
 export const schemaId = {
   organization: (seo: SeoConfig) => `${seo.url}/#organization`,
+  logo: (seo: SeoConfig) => `${seo.url}/#logo`,
   website: (seo: SeoConfig) => `${seo.url}/#website`,
   store: (seo: SeoConfig) => `${seo.url}/#store`,
   webPage: (canonical: string) => `${canonical}#webpage`,
@@ -66,6 +67,27 @@ export const schemaId = {
 };
 
 /* ── Organization ────────────────────────────────────────────────────────── */
+
+/**
+ * The brand logo as its own graph node.
+ *
+ * Hoisted to the top level rather than nested inside `Organization.logo`, so
+ * the `{'@id': '…/#logo'}` references from Organization and Store resolve
+ * against a sibling node. JSON-LD resolves an inline definition too, but a
+ * standalone node is unambiguous to every parser and to anyone reading the
+ * emitted graph.
+ */
+export function logoSchema(seo: SeoConfig): SchemaNode {
+  return {
+    '@type': 'ImageObject',
+    '@id': schemaId.logo(seo),
+    url: seo.logo,
+    contentUrl: seo.logo,
+    width: seo.logoWidth,
+    height: seo.logoHeight,
+    caption: seo.name,
+  };
+}
 
 export function organizationSchema(seo: SeoConfig, description: string): SchemaNode {
   return compact({
@@ -78,16 +100,8 @@ export function organizationSchema(seo: SeoConfig, description: string): SchemaN
     alternateName: seo.shortName !== seo.name ? seo.shortName : undefined,
     url: seo.url,
     description,
-    logo: compact({
-      '@type': 'ImageObject',
-      '@id': `${seo.url}/#logo`,
-      url: seo.logo,
-      contentUrl: seo.logo,
-      width: seo.logoWidth,
-      height: seo.logoHeight,
-      caption: seo.name,
-    }),
-    image: { '@id': `${seo.url}/#logo` },
+    logo: { '@id': schemaId.logo(seo) },
+    image: { '@id': schemaId.logo(seo) },
     foundingDate: BRAND.foundingDate,
     sameAs: seo.sameAs,
     areaServed: compact({
@@ -171,7 +185,7 @@ export function storeSchema(
     name: seo.name,
     url: seo.url,
     description,
-    image: { '@id': `${seo.url}/#logo` },
+    image: { '@id': schemaId.logo(seo) },
     parentOrganization: { '@id': schemaId.organization(seo) },
     priceRange: BRAND.priceRange,
     paymentAccepted: [...BRAND.paymentAccepted],

@@ -42,32 +42,32 @@ export function FaqSection({
         <Heading className="text-fluid-2xl font-heading">{heading}</Heading>
       ) : null}
 
-      <dl className="mt-6 max-w-3xl divide-y divide-border border-y border-border">
+      {/*
+        A plain container, not a `<dl>`. The definition-list shape reads well on
+        paper, but `<dl>` only permits `<dt>`, `<dd>` and `<div>` as children —
+        a `<details>` between them is invalid and Lighthouse flags it. The
+        question lives in the `<summary>` and the answer in the `<p>` after it,
+        which is the structure `<details>` exists for and which extraction models
+        already read correctly.
+      */}
+      <div className="mt-6 max-w-3xl divide-y divide-border border-y border-border">
         {faqs.map((faq) => (
-          <div key={faq.id} id={`faq-${faq.id}`}>
-            <details className="group">
-              {/*
-                `<dt>` inside `<summary>` rather than the other way round: a
-                `<summary>` must be the first child of its `<details>`, and the
-                definition-list semantics are what tell an extraction model which
-                half is the question.
-              */}
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-left">
-                <dt className="font-heading text-base md:text-lg">{faq.question}</dt>
-                <span
-                  aria-hidden
-                  className="shrink-0 text-xl leading-none text-subtle-foreground transition-transform duration-200 group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <dd className="pb-5 pr-8 text-sm leading-relaxed text-muted-foreground">
-                {faq.answer}
-              </dd>
-            </details>
-          </div>
+          <details key={faq.id} id={`faq-${faq.id}`} className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-left font-heading text-base md:text-lg">
+              {faq.question}
+              <span
+                aria-hidden
+                className="shrink-0 text-xl leading-none text-subtle-foreground transition-transform duration-200 group-open:rotate-45"
+              >
+                +
+              </span>
+            </summary>
+            <p className="pb-5 pr-8 text-sm leading-relaxed text-muted-foreground">
+              {faq.answer}
+            </p>
+          </details>
         ))}
-      </dl>
+      </div>
     </section>
   );
 }

@@ -111,23 +111,53 @@ export default async function RootLayout({
       dir={localeMeta.dir}
       suppressHydrationWarning
     >
-      <head>
+      <body suppressHydrationWarning>
+        {/*
+          Rendered here rather than inside an explicit `<head>`: an explicit
+          `<head>` in the App Router displaces the one Next manages, and Next's
+          own metadata — the description, the canonical, every OG tag — was
+          landing in `<body>` as a result. Lighthouse scored the page as having
+          no meta description, and metadata outside the head is ignored by some
+          crawlers.
+
+          React 19 hoists `<link>` and `<meta>` into the head by itself, and
+          hoists `<style>` when given `href` and `precedence`. The precedence
+          values order the two variable blocks after the app stylesheet, so the
+          themed values still win.
+        */}
         {typographyStylesheetHref ? (
-          <link
-            id="theme-font-stylesheet"
-            rel="stylesheet"
-            href={typographyStylesheetHref}
-          />
+          <>
+            {/*
+              The font stylesheet is a runtime URL built from the DB settings, so
+              `next/font` cannot preconnect on our behalf and the request is
+              render-blocking. Preconnecting by hand removes the DNS and TLS
+              round trips from in front of it. Both Google hosts are needed: one
+              serves the CSS, the other the font files it references.
+            */}
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+              rel="preconnect"
+              href="https://fonts.gstatic.com"
+              crossOrigin="anonymous"
+            />
+            <link
+              rel="stylesheet"
+              href={typographyStylesheetHref}
+              precedence="theme-font"
+            />
+          </>
         ) : null}
         {initialTypographyCss ? (
           <style
-            id="initial-typography-vars"
+            href="initial-typography-vars"
+            precedence="theme-vars"
             dangerouslySetInnerHTML={{ __html: initialTypographyCss }}
           />
         ) : null}
         {initialColorCss ? (
           <style
-            id="initial-color-vars"
+            href="initial-color-vars"
+            precedence="theme-vars"
             dangerouslySetInnerHTML={{ __html: initialColorCss }}
           />
         ) : null}
@@ -140,8 +170,6 @@ export default async function RootLayout({
           rel="dns-prefetch"
           href={process.env.NEXT_PUBLIC_BUNNY_CDN_URL || "https://leather-e-com.b-cdn.net"}
         />
-        {/* Legacy assets may still load from Cloudinary until fully migrated */}
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <meta
           name="theme-color"
           content={themeSettings?.primaryColor || "#1A1A1A"}
@@ -151,8 +179,6 @@ export default async function RootLayout({
           content={themeSettings?.primaryColor || "#1A1A1A"}
         />
 
-      </head>
-      <body suppressHydrationWarning>
         <NextAuthProvider>
           <ThemeProvider
             initialThemeConfig={

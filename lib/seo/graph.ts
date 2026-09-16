@@ -6,6 +6,7 @@ import { resolveRequestLocale } from '@/lib/seo/metadata';
 import {
   breadcrumbSchema,
   buildGraph,
+  logoSchema,
   organizationSchema,
   schemaId,
   storeSchema,
@@ -121,6 +122,7 @@ export async function buildPageGraph(
     });
 
   const graph = buildGraph(
+    logoSchema(seo),
     organizationSchema(seo, brandDescription),
     websiteSchema(seo, brandDescription),
     storeSchema(seo, brandDescription, input.categories),

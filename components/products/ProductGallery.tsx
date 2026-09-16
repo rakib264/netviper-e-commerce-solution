@@ -479,6 +479,15 @@ export default function ProductGallery({
               key={item.id || `${item.url}-${index}`}
               type="button"
               onClick={() => setSelected(index)}
+              // The thumbnail image is decorative (`alt=""`), so without this
+              // the button has no accessible name at all — a screen reader
+              // announces a row of unlabelled buttons. `aria-pressed` carries
+              // the selected state that the border communicates visually.
+              aria-label={t('common.productThumbnail', {
+                product: productName,
+                index: index + 1,
+              })}
+              aria-pressed={selected === index}
               className={`relative h-[64px] w-[52px] shrink-0 border p-[3px] transition-colors ${
                 selected === index ? 'border-foreground' : 'border-border'
               }`}

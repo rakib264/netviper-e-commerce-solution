@@ -26,8 +26,34 @@ function bunnyHosts() {
 
 const bunnyCdnHosts = bunnyHosts();
 
+/**
+ * User agents that must receive metadata inside `<head>`.
+ *
+ * Next 15 streams metadata by default: the HTML shell flushes first and the
+ * title, description, canonical and OG tags arrive later in the body, where
+ * React hoists them during hydration. That is the right trade for a browser —
+ * it does not delay first paint — and Next already forces blocking metadata for
+ * a built-in list of crawlers that do not run JavaScript.
+ *
+ * That built-in list predates the AI crawlers and does not include them. GPTBot,
+ * PerplexityBot, ClaudeBot and the rest would have received a document whose
+ * head had no title and no description, which for an answer engine is the whole
+ * page. They are added here.
+ *
+ * `tests/seo-crawlers.test.ts` asserts this stays in step with
+ * `BRAND.aiCrawlers`, which is what robots.txt advertises — two lists that must
+ * not drift apart.
+ */
+const AI_CRAWLER_UA_PATTERN =
+  'GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|ClaudeBot|Claude-Web|Google-Extended|Applebot-Extended|CCBot|Amazonbot';
+
+/** Next's own default, kept verbatim, plus the AI crawlers above. */
+const NEXT_DEFAULT_HTML_BOTS =
+  '[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  htmlLimitedBots: `${NEXT_DEFAULT_HTML_BOTS}|${AI_CRAWLER_UA_PATTERN}`,
   eslint: {
     ignoreDuringBuilds: true,
   },

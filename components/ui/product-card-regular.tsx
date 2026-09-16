@@ -48,9 +48,18 @@ export default function ProductCardRegular({
           aria-label={product.name}
         />
 
+        {/*
+          Descriptive rather than bare: an alt of just the product name repeats
+          the link text next to it, where "<name> — <category>" tells a screen
+          reader (and an image crawler) what the thing actually is.
+        */}
         <Image
           src={card.activeImage}
-          alt={product.name}
+          alt={
+            product.category?.name
+              ? `${product.name} — ${product.category.name}`
+              : product.name
+          }
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           className="object-contain p-6 transition-transform duration-500 group-hover:scale-[1.03]"
