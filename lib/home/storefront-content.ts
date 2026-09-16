@@ -551,3 +551,105 @@ export const getCachedProductListingPage = unstable_cache(
   ['storefront-product-listing-page-v1'],
   { tags: [CACHE_TAGS.products], revalidate: EDITORIAL_REVALIDATE },
 );
+
+/**
+ * The four `/products/*` rails: featured, new arrivals, best selling, limited
+ * edition.
+ *
+ * One reader rather than four, because they differ only by a boolean filter and
+ * a sort. Each rail's own client still owns search, filters and pagination from
+ * page two onward; this supplies the first, unfiltered page so the products are
+ * in the server HTML instead of appearing only after a client fetch.
+ *
+ * `total` comes from a `countDocuments` rather than the `limit + 1` trick used
+ * elsewhere: these pages render a numbered pager, so they need the real count,
+ * not just whether more exists.
+ */
+export type ProductRail =
+  | 'featured'
+  | 'new-arrivals'
+  | 'best-selling'
+  | 'limited-edition';
+
+const RAIL_QUERIES: Record<
+  ProductRail,
+  { filter: Record<string, unknown>; sort: ProductGridSort }
+> = {
+  featured: { filter: { isFeatured: true }, sort: 'newest' },
+  'new-arrivals': { filter: { isNewArrival: true }, sort: 'newest' },
+  // No flag for this one — "best selling" is a property of the sales figures,
+  // not something an admin ticks.
+  'best-selling': { filter: {}, sort: 'best-selling' },
+  'limited-edition': { filter: { isLimitedEdition: true }, sort: 'newest' },
+};
+
+/**
+ * Every active event with its computed status, for `/deals` and `/events`.
+ *
+ * Wider than `getCachedLandingEvents`, which is scoped to `showInLanding` and
+ * to events running right now: these two pages also show upcoming ones, and
+ * label each with where it is in its schedule.
+ *
+ * Status is computed here rather than stored, because it turns on the clock —
+ * which is also why this reader takes the 60s `SCHEDULED_REVALIDATE` backstop
+ * rather than the 300s editorial one. An event that ended a minute ago must not
+ * keep advertising itself as live for another four.
+ */
+export const getCachedScheduledEvents = unstable_cache(
+  async (limit: number) => {
+    await connectDB();
+    const now = new Date();
+
+    const events = await Event.find({ isActive: true })
+      .populate('products', EVENT_PRODUCT_FIELDS)
+      .sort({ startDate: 1 })
+      .limit(limit)
+      .lean();
+
+    const withStatus = (events as Array<Record<string, any>>).map((event) => {
+      // A product deactivated after the event was built would otherwise render
+      // as a card that 404s when clicked.
+      const activeProducts = (event.products || []).filter(
+        (product: Record<string, any>) => product.isActive,
+      );
+
+      const status =
+        now < new Date(event.startDate)
+          ? 'upcoming'
+          : now > new Date(event.endDate)
+            ? 'expired'
+            : 'active';
+
+      return {
+        ...event,
+        products: activeProducts,
+        productsCount: activeProducts.length,
+        status,
+      };
+    });
+
+    return toPlainJson(withStatus);
+  },
+  ['storefront-scheduled-events-v1'],
+  { tags: [CACHE_TAGS.events], revalidate: SCHEDULED_REVALIDATE },
+);
+
+export const getCachedProductRailPage = unstable_cache(
+  async (rail: ProductRail, limit: number): Promise<ProductListingPage> => {
+    const { filter, sort } = RAIL_QUERIES[rail];
+    await connectDB();
+
+    const [products, total] = await Promise.all([
+      readProductCards({ filter, limit, sort }),
+      Product.countDocuments({ isActive: true, ...filter }),
+    ]);
+
+    return toPlainJson({
+      products,
+      total,
+      pages: Math.max(1, Math.ceil(total / limit)),
+    });
+  },
+  ['storefront-product-rail-page-v1'],
+  { tags: [CACHE_TAGS.products], revalidate: EDITORIAL_REVALIDATE },
+);
