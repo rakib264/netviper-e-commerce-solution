@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import AuthSettings from '@/lib/models/AuthSettings';
 import OTP from '@/lib/models/OTP';
 import User from '@/lib/models/User';
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (phone) {
       try {
         const smsService = SMSService.createFromEnv();
-        const message = `Your ${process.env.NEXT_PUBLIC_SITE_NAME || 'Muscari Mart'} verification code is: ${otpCode}. This code will expire in 10 minutes.`;
+        const message = `Your ${process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name} verification code is: ${otpCode}. This code will expire in 10 minutes.`;
         smsResult = await smsService.sendSMS(phone, message);
         if (!smsResult.success) {
           console.error('SMS OTP failed:', smsResult.error);

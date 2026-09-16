@@ -7,9 +7,10 @@ import { getSeoConfig } from '@/lib/seo/config';
 /**
  * The PWA manifest, built from `lib/seo/brand.ts` and the DB settings.
  *
- * Replaces `public/manifest.json`, which still described *"Muscari Mart -
- * Premium Women's Sarees"* with saree-collection shortcuts — and which was not
- * even linked from the document, so nothing had ever surfaced how stale it was.
+ * Replaces `public/manifest.json`, which still described the store as a saree
+ * retailer, two rebrands out of date, with saree-collection shortcuts — and
+ * which was not even linked from the document, so nothing had ever surfaced
+ * how stale it was.
  * Generating it means the manifest cannot rot behind a rebrand again. Next
  * links it automatically; no `<link rel="manifest">` is needed.
  */

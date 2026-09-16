@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/seo/brand";
 import * as fs from "fs";
 import { jsPDF } from "jspdf";
 import * as path from "path";
@@ -80,11 +81,14 @@ class SimplePDFService {
       let bodyFont: PdfBaseFont = "helvetica";
       let headingFont: PdfBaseFont = "helvetica";
 
+      // Only the brand name has a safe default. Contact details do not: an
+      // invoice quoting a wrong address or phone number is worse than one
+      // quoting none, so these stay empty until the settings row supplies them.
       let companySettings: CompanySettings = {
-        siteName: "Muscari Mart",
-        address: "Dhaka, Bangladesh",
-        contactEmail: "mmuddin134@gmail.com",
-        contactPhone: "+8801339561702",
+        siteName: BRAND.name,
+        address: "",
+        contactEmail: "",
+        contactPhone: "",
         logo1: "",
       };
 
@@ -112,7 +116,7 @@ class SimplePDFService {
       // Create new PDF document
       const doc = new jsPDF();
 
-      // Set up colors (Muscari Mart brand colors)
+      // Set up colors (brand colors)
       const primaryColor = "#3949AB"; // Indigo
       const secondaryColor = "#8b5cf6"; // Purple
       const textColor = "#374151"; // Gray-700
@@ -150,15 +154,13 @@ class SimplePDFService {
           doc.setTextColor(primaryColor);
           doc.setFontSize(16);
           doc.setFont(headingFont, "bold");
-          doc.text(companySettings.siteName || "MUSCARI MART", 22, 27);
+          doc.text(companySettings.siteName || BRAND.name, 22, 27);
         } else {
           // Try local logo file as fallback
           const logoPath = path.join(
             process.cwd(),
-            "lib",
-            "assets",
-            "images",
-            "muscarimart.png",
+            "public",
+            ...BRAND.logo.split("/").filter(Boolean),
           );
           if (fs.existsSync(logoPath)) {
             const logoData = fs.readFileSync(logoPath, "base64");
@@ -181,7 +183,7 @@ class SimplePDFService {
             doc.setTextColor(primaryColor);
             doc.setFontSize(16);
             doc.setFont(headingFont, "bold");
-            doc.text(companySettings.siteName || "MUSCARI MART", 22, 27);
+            doc.text(companySettings.siteName || BRAND.name, 22, 27);
           }
         }
       } catch (error) {
@@ -192,7 +194,7 @@ class SimplePDFService {
         doc.setTextColor(primaryColor);
         doc.setFontSize(16);
         doc.setFont(headingFont, "bold");
-        doc.text(companySettings.siteName || "MUSCARI MART", 22, 27);
+        doc.text(companySettings.siteName || BRAND.name, 22, 27);
       }
 
       // Company tagline with elegant typography

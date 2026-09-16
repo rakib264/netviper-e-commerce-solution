@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import axios from 'axios';
 
 // Normalize Bangladesh phone numbers into vendor-required format (8801XXXXXXXXX)
@@ -64,7 +65,7 @@ export class ZamanITProvider {
         params, 
         timeout: 30000, // Increased timeout to 30 seconds
         headers: {
-          'User-Agent': 'NextEcom-SMS-Service/1.0'
+          'User-Agent': `${BRAND.name} SMS Service/1.0`
         }
       });
 
@@ -174,7 +175,7 @@ export class ZamanITProvider {
         params, 
         timeout: 15000, // Increased timeout for validation
         headers: {
-          'User-Agent': 'NextEcom-SMS-Service/1.0'
+          'User-Agent': `${BRAND.name} SMS Service/1.0`
         }
       });
 

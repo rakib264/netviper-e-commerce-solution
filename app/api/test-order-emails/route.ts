@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getEmailBodyFontStack } from "@/lib/utils/email-settings";
@@ -6,8 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "mmuddin134@gmail.com";
-    const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@muscarimart.com";
-    const FROM_NAME = process.env.FROM_NAME || "Muscari Mart";
+    const FROM_EMAIL = process.env.FROM_EMAIL || `noreply@${BRAND.domain}`;
+    const FROM_NAME = process.env.FROM_NAME || BRAND.name;
 
     if (!RESEND_API_KEY) {
       return NextResponse.json(
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <p>We will send you another email when your order ships.</p>
-          <p>Thank you for shopping with Muscari Mart!</p>
+          <p>Thank you for shopping with ${BRAND.name}!</p>
         </div>
       `,
     });

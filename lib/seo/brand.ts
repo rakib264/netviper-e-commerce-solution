@@ -332,7 +332,7 @@ export type Brand = typeof BRAND;
  *
  * Every canonical, `sameAs`, sitemap entry and JSON-LD `@id` goes through here
  * so no file concatenates a base URL by hand — which is how this repo ended up
- * with `muscarimart.com` and `www.muscarimart.com` disagreeing across pages.
+ * with the apex and `www` hosts disagreeing from one page to the next.
  * Trailing slashes are stripped to match `trailingSlash: false` in
  * `next.config.js`, so a canonical can never disagree with the URL that
  * actually serves it.

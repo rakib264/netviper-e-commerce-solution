@@ -2041,8 +2041,8 @@
     },
     "events": {
       "accountWelcome": {
-        "title": "Willkommen bei Mascari Mart",
-        "body": "{{firstName}}, Ihr Konto ist bereit. Entdecken Sie die neue Kollektion."
+        "title": "Willkommen bei {{brand}}",
+        "body": "{{firstName}}, Ihr Konto ist bereit. Entdecken Sie koreanische Ramen, Snacks und Lebensmittel."
       },
       "orderPlaced": {
         "title": "Bestellung erhalten",

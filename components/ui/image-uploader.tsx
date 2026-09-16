@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from '@/lib/seo/brand';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ImageIcon, Trash2, Upload } from 'lucide-react';
@@ -98,8 +99,8 @@ export function ImageUploader({
               onError={(e) => {
                 // Fallback to default logo if image fails to load
                 const target = e.target as HTMLImageElement;
-                if (label === 'Primary Logo' && target.src !== '/muscarimart.png') {
-                  target.src = '/muscarimart.png';
+                if (label === 'Primary Logo' && target.src !== BRAND.logo) {
+                  target.src = BRAND.logo;
                 } else if (label === 'Secondary Logo' && target.src !== '/logo.png') {
                   target.src = '/logo.png';
                 }
@@ -136,7 +137,7 @@ export function ImageUploader({
           <div className="relative w-40 h-32 border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted">
             {(label === 'Primary Logo' || label === 'Secondary Logo') ? (
               <img
-                src={label === 'Primary Logo' ? '/muscarimart.png' : '/logo.png'}
+                src={BRAND.logo}
                 alt={`Default ${label}`}
                 className="w-full h-full object-contain p-3 opacity-60"
               />

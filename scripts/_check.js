@@ -24,7 +24,7 @@ const OUT = process.env.SHOT_DIR;
   }
 
   // Drawer
-  await p.evaluate(() => localStorage.setItem('cart', JSON.stringify({ items: [{ id: '6a79d1335b52ca5a445b44b4', name: 'Tabby Shoulder Bag 26 With Quilting', price: 400, quantity: 4, image: 'https://res.cloudinary.com/dwl7jw29b/image/upload/v1786365456/Muscari%20Mart/cu5lproadnghua60non5.webp', maxQuantity: 50 }], total: 1600, itemCount: 4, shippingCost: 0, tax: 0, discount: 0 })));
+  await p.evaluate(() => localStorage.setItem('cart', JSON.stringify({ items: [{ id: '6a79d1335b52ca5a445b44b4', name: 'Sample Product', price: 400, quantity: 4, image: '', maxQuantity: 50 }], total: 1600, itemCount: 4, shippingCost: 0, tax: 0, discount: 0 })));
   await p.reload({ waitUntil: 'networkidle2' });
   await p.evaluate(() => [...document.querySelectorAll('button')].find((x) => /Shopping Cart/i.test(x.getAttribute('aria-label') || '')).click());
   await p.waitForSelector('[aria-label="Deals in your cart"] ul', { timeout: 25000 });

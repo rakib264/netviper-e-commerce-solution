@@ -75,7 +75,7 @@ const sampleFeedbacks = [
       verified: true,
     },
     message:
-      'অসাধারণ quality! আমার order টা ২ দিনেই পেয়ে গেছি। Size perfect fit হয়েছে। Muscari Mart এর service really impressive! 💯',
+      'অসাধারণ quality! আমার order টা ২ দিনেই পেয়ে গেছি। Size perfect fit হয়েছে। এই স্টোরের service really impressive! 💯',
     rating: 5,
     productImage:
       'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=200&fit=crop&auto=format&q=80',
@@ -109,7 +109,7 @@ const sampleFeedbacks = [
       verified: true,
     },
     message:
-      'Muscari Mart থেকে কিনা dress টা দেখে সবাই জিজ্ঞেস করছে কোথা থেকে কিনেছি! 😍 Quality top-notch, delivery super fast. Love it! 💕',
+      'এখান থেকে কেনা প্যাকটা দেখে সবাই জিজ্ঞেস করছে কোথা থেকে কিনেছি! 😍 Quality top-notch, delivery super fast. Love it! 💕',
     rating: 5,
     productImage:
       'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=300&h=200&fit=crop&auto=format&q=80',
@@ -126,7 +126,7 @@ const sampleFeedbacks = [
       verified: false,
     },
     message:
-      'Customer service is absolutely excellent! Had a problem with my order, they solved it immediately. I have full trust in Muscari Mart!',
+      'Customer service is absolutely excellent! Had a problem with my order, they solved it immediately. I have full trust in this store!',
     rating: 5,
     productImage:
       'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop&auto=format&q=80',
@@ -143,7 +143,7 @@ const sampleFeedbacks = [
       verified: true,
     },
     message:
-      'My first online shopping experience with Muscari Mart. Was scared but the result is amazing! Product exactly same as shown. Highly satisfied! 👍',
+      'My first online shopping experience here. Was scared but the result is amazing! Product exactly same as shown. Highly satisfied! 👍',
     rating: 5,
     productImage:
       'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&h=200&fit=crop&auto=format&q=80',
@@ -160,7 +160,7 @@ const sampleFeedbacks = [
       verified: false,
     },
     message:
-      "Impressed by Muscari Mart's collection! Both freshness and quality are perfect. Reasonable price, quick delivery. Perfect organic food store! ✨",
+      "Impressed by the collection! Both freshness and quality are perfect. Reasonable price, quick delivery. Perfect organic food store! ✨",
     rating: 5,
     productImage:
       'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=200&fit=crop&auto=format&q=80',

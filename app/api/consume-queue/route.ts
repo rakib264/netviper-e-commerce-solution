@@ -1,3 +1,5 @@
+import { QUEUE_NAME } from '@/lib/queue';
+import { BRAND } from '@/lib/seo/brand';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmailBodyFontStack } from '@/lib/utils/email-settings';
 
@@ -44,7 +46,8 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Get queue stats
-    const queueName = 'nextecom_tasks';
+    // Imported, not repeated: see QUEUE_NAME in lib/queue.ts.
+    const queueName = QUEUE_NAME;
     const queueLength = await redis.llen(queueName);
     
     console.log('📊 Queue stats:', {
@@ -116,8 +119,8 @@ export async function POST(request: NextRequest) {
       try {
         const emailResult = await resend.emails.send({
           from: process.env.FROM_EMAIL ? 
-            `${process.env.FROM_NAME || 'Muscari Mart'} <${process.env.FROM_EMAIL}>` : 
-            'Muscari Mart <onboarding@resend.dev>',
+            `${process.env.FROM_NAME || BRAND.name} <${process.env.FROM_EMAIL}>` : 
+            `${BRAND.name} <onboarding@resend.dev>`,
           to: [job.payload.to],
           subject: job.payload.subject,
           html: job.payload.html
@@ -170,10 +173,10 @@ export async function POST(request: NextRequest) {
       try {
         const emailResult = await resend.emails.send({
           from: process.env.FROM_EMAIL ? 
-            `${process.env.FROM_NAME || 'Muscari Mart'} <${process.env.FROM_EMAIL}>` : 
-            'Muscari Mart <onboarding@resend.dev>',
+            `${process.env.FROM_NAME || BRAND.name} <${process.env.FROM_EMAIL}>` : 
+            `${BRAND.name} <onboarding@resend.dev>`,
           to: [job.adminEmail],
-          subject: `[Muscari Mart] ${job.subject}`,
+          subject: `[${BRAND.name}] ${job.subject}`,
           html: `
             <div style="font-family: ${await getEmailBodyFontStack()}; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="color: #3949AB;">New Contact Form Submission</h2>
@@ -187,7 +190,7 @@ export async function POST(request: NextRequest) {
                 </div>
               </div>
               <p style="color: #666; font-size: 14px;">
-                This message was sent via the Muscari Mart contact form.
+                This message was sent via the ${BRAND.name} contact form.
               </p>
             </div>
           `,

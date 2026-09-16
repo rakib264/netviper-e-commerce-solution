@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { auth } from '@/lib/auth';
 import Order from '@/lib/models/Order';
 import connectDB from '@/lib/mongodb';
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       
       recipients.forEach((recipient, index) => {
         const data = smsData[index];
-        const message = `Hi ${data.customerName}, Order ${data.orderNumber} confirmed! Amount: ${money(data.amount)}\nRegards, Muscari Mart`;
+        const message = `Hi ${data.customerName}, Order ${data.orderNumber} confirmed! Amount: ${money(data.amount)}\nRegards, ${BRAND.name}`;
         
         // console.log(`Preparing SMS for ${recipient.phone} (${data.customerName}): ${message}`);
         

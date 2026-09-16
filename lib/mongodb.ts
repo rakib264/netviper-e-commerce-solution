@@ -20,6 +20,11 @@ import './models/ReturnRequest';
 import './models/User';
 
 // Ensure database name is included in connection string
+/**
+ * `myfood` is the name of the database this store's data actually lives in.
+ * Changing it to match the brand would point the app at an empty database, so
+ * it stays until there is a migration to move the data.
+ */
 function ensureDatabaseName(uri: string, defaultDbName: string = 'myfood'): string {
   // Check if URI already has a database name
   if (uri.includes('mongodb+srv://')) {

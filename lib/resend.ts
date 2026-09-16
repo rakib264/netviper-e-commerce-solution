@@ -1,3 +1,4 @@
+import { BRAND } from "./seo/brand";
 import { Resend } from "resend";
 import createLogger from "./logger";
 import { getDefaultBodyFontStack, MONOSPACE_FONT_STACK } from "./theme/typography";  // fallbacks only
@@ -10,8 +11,10 @@ const logger = createLogger("resend-service");
 
 // Resend configuration
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
-const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@muscarimart.com";
-const FROM_NAME = process.env.FROM_NAME || "Muscari Mart";
+// The envelope sender follows the brand, so a rebrand does not keep mailing
+// customers from a domain the store no longer owns.
+const FROM_EMAIL = process.env.FROM_EMAIL || `noreply@${BRAND.domain}`;
+const FROM_NAME = process.env.FROM_NAME || BRAND.name;
 const EMAIL_BODY_FONT_STACK = getDefaultBodyFontStack();
 
 interface EmailTemplateData {

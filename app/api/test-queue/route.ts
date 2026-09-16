@@ -1,3 +1,5 @@
+import { QUEUE_NAME } from '@/lib/queue';
+import { BRAND } from '@/lib/seo/brand';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmailBodyFontStack } from '@/lib/utils/email-settings';
 
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
       type: 'send_email',
       payload: {
         to: process.env.ADMIN_EMAIL,
-        subject: '🧪 Queue Test - Muscari Mart',
+        subject: `🧪 Queue Test - ${BRAND.name}`,
         html: `
           <div style="font-family: ${await getEmailBodyFontStack()}; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #3949AB;">✅ Queue Test Successful!</h2>
@@ -72,7 +74,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Enqueue the job
-    const queueName = 'nextecom_tasks';
+    // Imported, not repeated: see QUEUE_NAME in lib/queue.ts.
+    const queueName = QUEUE_NAME;
     const result = await redis.lpush(queueName, JSON.stringify(testJob));
 
     console.log('✅ Job enqueued successfully:', {

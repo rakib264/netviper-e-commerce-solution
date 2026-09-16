@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/seo/brand";
 import {
   useCurrency,
   useTranslation,
@@ -160,7 +161,7 @@ export default function Footer() {
   const { t } = useTranslation();
   const { currency } = useCurrency();
   const currentYear = new Date().getFullYear();
-  const siteName = settings?.siteName || "Mascari Mart";
+  const siteName = settings?.siteName || BRAND.name;
 
   /*
    * Footer navigation, from the translation dictionary.

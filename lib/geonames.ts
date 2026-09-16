@@ -1,4 +1,6 @@
 // Geonames API Service for postal code geocoding
+import { BRAND } from '@/lib/seo/brand';
+
 export interface GeonamesPostalCode {
   adminCode2: string;
   adminName3: string;
@@ -120,7 +122,7 @@ export class GeonamesService {
       
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'NextEcom/1.0'
+          'User-Agent': `${BRAND.name}/1.0`
         }
       });
 

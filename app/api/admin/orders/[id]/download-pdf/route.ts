@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/seo/brand";
 import { auth } from "@/lib/auth";
 import GeneralSettings from "@/lib/models/GeneralSettings";
 import Order from "@/lib/models/Order";
@@ -83,7 +84,7 @@ function generateInvoiceHTML(
   };
 
   // Extract company information from settings
-  const companyName = settings?.siteName || "Muscari Mart";
+  const companyName = settings?.siteName || BRAND.name;
   const companyAddress = settings?.address || "Dhaka, Bangladesh";
   const companyEmail = settings?.contactEmail || "mmuddin134@gmail.com";
   const companyPhone = settings?.contactPhone || "+8801339561702";

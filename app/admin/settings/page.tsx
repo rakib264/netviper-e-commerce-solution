@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/seo/brand";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,7 +79,6 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Yup from "yup";
-import MuscariMartLogo from "@/lib/assets/images/muscarimart.jpg";
 import FavIconIco from "@/lib/assets/images/favicon.ico";
 import SettingsPageSkeleton from '@/components/admin/settings/SettingsPageSkeleton';
 import { formatCurrency } from '@/lib/currency/format';
@@ -228,7 +228,7 @@ export default function AdminSettings() {
     contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
     contactPerson: process.env.NEXT_PUBLIC_CONTACT_PERSON || "",
     address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "",
-    logo1: MuscariMartLogo.src,
+    logo1: BRAND.logo,
     logo2: "/logo.png",
     favicon: FavIconIco.src,
     primaryColor: defaultColorSettings.primaryColor,
@@ -320,7 +320,7 @@ export default function AdminSettings() {
           ...prev,
           ...generalData,
           // Provide fallback values for logos if not set
-          logo1: generalData.logo1 || MuscariMartLogo.src,
+          logo1: generalData.logo1 || BRAND.logo,
           logo2: generalData.logo2 || "/logo.png",
           favicon: generalData.favicon || FavIconIco.src,
           socialLinks: {

@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { auth } from '@/lib/auth';
 import resendService from '@/lib/resend';
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,11 +22,11 @@ export async function POST(request: NextRequest) {
     if (type === 'admin') {
       await resendService.sendAdminNotification(
         email,
-        'Test Email from NextEcom Admin',
+        `Test Email from ${BRAND.name} Admin`,
         {
           title: '🧪 Test Email',
           content: `
-            <p>This is a test email sent from the NextEcom admin panel.</p>
+            <p>This is a test email sent from the ${BRAND.name} admin panel.</p>
             <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
             <p>If you received this email, your email configuration is working correctly!</p>
           `

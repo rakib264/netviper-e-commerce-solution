@@ -8,7 +8,13 @@ import { getServerCurrencyFormatter } from "@/lib/currency/server";
 const logger = createLogger("queue-service");
 
 // Queue configuration
-const QUEUE_NAME = "nextecom_tasks";
+/**
+ * Redis list key. Deliberately NOT derived from the brand: renaming it would
+ * strand every job already queued under the old key, and the jobs that strand
+ * are invoices and order confirmations. It is an internal identifier that no
+ * customer ever sees, so it has no reason to follow a rebrand.
+ */
+export const QUEUE_NAME = "nextecom_tasks";
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 seconds
 
@@ -467,8 +473,9 @@ class QueueService {
         data: invoiceBuffer,
         filename: `invoice-${job.orderNumber}.pdf`,
         contentType: 'application/pdf',
+        // No objectKey override: uploadToBunny derives one from folder +
+        // filename, and that derivation is where the brand prefix lives.
         folder: 'invoices',
-        objectKey: `muscari-mart/invoices/invoice-${job.orderNumber}.pdf`,
       });
 
       const invoiceUrl = uploadResult.url;

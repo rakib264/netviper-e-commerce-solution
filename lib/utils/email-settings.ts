@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/seo/brand";
 import GeneralSettings from "../models/GeneralSettings";
 import connectDB from "../mongodb";
 import {
@@ -38,26 +39,20 @@ export async function getEmailSettings(): Promise<EmailSettings> {
 
   return {
     siteName:
-      dbSettings?.siteName ||
-      process.env.NEXT_PUBLIC_SITE_NAME ||
-      "Muscari Mart",
+      dbSettings?.siteName || process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name,
     siteDescription:
-      dbSettings?.siteDescription ||
-      process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-      "Your Trusted Online Shopping Destination",
+      dbSettings?.siteDescription || process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "",
     siteUrl:
       dbSettings?.siteUrl ||
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "http://localhost:3000",
+    // No invented fallback: a support address nobody reads is worse than an
+    // email footer that simply omits one.
     contactEmail:
-      dbSettings?.contactEmail ||
-      process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
-      "mmuddin134@gmail.com",
+      dbSettings?.contactEmail || process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
     contactPhone:
-      dbSettings?.contactPhone ||
-      process.env.NEXT_PUBLIC_CONTACT_PHONE ||
-      "8801339561702",
+      dbSettings?.contactPhone || process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
     contactAddress:
       dbSettings?.address ||
       process.env.NEXT_PUBLIC_CONTACT_ADDRESS ||

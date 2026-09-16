@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/seo/brand";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -16,7 +17,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import MuscariMartLogo from "@/lib/assets/images/muscarimart.jpg";
 import { useTranslation, type Translate } from '@/components/providers/LocalizationProvider';
 
 // TypeScript interfaces
@@ -214,7 +214,7 @@ export default function SignUp() {
                         <div className="relative flex items-center justify-center">
                           <Image
                             src={logo1}
-                            alt={siteName || "Muscari Mart"}
+                            alt={siteName || BRAND.name}
                             width={120}
                             height={40}
                             className="h-8 sm:h-10 w-auto object-contain relative z-10"
@@ -224,8 +224,8 @@ export default function SignUp() {
                       ) : (
                         <div className="relative flex items-center justify-center">
                           <Image
-                            src={MuscariMartLogo?.src}
-                            alt={siteName || "Muscari Mart"}
+                            src={BRAND.logo}
+                            alt={siteName || BRAND.name}
                             width={120}
                             height={40}
                             className="h-8 sm:h-10 w-auto object-contain relative z-10"

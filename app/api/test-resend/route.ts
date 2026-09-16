@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmailBodyFontStack } from '@/lib/utils/email-settings';
 
@@ -38,15 +39,15 @@ export async function POST(request: NextRequest) {
     // Prepare email data
     const emailData = {
       from: process.env.FROM_EMAIL ? 
-        `${process.env.FROM_NAME || 'Muscari Mart'} <${process.env.FROM_EMAIL}>` : 
-        'Muscari Mart <onboarding@resend.dev>',
+        `${process.env.FROM_NAME || BRAND.name} <${process.env.FROM_EMAIL}>` : 
+        `${BRAND.name} <onboarding@resend.dev>`,
       to: [process.env.ADMIN_EMAIL],
-      subject: '🧪 Direct Resend Test - Muscari Mart',
+      subject: `🧪 Direct Resend Test - ${BRAND.name}`,
       html: `
         <div style="font-family: ${await getEmailBodyFontStack()}; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
             <h1 style="margin: 0; font-size: 28px;">✅ Direct Resend Test!</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Muscari Mart Email System</p>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">${BRAND.name} Email System</p>
           </div>
           
           <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">

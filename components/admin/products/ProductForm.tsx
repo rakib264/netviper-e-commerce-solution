@@ -75,7 +75,7 @@ interface ProductFormProps {
   initialProduct?: any;
 }
 
-const AUTOSAVE_KEY_NEW = 'mascari:product-draft:new';
+const AUTOSAVE_KEY_NEW = 'product-draft:new';
 
 export default function ProductForm({
   mode,

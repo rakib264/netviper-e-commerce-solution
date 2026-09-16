@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { auth } from '@/lib/auth';
 import { SMSService } from '@/lib/sms/smsService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send test message
-      const testMessage = `Test message from ${process.env.NEXT_PUBLIC_SITE_NAME || 'Muscari Mart'} admin panel. Sent at ${new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' })}.`;
+      const testMessage = `Test message from ${process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name} admin panel. Sent at ${new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' })}.`;
       
       const result = await smsService.sendSMS(phoneNumber, testMessage);
 

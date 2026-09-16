@@ -22,8 +22,8 @@ const requiredVars = {
 };
 
 const optionalVars = {
-  FROM_EMAIL: "Email address to send FROM (defaults to noreply@muscarimart.com)",
-  FROM_NAME: "Name to send emails FROM (defaults to Muscari Mart)",
+  FROM_EMAIL: "Email address to send FROM (defaults to noreply@<brand domain>, see lib/seo/brand.ts)",
+  FROM_NAME: "Name to send emails FROM (defaults to BRAND.name, see lib/seo/brand.ts)",
   NEXTAUTH_URL: "Base URL for the application",
   MONGODB_URI: "MongoDB connection string",
   NEXTAUTH_SECRET: "NextAuth secret for authentication",

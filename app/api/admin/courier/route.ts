@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { auth } from '@/lib/auth';
 import AuditLog from '@/lib/models/AuditLog';
 import Courier from '@/lib/models/Courier';
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
       // Create default settings if none exist
       courierSettings = await CourierSettings.create({
         senderInfo: {
-          name: process.env.NEXT_PUBLIC_SITE_NAME || 'Muscari Mart',
+          name: process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name,
           phone: process.env.NEXT_PUBLIC_SITE_PHONE || '+8801234567890',
           address: process.env.NEXT_PUBLIC_SITE_ADDRESS || '123 Technology Street',
           division: 'Dhaka',

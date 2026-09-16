@@ -1,5 +1,6 @@
 'use client';
 
+import { withBrandParam } from '@/lib/notifications/localize';
 import {
   useCurrency,
   useTranslation,
@@ -171,7 +172,9 @@ function NotificationRow({
   // is why the row carries keys and params rather than rendered sentences.
   // Money params are normalised first, so a notification stored before amounts
   // were pre-formatted still renders with a currency symbol.
-  const params = withFormattedMoneyParams(notification.params, formatPrice);
+  const params = withBrandParam(
+    withFormattedMoneyParams(notification.params, formatPrice),
+  );
   const translatedTitle = t(notification.titleKey, params);
   const translatedBody = t(notification.bodyKey, params);
 

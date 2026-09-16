@@ -16,7 +16,7 @@ FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
 
 # Site Configuration
 NEXT_PUBLIC_SITE_NAME=Your Site Name
-NEXT_PUBLIC_SITE_URL=https://muscarimart.com
+NEXT_PUBLIC_SITE_URL=https://ramenbhai.com
 
 # Other services (if applicable)
 CLOUDINARY_CLOUD_NAME=your-cloudinary-name

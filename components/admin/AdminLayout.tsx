@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from "@/lib/seo/brand";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useSettings } from '@/hooks/use-settings';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import MuscariMartLogo from "@/lib/assets/images/muscarimart.jpg"
 import {
   BarChart3,
   ChevronDown,
@@ -273,8 +273,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       style={{ backgroundColor: BRAND_LOGO_BG }}
                     >
                       <Image
-                        src={settings?.logo1 || MuscariMartLogo?.src}
-                        alt={settings?.siteName || 'Muscari Mart'}
+                        src={settings?.logo1 || BRAND.logo}
+                        alt={settings?.siteName || BRAND.name}
                         width={280}
                         height={72}
                         className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
@@ -298,8 +298,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       style={{ backgroundColor: BRAND_LOGO_BG }}
                     >
                       <Image
-                        src={settings?.logo1 || MuscariMartLogo?.src}
-                        alt={settings?.siteName || 'Muscari Mart'}
+                        src={settings?.logo1 || BRAND.logo}
+                        alt={settings?.siteName || BRAND.name}
                         width={40}
                         height={40}
                         className="h-full w-full object-contain"
@@ -467,8 +467,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 style={{ backgroundColor: BRAND_LOGO_BG }}
               >
                 <Image
-                  src={settings?.logo1 || MuscariMartLogo?.src}
-                  alt={settings?.siteName || 'Muscari Mart'}
+                  src={settings?.logo1 || BRAND.logo}
+                  alt={settings?.siteName || BRAND.name}
                   width={220}
                   height={64}
                   className="h-full w-full object-cover object-center"

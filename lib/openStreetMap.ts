@@ -1,3 +1,5 @@
+import { BRAND } from '@/lib/seo/brand';
+
 interface OpenStreetAddress {
   id: string;
   address: string;
@@ -35,7 +37,7 @@ export class OpenStreetMapService {
 
   private buildHeaders() {
     return {
-      'User-Agent': 'nextecom (geocoding)'
+      'User-Agent': `${BRAND.name} (geocoding)`
     } as Record<string, string>;
   }
 

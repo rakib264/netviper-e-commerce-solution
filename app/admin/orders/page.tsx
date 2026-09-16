@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from "@/lib/seo/brand";
 import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import { Badge } from '@/components/ui/badge';
@@ -1966,7 +1967,7 @@ export default function AdminOrders() {
                         <div key={order._id} className="bg-card p-3 rounded border">
                           <div className="text-xs font-caption text-subtle-foreground mb-1">Message for {customerName}:</div>
                           <div className="text-sm font-mono text-foreground">
-                            "Hi {customerName}, Order {order.orderNumber} confirmed! Amount: {formatCurrency(order.total)}\nRegards, Muscari Mart"
+                            "Hi {customerName}, Order {order.orderNumber} confirmed! Amount: {formatCurrency(order.total)}\nRegards, {BRAND.name}"
                           </div>
                         </div>
                       );

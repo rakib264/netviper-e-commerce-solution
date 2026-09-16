@@ -2041,8 +2041,8 @@
     },
     "events": {
       "accountWelcome": {
-        "title": "Welcome to Mascari Mart",
-        "body": "{{firstName}}, your account is ready. Explore the latest collection."
+        "title": "Welcome to {{brand}}",
+        "body": "{{firstName}}, your account is ready. Start browsing Korean ramen, snacks and groceries."
       },
       "orderPlaced": {
         "title": "Order received",

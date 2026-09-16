@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/seo/brand";
 import SearchComponent from "@/components/ui/search";
 import {
   Accordion,
@@ -186,9 +187,9 @@ export default function Header() {
   const [mobileQuery, setMobileQuery] = useState("");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const brandName = settings?.siteName || "Mascari Mart";
+  const brandName = settings?.siteName || BRAND.name;
   const wordmark = brandName.toUpperCase();
-  const shortBrand = wordmark.split(" ")[0] || "MASCARI";
+  const shortBrand = wordmark.split(" ")[0] || BRAND.name.split(" ")[0];
 
   useEffect(() => {
     dispatch(reloadCartFromStorage());

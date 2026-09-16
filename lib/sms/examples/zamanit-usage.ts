@@ -5,6 +5,7 @@
  * for sending single and bulk SMS messages.
  */
 
+import { BRAND } from '@/lib/seo/brand';
 import { sendBulkSMS, sendBulkSMSWithCustomers } from "../bulkSmsService";
 import { SMSService } from "../smsService";
 
@@ -14,7 +15,7 @@ export async function sendSingleSMSExample() {
   const smsService = SMSService.createFromEnv();
 
   const phoneNumber = "+8801712345678"; // or '01712345678'
-  const message = `Hello from ${process.env.NEXT_PUBLIC_SITE_NAME || "Muscari Mart"}! Your order has been confirmed.`;
+  const message = `Hello from ${process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name}! Your order has been confirmed.`;
 
   try {
     const result = await smsService.sendSMS(phoneNumber, message);
@@ -44,7 +45,7 @@ export async function sendBulkSMSExample() {
     { phone: "+8801556789012", customerId: "cust_003" },
   ];
 
-  const message = `Special offer: 20% discount on all products! Valid till tomorrow. Shop now at ${process.env.NEXT_PUBLIC_SITE_URL || "https://muscarimart.com"}`;
+  const message = `Special offer: 20% discount on all products! Valid till tomorrow. Shop now at ${process.env.NEXT_PUBLIC_SITE_URL || BRAND.url}`;
 
   try {
     const results = await smsService.sendBulkSMS(recipients, message);
@@ -154,7 +155,7 @@ export async function sendOrderConfirmationSMS(orderData: {
 }) {
   const smsService = SMSService.createFromEnv();
 
-  const message = `Dear ${orderData.customerName}, your order #${orderData.orderId} for BDT ${orderData.amount} has been confirmed. Thank you for shopping with ${process.env.NEXT_PUBLIC_SITE_NAME || "Muscari Mart"}!`;
+  const message = `Dear ${orderData.customerName}, your order #${orderData.orderId} for BDT ${orderData.amount} has been confirmed. Thank you for shopping with ${process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name}!`;
 
   try {
     const result = await smsService.sendSMS(orderData.customerPhone, message);
@@ -176,7 +177,7 @@ export async function sendOrderConfirmationSMS(orderData: {
 export async function sendOTPSMS(phoneNumber: string, otp: string) {
   const smsService = SMSService.createFromEnv();
 
-  const message = `Your ${process.env.NEXT_PUBLIC_SITE_NAME || "Muscari Mart"} verification code is: ${otp}. This code will expire in 5 minutes. Do not share this code with anyone.`;
+  const message = `Your ${process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name} verification code is: ${otp}. This code will expire in 5 minutes. Do not share this code with anyone.`;
 
   try {
     const result = await smsService.sendSMS(phoneNumber, message);

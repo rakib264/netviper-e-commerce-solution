@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        'User-Agent': 'NextEcom/1.0',
+        'User-Agent': `${BRAND.name}/1.0`,
         'Accept': 'application/json',
       },
       // Add timeout for serverless functions

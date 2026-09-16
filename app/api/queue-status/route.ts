@@ -1,3 +1,4 @@
+import { QUEUE_NAME } from '@/lib/queue';
 import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -22,7 +23,9 @@ export async function GET(req: NextRequest) {
       token: UPSTASH_REDIS_REST_TOKEN,
     });
 
-    const queueName = 'nextecom_tasks';
+    // Imported, not repeated: see QUEUE_NAME in lib/queue.ts.
+
+    const queueName = QUEUE_NAME;
     const queueLength = await redis.llen(queueName);
 
     // Get recent jobs (last 5)

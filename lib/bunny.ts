@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/seo/brand';
 import { randomUUID } from 'crypto';
 
 export type BunnyUploadResult = {
@@ -75,15 +76,17 @@ function sanitizeFilename(filename: string): string {
 
 /**
  * Build a stable object key under the storage zone.
- * Example: muscari-mart/products/1712345678901-a1b2c3d4-bag.jpg
+ * Example: ramen-bhai/products/1712345678901-a1b2c3d4-bag.jpg
+ *
+ * The prefix follows the brand. Objects already uploaded keep their existing
+ * keys — their URLs are stored absolute — so changing it moves new uploads
+ * without breaking a single existing image.
  */
 export function buildBunnyObjectKey(
   folder: string,
   originalFilename: string,
 ): string {
-  const site = slugifyFolder(
-    process.env.NEXT_PUBLIC_SITE_NAME || 'muscari-mart',
-  );
+  const site = slugifyFolder(process.env.NEXT_PUBLIC_SITE_NAME || BRAND.name);
   const safeFolder = slugifyFolder(folder || 'uploads');
   const safeName = sanitizeFilename(originalFilename);
   const id = randomUUID().replace(/-/g, '').slice(0, 10);
