@@ -1,5 +1,6 @@
 'use client';
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import EventPreview from '@/components/events/EventPreview';
 import SectionHeading from '@/components/home/SectionHeading';
 import Newsletter from '@/components/home/Newsletter';
@@ -128,10 +129,13 @@ function EventGroup({
 export interface DealsPageClientProps {
   /** Resolved on the server. `undefined` means "go fetch"; `[]` means "none". */
   initialEvents?: Event[];
+  /** The server-resolved extractable answer for this page. */
+  answer?: string;
 }
 
 export default function DealsPageClient({
   initialEvents,
+  answer,
 }: DealsPageClientProps = {}) {
   const { t, tPlural } = useTranslation();
   const [events, setEvents] = useState<Event[]>(initialEvents ?? []);
@@ -174,13 +178,19 @@ export default function DealsPageClient({
         <div className="luxury-container py-10 md:py-14">
           <BackButton />
 
+          {/*
+            `h1`, not `h2`: this is the page's own heading and the page had no
+            h1 at all, which both an accessibility audit and a crawler read as a
+            document with no subject.
+          */}
           <div className="mt-8 max-w-3xl">
             <SectionHeading
               eyebrow={t('deals.eyebrow')}
               title={t('deals.title')}
               subtitle={t('deals.subtitle')}
-              as="h2"
+              as="h1"
             />
+            {answer ? <AnswerBlock className="mt-6">{answer}</AnswerBlock> : null}
           </div>
 
           {!loading && !failed ? (

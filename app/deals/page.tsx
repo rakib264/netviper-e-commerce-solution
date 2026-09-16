@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { getCachedScheduledEvents } from '@/lib/home/storefront-content';
 import { JsonLd } from '@/lib/seo/JsonLd';
+import { answerParams } from '@/lib/seo/faq-server';
 import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { collectionPageSchema, schemaId } from '@/lib/seo/schema';
@@ -40,6 +41,8 @@ export default async function Page() {
   const description = t('seo.deals.description', { brand: seo.name });
   const canonical = seo.absolute('/deals');
 
+  const answer = t("answer.deals", await answerParams(context));
+
   const { graph } = await buildPageGraph(
     {
       path: '/deals',
@@ -59,7 +62,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd graph={graph} />
-      <DealsPageClient initialEvents={events as never} />
+      <DealsPageClient initialEvents={events as never} answer={answer} />
     </>
   );
 }

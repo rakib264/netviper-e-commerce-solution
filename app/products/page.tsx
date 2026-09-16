@@ -4,6 +4,7 @@ import {
 } from "@/lib/home/storefront-content";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import { BRAND } from "@/lib/seo/brand";
+import { answerParams } from "@/lib/seo/faq-server";
 import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
 import { buildMetadata } from "@/lib/seo/metadata";
 import {
@@ -54,6 +55,8 @@ export default async function ProductsPage() {
 
   const itemList = itemListSchema(seo, canonical, products);
 
+  const answer = t("answer.products", await answerParams(context));
+
   const { graph } = await buildPageGraph(
     {
       path: "/products",
@@ -84,6 +87,7 @@ export default async function ProductsPage() {
         initialTotal={listing?.total ?? 0}
         initialPages={listing?.pages ?? 1}
         initialCategories={categories as never}
+        answer={answer}
       />
     </>
   );

@@ -3259,5 +3259,122 @@
         "body": "Write to {{email}} with any privacy question or request, and we will respond as quickly as we can."
       }
     }
+  },
+  "faq": {
+    "whatIsRamenBhai": {
+      "question": "What is {{brand}}?",
+      "answer": "{{brand}} is an online food marketplace in {{country}} selling Korean ramen and instant noodles, Bibigo dumplings and tteokbokki, sushi ingredients, drink mixes like Tang and Rooh Afza, plus coffee, tea, popcorn and everyday groceries — delivered to your door at affordable prices."
+    },
+    "deliveryAreas": {
+      "question": "Where does {{brand}} deliver, and how long does it take?",
+      "answer": "{{brand}} delivers across all of {{country}}. Orders inside {{city}} arrive in {{dhakaMin}}–{{dhakaMax}} days, and anywhere else in the country in {{natMin}}–{{natMax}} days. You will get an SMS when your order is on its way."
+    },
+    "deliveryCharge": {
+      "question": "How much is delivery?",
+      "answer": "Delivery costs {{dhakaCharge}} inside {{city}} and {{nationwideCharge}} everywhere else in {{country}}. Delivery is free on orders over {{freeThreshold}}."
+    },
+    "freeDelivery": {
+      "question": "Is there free delivery?",
+      "answer": "Yes. Any order over {{freeThreshold}} ships free, anywhere in {{country}}. Below that, delivery is {{dhakaCharge}} inside {{city}} and {{nationwideCharge}} elsewhere."
+    },
+    "minimumOrder": {
+      "question": "Is there a minimum order?",
+      "answer": "No. You can order a single pack of ramen if that is all you need. Orders under {{freeThreshold}} simply pay the normal delivery charge."
+    },
+    "paymentMethods": {
+      "question": "What payment methods can I use?",
+      "answer": "You can pay cash on delivery, or online by credit card, debit card and mobile wallet through our secure payment gateway. Card details are entered on the gateway's own page and never reach {{brand}}."
+    },
+    "returns": {
+      "question": "What is the returns policy?",
+      "answer": "You can open a return request within {{returnDays}} days of delivery. Food items must be unopened and within their expiry date. Anything that arrives damaged or wrong is replaced or refunded in full."
+    },
+    "halal": {
+      "question": "Are the Korean products halal?",
+      "answer": "Yes. The Korean products {{brand}} imports are halal certified. Certification applies to the imported Korean range; check the packaging of any individual item if you need to confirm its specific certification."
+    },
+    "authenticity": {
+      "question": "Are the imported products genuine?",
+      "answer": "Yes. {{brand}} sources imported products through authorised importers, not grey-market resellers, and every item arrives sealed in its original manufacturer packaging with readable batch and expiry markings."
+    },
+    "supportHours": {
+      "question": "How do I contact customer support?",
+      "answer": "You can reach {{brand}} through the contact page, by email, or by phone. Messages sent outside working hours are answered the next working day."
+    },
+    "trackOrder": {
+      "question": "How do I track my order?",
+      "answer": "Open your order from your account to see its current status. You will also get an SMS when the order is confirmed and again when it is out for delivery."
+    },
+    "missedDelivery": {
+      "question": "What if I miss the delivery?",
+      "answer": "The courier will call you and attempt delivery again. If nobody is reachable after repeated attempts the parcel comes back to us, and we will contact you to arrange a new delivery date."
+    },
+    "damagedItem": {
+      "question": "What if something arrives damaged?",
+      "answer": "Photograph the item and open a return request from your order. Damaged, expired or incorrect items are replaced or refunded in full, and you do not pay return delivery on them."
+    },
+    "refundTime": {
+      "question": "How long does a refund take?",
+      "answer": "Once a return is approved and the item is back with us, the refund is issued to your original payment method. Cash on delivery orders are refunded by mobile wallet or bank transfer."
+    },
+    "whatIsKoreanRamen": {
+      "question": "What is Korean ramen?",
+      "answer": "Korean ramen, or ramyun, is an instant noodle made with a chewier, springier noodle than Japanese ramen and a soup base that is usually spicy. It cooks in about five minutes in boiling water and is eaten as a full meal rather than a side."
+    },
+    "leastSpicyRamen": {
+      "question": "Which Korean noodles are least spicy?",
+      "answer": "Mild options include jjajang (black bean) and creamy carbonara-style noodles, which have little to no chilli. Shin Ramyun sits in the middle, and Buldak varieties are the hottest — the 2x and 3x versions are considerably hotter than the original."
+    },
+    "ramenVsRamyun": {
+      "question": "What is the difference between ramen and ramyun?",
+      "answer": "Ramen is the Japanese dish, usually fresh noodles in a long-simmered broth. Ramyun is the Korean instant version: pre-fried noodles with a powdered soup base, spicier and quicker to cook. Most packets sold in Bangladesh are ramyun."
+    },
+    "cookRamen": {
+      "question": "How do I cook Korean ramen?",
+      "answer": "Boil about 550 ml of water, add the noodles and the soup sachets, and cook for four to five minutes, stirring. For stir-fried types like Buldak, drain most of the water before stirring the sauce through. An egg or sliced cheese takes the edge off the heat."
+    },
+    "bibigoHalal": {
+      "question": "Is Bibigo mandu halal?",
+      "answer": "The Bibigo products {{brand}} imports are halal certified. Bibigo makes both pork and non-pork lines worldwide, so check the packaging of the specific item — the ones stocked here are from the certified range."
+    },
+    "storeMandu": {
+      "question": "How should I store mandu and dumplings?",
+      "answer": "Keep them frozen until you cook them, and cook straight from frozen without thawing. Thawing first makes the wrappers soggy and they tear. Once cooked, eat them the same day rather than refreezing."
+    },
+    "cookMandu": {
+      "question": "How do I cook Bibigo mandu?",
+      "answer": "Pan-fry from frozen in a little oil for two minutes, add a splash of water, cover, and steam for six to seven minutes until the water has gone. They can also be steamed for about ten minutes or air-fried at 180°C."
+    },
+    "sushiAtHome": {
+      "question": "What do I need to make sushi at home?",
+      "answer": "Four essentials: short-grain sushi rice, nori seaweed sheets, rice vinegar for seasoning the rice, and soy sauce. A bamboo rolling mat and wasabi are worth adding. Raw fish is optional — vegetable and cooked fillings work just as well."
+    },
+    "sushiRice": {
+      "question": "Can I use normal rice for sushi?",
+      "answer": "Not really. Sushi needs a short-grain rice whose starch makes the grains cling together, so a roll holds its shape. Long-grain rice such as basmati stays separate and the roll falls apart when you cut it."
+    },
+    "storeNori": {
+      "question": "How do I keep nori crisp?",
+      "answer": "Keep it sealed and dry. Nori absorbs moisture from the air within hours of opening and turns limp, so reseal the pack with the silica sachet inside. Limp sheets crisp up again if passed briefly over a low flame."
+    },
+    "drinkMixes": {
+      "question": "How do I prepare Tang and Rooh Afza?",
+      "answer": "Tang is a powder: stir about two tablespoons into a glass of cold water. Rooh Afza is a syrup: pour two tablespoons into a glass and top with chilled water or milk. Both are popular for iftar and keep well once opened."
+    },
+    "snacksShelfLife": {
+      "question": "How long do the snacks stay fresh?",
+      "answer": "Every pack carries its own printed expiry date, and {{brand}} ships stock well inside it. Store unopened packs somewhere cool and dry, and finish an opened pack within a few days — humidity is what makes them go soft here."
+    },
+    "sectionHeading": "Frequently asked questions"
+  },
+  "answer": {
+    "home": "{{brand}} is an online food marketplace delivering Korean ramen, instant noodles, Bibigo dumplings, sushi ingredients, Tang, Rooh Afza, coffee, tea, popcorn and daily groceries across {{country}}. Orders reach {{city}} in {{dhakaMin}}–{{dhakaMax}} days and the rest of the country in {{natMin}}–{{natMax}} days, free over {{freeThreshold}}.",
+    "products": "The full {{brand}} catalogue: Korean ramen from Samyang, Nongshim, Ottogi and Paldo, Bibigo dumplings and tteokbokki, sushi ingredients, drink mixes like Tang and Rooh Afza, coffee, tea, popcorn, snacks and everyday groceries. Everything ships across {{country}} — {{dhakaMin}}–{{dhakaMax}} days inside {{city}}, {{natMin}}–{{natMax}} days elsewhere — with cash on delivery available on every order.",
+    "faqs": "Common questions about ordering from {{brand}}: we deliver across {{country}} in {{dhakaMin}}–{{dhakaMax}} days inside {{city}} and {{natMin}}–{{natMax}} days elsewhere, free over {{freeThreshold}}. You can pay cash on delivery, by card or by mobile wallet, return an item within the stated window, and the imported Korean range is halal certified.",
+    "shippingDelivery": "{{brand}} delivers across {{country}}. Orders inside {{city}} arrive in {{dhakaMin}}–{{dhakaMax}} days for {{dhakaCharge}}, and the rest of the country in {{natMin}}–{{natMax}} days for {{nationwideCharge}}. Delivery is free on orders over {{freeThreshold}}. You can pay cash on delivery, and an SMS tells you when your parcel is on its way.",
+    "about": "{{brand}} is an online food marketplace serving {{country}} since {{founded}}. We sell Korean ramen and instant noodles, Bibigo products, sushi ingredients, drink mixes, coffee, tea, snacks and daily groceries, sourced through authorised importers and delivered nationwide — {{dhakaMin}}–{{dhakaMax}} days inside {{city}} and {{natMin}}–{{natMax}} days everywhere else in the country.",
+    "contact": "You can reach {{brand}} about an order, a delivery, a return or a product question by email or phone, or through the form on this page. Messages sent outside working hours are answered the next working day. For a delivery already on its way, quoting your order number gets the fastest answer.",
+    "categories": "Browse every category {{brand}} stocks: Korean ramen and instant noodles, Bibigo dumplings and tteokbokki, sushi ingredients, drink mixes like Tang and Rooh Afza, coffee and tea, popcorn and snacks, and everyday groceries. Everything is delivered across {{country}} — {{dhakaMin}}–{{dhakaMax}} days inside {{city}}, {{natMin}}–{{natMax}} days elsewhere, free over {{freeThreshold}}.",
+    "deals": "Current discounts and bundle offers at {{brand}} on Korean ramen, snacks and groceries. Each deal runs for a fixed window and the reduced price applies automatically at checkout — no code needed. Deals ship on the same terms as everything else: {{dhakaMin}}–{{dhakaMax}} days inside {{city}}, {{natMin}}–{{natMax}} days elsewhere in {{country}}."
   }
 }

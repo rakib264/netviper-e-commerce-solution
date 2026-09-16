@@ -1,10 +1,13 @@
 import { getServerCurrency } from "@/lib/currency/server";
 import { getPublicProductDetail } from "@/lib/products/detail-server";
 import { getCachedReturnPolicy } from "@/lib/returns/policy-settings-server";
+import { FaqSection } from "@/components/seo/FaqSection";
 import { JsonLd } from "@/lib/seo/JsonLd";
+import { faqsForProduct } from "@/lib/seo/faq";
+import { resolveFaqsForPage } from "@/lib/seo/faq-server";
 import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { productSchema, type ProductSchemaInput } from "@/lib/seo/schema";
+import { faqSchema, productSchema, type ProductSchemaInput } from "@/lib/seo/schema";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductPageClient from "./ProductPageClient";
@@ -119,6 +122,15 @@ export default async function ProductPage({
     reviews: Array.isArray(product.reviews) ? product.reviews : undefined,
   };
 
+  // Only questions answerable from brand.ts or the product row. Genuinely
+  // per-product facts — spice level, cooking time, allergens — are deliberately
+  // absent: they belong in product fields, and a template that invents them is
+  // how a catalogue ends up asserting a cooking time for a bottle of soy sauce.
+  const faqs = await resolveFaqsForPage(
+    faqsForProduct({ name: product.name, categoryName: category?.name }),
+    context,
+  );
+
   const { graph } = await buildPageGraph(
     {
       path: `/products/${slug}`,
@@ -142,6 +154,7 @@ export default async function ProductPage({
               }
             : undefined,
         }),
+        faqSchema(seo.absolute(`/products/${slug}`), faqs),
       ],
     },
     context,
@@ -154,6 +167,7 @@ export default async function ProductPage({
         initialProduct={product as never}
         initialRelatedProducts={detail.relatedProducts as never}
       />
+      <FaqSection faqs={faqs} heading={t("faq.sectionHeading")} />
     </>
   );
 }

@@ -86,7 +86,9 @@ export default function ComboBundlesListingClient() {
               eyebrow={t('combos.listing.eyebrow')}
               title={t('combos.listing.title')}
               subtitle={t('combos.listing.subtitle')}
-              as="h2"
+              // The page's own heading, so `h1`. It was `h2`, leaving the page
+              // with no h1 at all.
+              as="h1"
             />
           </div>
 

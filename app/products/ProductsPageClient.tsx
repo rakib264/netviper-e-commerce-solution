@@ -1,5 +1,6 @@
 "use client";
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -46,6 +47,8 @@ export interface ProductsPageClientProps {
   initialPages?: number;
   /** Root categories for the filter, resolved by the server page. */
   initialCategories?: Category[] | null;
+  /** The server-resolved extractable answer for this page. */
+  answer?: string;
 }
 
 export default function ProductsPageClient({
@@ -53,6 +56,7 @@ export default function ProductsPageClient({
   initialTotal = 0,
   initialPages = 1,
   initialCategories,
+  answer,
 }: ProductsPageClientProps = {}) {
   const { t, tPlural } = useTranslation();
   const [categories, setCategories] = useState<Category[]>(
@@ -173,6 +177,7 @@ export default function ProductsPageClient({
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {t('products.exploreHandbagsShoulderBagsWalletsBackpacks')}
           </p>
+          {answer ? <AnswerBlock className="mt-6">{answer}</AnswerBlock> : null}
         </section>
 
         <section className="mb-10 grid gap-4 md:grid-cols-3">

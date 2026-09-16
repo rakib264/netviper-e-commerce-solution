@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 
+import { FaqSection } from '@/components/seo/FaqSection';
 import { JsonLd } from '@/lib/seo/JsonLd';
+import { SHIPPING_FAQS } from '@/lib/seo/faq';
+import { answerParams, resolveFaqsForPage } from '@/lib/seo/faq-server';
+import { faqSchema } from '@/lib/seo/schema';
 import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
 import { buildMetadata } from '@/lib/seo/metadata';
 import ShippingDeliveryPageClient from './ShippingDeliveryPageClient';
@@ -28,6 +32,13 @@ export default async function Page() {
   const context = await getSeoContext();
   const { seo, t } = context;
 
+  const faqs = await resolveFaqsForPage(SHIPPING_FAQS, context);
+  const canonical = seo.absolute('/shipping-delivery');
+
+  // Interpolated from the same figures the FAQs use, so the sentence at the
+  // top of the page and the answers further down cannot disagree.
+  const answer = t('answer.shippingDelivery', await answerParams(context));
+
   const name = t('seo.shippingDelivery.title');
   const description = t('seo.shippingDelivery.description', { brand: seo.name });
 
@@ -37,6 +48,7 @@ export default async function Page() {
       name,
       description,
       breadcrumbs: [{ name, path: '/shipping-delivery' }],
+      nodes: [faqSchema(canonical, faqs)],
     },
     context,
   );
@@ -44,7 +56,8 @@ export default async function Page() {
   return (
     <>
       <JsonLd graph={graph} />
-      <ShippingDeliveryPageClient />
+      <ShippingDeliveryPageClient answer={answer} />
+      <FaqSection faqs={faqs} heading={t('faq.sectionHeading')} />
     </>
   );
 }

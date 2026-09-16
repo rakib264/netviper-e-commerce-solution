@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { JsonLd } from '@/lib/seo/JsonLd';
+import { answerParams } from '@/lib/seo/faq-server';
 import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
 import { buildMetadata } from '@/lib/seo/metadata';
 import AboutUsPageClient from './AboutUsPageClient';
@@ -28,6 +29,10 @@ export default async function Page() {
   const context = await getSeoContext();
   const { seo, t } = context;
 
+  // Interpolated from the same figures the FAQs use, so the sentence at the
+  // top of the page and the answers further down cannot disagree.
+  const answer = t('answer.about', await answerParams(context));
+
   const name = t('seo.about.title');
   const description = t('seo.about.description', { brand: seo.name });
 
@@ -44,7 +49,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd graph={graph} />
-      <AboutUsPageClient />
+      <AboutUsPageClient answer={answer} />
     </>
   );
 }

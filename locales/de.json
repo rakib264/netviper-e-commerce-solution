@@ -3259,5 +3259,122 @@
         "body": "Schreiben Sie bei Fragen oder Anliegen zum Datenschutz an {{email}}; wir antworten so schnell wie möglich."
       }
     }
+  },
+  "faq": {
+    "whatIsRamenBhai": {
+      "question": "Was ist {{brand}}?",
+      "answer": "{{brand}} ist ein Online-Lebensmittelmarkt in {{country}} mit koreanischen Ramen und Instantnudeln, Bibigo-Teigtaschen und Tteokbokki, Sushi-Zutaten, Getränkepulver wie Tang und Rooh Afza sowie Kaffee, Tee, Popcorn und Alltagsprodukten — günstig bis an die Tür geliefert."
+    },
+    "deliveryAreas": {
+      "question": "Wohin liefert {{brand}}, und wie lange dauert es?",
+      "answer": "{{brand}} liefert in ganz {{country}}. Bestellungen innerhalb von {{city}} treffen in {{dhakaMin}}–{{dhakaMax}} Tagen ein, überall sonst im Land in {{natMin}}–{{natMax}} Tagen. Sie erhalten eine SMS, sobald Ihre Bestellung unterwegs ist."
+    },
+    "deliveryCharge": {
+      "question": "Was kostet die Lieferung?",
+      "answer": "Die Lieferung kostet {{dhakaCharge}} innerhalb von {{city}} und {{nationwideCharge}} überall sonst in {{country}}. Ab {{freeThreshold}} ist die Lieferung kostenlos."
+    },
+    "freeDelivery": {
+      "question": "Gibt es eine kostenlose Lieferung?",
+      "answer": "Ja. Jede Bestellung über {{freeThreshold}} wird überall in {{country}} kostenlos geliefert. Darunter kostet die Lieferung {{dhakaCharge}} innerhalb von {{city}} und {{nationwideCharge}} andernorts."
+    },
+    "minimumOrder": {
+      "question": "Gibt es einen Mindestbestellwert?",
+      "answer": "Nein. Sie können auch nur eine einzelne Packung Ramen bestellen. Für Bestellungen unter {{freeThreshold}} fällt lediglich die normale Liefergebühr an."
+    },
+    "paymentMethods": {
+      "question": "Welche Zahlungsarten kann ich nutzen?",
+      "answer": "Sie können per Nachnahme zahlen oder online mit Kredit- und Debitkarte sowie Mobile Wallet über unseren sicheren Zahlungsdienstleister. Kartendaten geben Sie auf dessen eigener Seite ein; sie erreichen {{brand}} nie."
+    },
+    "returns": {
+      "question": "Wie sind die Rückgabebedingungen?",
+      "answer": "Sie können innerhalb von {{returnDays}} Tagen nach Lieferung eine Rücksendung beantragen. Lebensmittel müssen ungeöffnet und innerhalb des Haltbarkeitsdatums sein. Beschädigte oder falsche Artikel werden vollständig ersetzt oder erstattet."
+    },
+    "halal": {
+      "question": "Sind die koreanischen Produkte halal?",
+      "answer": "Ja. Die von {{brand}} importierten koreanischen Produkte sind halal-zertifiziert. Die Zertifizierung gilt für das importierte koreanische Sortiment; prüfen Sie bei Bedarf die Verpackung des einzelnen Artikels."
+    },
+    "authenticity": {
+      "question": "Sind die importierten Produkte original?",
+      "answer": "Ja. {{brand}} bezieht importierte Produkte über autorisierte Importeure, nicht über Graumarkt-Händler. Jeder Artikel kommt versiegelt in der Originalverpackung des Herstellers mit lesbarer Chargen- und Haltbarkeitsangabe."
+    },
+    "supportHours": {
+      "question": "Wie erreiche ich den Kundenservice?",
+      "answer": "Sie erreichen {{brand}} über die Kontaktseite, per E-Mail oder telefonisch. Nachrichten außerhalb der Geschäftszeiten werden am nächsten Werktag beantwortet."
+    },
+    "trackOrder": {
+      "question": "Wie verfolge ich meine Bestellung?",
+      "answer": "Öffnen Sie Ihre Bestellung im Konto, um den aktuellen Status zu sehen. Sie erhalten außerdem eine SMS bei Bestätigung und erneut bei Auslieferung."
+    },
+    "missedDelivery": {
+      "question": "Was passiert, wenn ich die Lieferung verpasse?",
+      "answer": "Der Kurier ruft Sie an und versucht die Zustellung erneut. Ist nach mehreren Versuchen niemand erreichbar, kommt das Paket zu uns zurück und wir melden uns, um einen neuen Liefertermin zu vereinbaren."
+    },
+    "damagedItem": {
+      "question": "Was, wenn etwas beschädigt ankommt?",
+      "answer": "Fotografieren Sie den Artikel und beantragen Sie eine Rücksendung über Ihre Bestellung. Beschädigte, abgelaufene oder falsche Artikel werden vollständig ersetzt oder erstattet, ohne Rückversandkosten für Sie."
+    },
+    "refundTime": {
+      "question": "Wie lange dauert eine Rückerstattung?",
+      "answer": "Sobald die Rücksendung genehmigt und der Artikel bei uns eingetroffen ist, erfolgt die Erstattung auf Ihr ursprüngliches Zahlungsmittel. Nachnahme-Bestellungen werden per Mobile Wallet oder Banküberweisung erstattet."
+    },
+    "whatIsKoreanRamen": {
+      "question": "Was ist koreanische Ramen?",
+      "answer": "Koreanische Ramen, auch Ramyun, sind Instantnudeln mit bissfesteren, federnderen Nudeln als japanische Ramen und einer meist scharfen Suppenbasis. Sie garen in etwa fünf Minuten in kochendem Wasser und gelten als vollwertige Mahlzeit, nicht als Beilage."
+    },
+    "leastSpicyRamen": {
+      "question": "Welche koreanischen Nudeln sind am wenigsten scharf?",
+      "answer": "Mild sind etwa Jjajang (schwarze Bohnen) und cremige Carbonara-Varianten mit wenig bis keiner Chili. Shin Ramyun liegt in der Mitte, Buldak-Sorten sind am schärfsten — die 2x- und 3x-Versionen deutlich schärfer als das Original."
+    },
+    "ramenVsRamyun": {
+      "question": "Was ist der Unterschied zwischen Ramen und Ramyun?",
+      "answer": "Ramen ist das japanische Gericht, meist frische Nudeln in lange geköchelter Brühe. Ramyun ist die koreanische Instant-Variante: vorfrittierte Nudeln mit Suppenpulver, schärfer und schneller zubereitet. Die meisten in Bangladesch verkauften Packungen sind Ramyun."
+    },
+    "cookRamen": {
+      "question": "Wie koche ich koreanische Ramen?",
+      "answer": "Etwa 550 ml Wasser aufkochen, Nudeln und Suppenbeutel zugeben und vier bis fünf Minuten unter Rühren garen. Bei Bratvarianten wie Buldak das meiste Wasser abgießen, bevor Sie die Sauce unterrühren. Ein Ei oder eine Scheibe Käse mildert die Schärfe."
+    },
+    "bibigoHalal": {
+      "question": "Ist Bibigo-Mandu halal?",
+      "answer": "Die von {{brand}} importierten Bibigo-Produkte sind halal-zertifiziert. Bibigo führt weltweit Linien mit und ohne Schweinefleisch — prüfen Sie daher die Verpackung des jeweiligen Artikels; die hier geführten stammen aus dem zertifizierten Sortiment."
+    },
+    "storeMandu": {
+      "question": "Wie lagere ich Mandu und Teigtaschen?",
+      "answer": "Bis zur Zubereitung gefroren lagern und direkt aus dem Froster garen, ohne Auftauen. Aufgetaut werden die Teighüllen weich und reißen. Nach dem Garen am selben Tag essen und nicht erneut einfrieren."
+    },
+    "cookMandu": {
+      "question": "Wie bereite ich Bibigo-Mandu zu?",
+      "answer": "Gefroren zwei Minuten in wenig Öl anbraten, einen Schuss Wasser zugeben, abdecken und sechs bis sieben Minuten dämpfen, bis das Wasser verdampft ist. Alternativ etwa zehn Minuten dämpfen oder bei 180 °C in der Heißluftfritteuse garen."
+    },
+    "sushiAtHome": {
+      "question": "Was brauche ich, um zu Hause Sushi zu machen?",
+      "answer": "Vier Dinge sind wesentlich: Rundkorn-Sushireis, Nori-Blätter, Reisessig zum Würzen des Reises und Sojasauce. Eine Bambusmatte und Wasabi lohnen sich zusätzlich. Roher Fisch ist optional — Gemüse- und gegarte Füllungen funktionieren ebenso gut."
+    },
+    "sushiRice": {
+      "question": "Kann ich normalen Reis für Sushi verwenden?",
+      "answer": "Eher nicht. Sushi braucht Rundkornreis, dessen Stärke die Körner zusammenhalten lässt, damit die Rolle ihre Form behält. Langkornreis wie Basmati bleibt körnig und die Rolle zerfällt beim Schneiden."
+    },
+    "storeNori": {
+      "question": "Wie bleibt Nori knusprig?",
+      "answer": "Luftdicht und trocken lagern. Nori zieht schon Stunden nach dem Öffnen Feuchtigkeit und wird weich — verschließen Sie die Packung samt Silikatbeutel. Weiche Blätter werden wieder knusprig, wenn man sie kurz über kleine Flamme zieht."
+    },
+    "drinkMixes": {
+      "question": "Wie bereite ich Tang und Rooh Afza zu?",
+      "answer": "Tang ist ein Pulver: etwa zwei Esslöffel in ein Glas kaltes Wasser einrühren. Rooh Afza ist ein Sirup: zwei Esslöffel ins Glas geben und mit kaltem Wasser oder Milch auffüllen. Beide sind zum Iftar beliebt und halten sich nach dem Öffnen gut."
+    },
+    "snacksShelfLife": {
+      "question": "Wie lange bleiben die Snacks frisch?",
+      "answer": "Jede Packung trägt ihr eigenes aufgedrucktes Haltbarkeitsdatum, und {{brand}} versendet Ware deutlich davor. Ungeöffnete Packungen kühl und trocken lagern, geöffnete innerhalb weniger Tage aufbrauchen — hier macht die Luftfeuchtigkeit sie weich."
+    },
+    "sectionHeading": "Häufig gestellte Fragen"
+  },
+  "answer": {
+    "home": "{{brand}} ist ein Online-Lebensmittelmarkt und liefert koreanische Ramen, Instantnudeln, Bibigo-Teigtaschen, Sushi-Zutaten, Tang, Rooh Afza, Kaffee, Tee, Popcorn und Lebensmittel in ganz {{country}}. Bestellungen erreichen {{city}} in {{dhakaMin}}–{{dhakaMax}} Tagen, den Rest des Landes in {{natMin}}–{{natMax}} Tagen, ab {{freeThreshold}} kostenlos.",
+    "products": "Der vollständige {{brand}}-Katalog: koreanische Ramen von Samyang, Nongshim, Ottogi und Paldo, Bibigo-Teigtaschen und Tteokbokki, Sushi-Zutaten, Getränkepulver wie Tang und Rooh Afza, Kaffee, Tee, Popcorn, Snacks und Lebensmittel. Alles wird in ganz {{country}} geliefert — {{dhakaMin}}–{{dhakaMax}} Tage innerhalb von {{city}}, {{natMin}}–{{natMax}} Tage andernorts — Nachnahme bei jeder Bestellung möglich.",
+    "faqs": "Häufige Fragen zur Bestellung bei {{brand}}: Wir liefern in ganz {{country}} — {{dhakaMin}}–{{dhakaMax}} Tage innerhalb von {{city}}, {{natMin}}–{{natMax}} Tage andernorts, ab {{freeThreshold}} kostenlos. Sie zahlen per Nachnahme, Karte oder Mobile Wallet, können Artikel innerhalb der genannten Frist zurückgeben, und das importierte koreanische Sortiment ist halal-zertifiziert.",
+    "shippingDelivery": "{{brand}} liefert in ganz {{country}}. Bestellungen innerhalb von {{city}} treffen für {{dhakaCharge}} in {{dhakaMin}}–{{dhakaMax}} Tagen ein, der Rest des Landes für {{nationwideCharge}} in {{natMin}}–{{natMax}} Tagen. Ab {{freeThreshold}} ist die Lieferung kostenlos. Zahlung per Nachnahme möglich, und eine SMS meldet, wenn Ihr Paket unterwegs ist.",
+    "about": "{{brand}} ist ein Online-Lebensmittelmarkt und beliefert {{country}} seit {{founded}}. Wir verkaufen koreanische Ramen und Instantnudeln, Bibigo-Produkte, Sushi-Zutaten, Getränkepulver, Kaffee, Tee, Snacks und Lebensmittel — über autorisierte Importeure bezogen und landesweit geliefert: {{dhakaMin}}–{{dhakaMax}} Tage innerhalb von {{city}} und {{natMin}}–{{natMax}} Tage überall sonst im Land.",
+    "contact": "Sie erreichen {{brand}} zu Bestellung, Lieferung, Rückgabe oder Produktfragen per E-Mail, telefonisch oder über das Formular auf dieser Seite. Nachrichten außerhalb der Geschäftszeiten werden am nächsten Werktag beantwortet. Bei einer bereits unterwegs befindlichen Lieferung führt die Angabe Ihrer Bestellnummer am schnellsten zur Antwort.",
+    "categories": "Alle Kategorien bei {{brand}}: koreanische Ramen und Instantnudeln, Bibigo-Teigtaschen und Tteokbokki, Sushi-Zutaten, Getränkepulver wie Tang und Rooh Afza, Kaffee und Tee, Popcorn und Snacks sowie Lebensmittel. Alles wird in ganz {{country}} geliefert — {{dhakaMin}}–{{dhakaMax}} Tage innerhalb von {{city}}, {{natMin}}–{{natMax}} Tage andernorts, ab {{freeThreshold}} kostenlos.",
+    "deals": "Aktuelle Rabatte und Bundle-Angebote bei {{brand}} auf koreanische Ramen, Snacks und Lebensmittel. Jede Aktion läuft für einen festen Zeitraum, der reduzierte Preis gilt automatisch an der Kasse — ohne Code. Es gelten dieselben Lieferbedingungen wie sonst: {{dhakaMin}}–{{dhakaMax}} Tage innerhalb von {{city}}, {{natMin}}–{{natMax}} Tage andernorts in {{country}}."
   }
 }

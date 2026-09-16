@@ -1,5 +1,6 @@
 "use client";
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import {
   getSectionRenderer,
   type SectionRenderContext,
@@ -35,11 +36,18 @@ interface HomeClientProps {
    * was rendered without server data) falls back to fetching for itself.
    */
   data?: HomepageData;
+  /**
+   * The server-resolved 40–60 word answer block, rendered after the hero. It is
+   * what an answer engine lifts when asked what this store is, so it has to be
+   * in the server HTML rather than appearing after hydration.
+   */
+  answer?: string;
 }
 
 export default function HomeClient({
   sections,
   data = EMPTY_HOMEPAGE_DATA,
+  answer,
 }: HomeClientProps = {}) {
   const [clientSections, setClientSections] = useState<
     HomepageSectionConfig[] | null
@@ -159,7 +167,24 @@ export default function HomeClient({
 
           if (!content) return null;
 
-          return <div key={section.key}>{content}</div>;
+          return (
+            <div key={section.key}>
+              {content}
+              {/*
+                The extractable answer, directly after the hero — the earliest
+                point on this page where a paragraph of prose reads naturally.
+                Server-rendered and at rest: a Framer `initial={{ opacity: 0 }}`
+                is honoured during SSR and would ship it invisible.
+              */}
+              {index === 0 && answer ? (
+                <section className="border-y border-border bg-card py-8 md:py-10">
+                  <div className="luxury-container">
+                    <AnswerBlock>{answer}</AnswerBlock>
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          );
         })}
       </main>
 

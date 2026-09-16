@@ -1,5 +1,6 @@
 'use client';
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
@@ -19,7 +20,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslation } from '@/components/providers/LocalizationProvider';
 
-export default function FAQsPageClient() {
+/** `answer` is the server-resolved extractable answer for this page. */
+export default function FAQsPageClient({ answer }: { answer?: string } = {}) {
   const { t, tPlural } = useTranslation();
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,6 +148,19 @@ export default function FAQsPageClient() {
           </motion.div>
         </div>
       </section>
+
+      {/*
+        The extractable answer, rendered at rest and outside the hero's Framer
+        wrapper — `initial={{ opacity: 0 }}` is honoured during SSR, so anything
+        inside it ships invisible until hydration.
+      */}
+      {answer ? (
+        <section className="border-b border-border bg-card py-8 md:py-10">
+          <div className="container mx-auto px-4">
+            <AnswerBlock className="mx-auto">{answer}</AnswerBlock>
+          </div>
+        </section>
+      ) : null}
 
       {/* Search Section */}
       <section className="py-12 bg-card">

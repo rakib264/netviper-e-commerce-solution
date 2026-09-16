@@ -3,11 +3,14 @@ import { sortCategories } from "@/lib/categories/sort";
 import { toPlainJson } from "@/lib/home/serialize";
 import Category from "@/lib/models/Category";
 import connectDB from "@/lib/mongodb";
+import { FaqSection } from "@/components/seo/FaqSection";
 import { JsonLd } from "@/lib/seo/JsonLd";
+import { faqsForCategory } from "@/lib/seo/faq";
+import { resolveFaqsForPage } from "@/lib/seo/faq-server";
 import { BRAND } from "@/lib/seo/brand";
 import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { collectionPageSchema, schemaId } from "@/lib/seo/schema";
+import { collectionPageSchema, faqSchema, schemaId } from "@/lib/seo/schema";
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
@@ -149,6 +152,11 @@ export default async function CategoryPage({
       brand: seo.name,
     });
 
+  // Matched against the category's slug and name, so renaming a category does
+  // not lose its FAQs, and a category with no match falls back to the general
+  // set rather than answering questions about something it does not sell.
+  const faqs = await resolveFaqsForPage(faqsForCategory(category), context);
+
   const { graph } = await buildPageGraph(
     {
       path: `/categories/${slug}`,
@@ -168,6 +176,7 @@ export default async function CategoryPage({
         description,
         breadcrumbId: schemaId.breadcrumb(canonical),
       }),
+      nodes: [faqSchema(canonical, faqs)],
     },
     context,
   );
@@ -179,6 +188,7 @@ export default async function CategoryPage({
         category={toSummary(category)}
         subcategories={sortCategories(children).map(toSummary)}
       />
+      <FaqSection faqs={faqs} heading={t("faq.sectionHeading")} />
     </>
   );
 }

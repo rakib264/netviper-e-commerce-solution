@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { getCachedCategoryTree } from '@/lib/home/storefront-content';
 import { JsonLd } from '@/lib/seo/JsonLd';
+import { answerParams } from '@/lib/seo/faq-server';
 import { buildPageGraph, getSeoContext } from '@/lib/seo/graph';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { collectionPageSchema, schemaId } from '@/lib/seo/schema';
@@ -36,6 +37,10 @@ export default async function Page() {
 
   const { seo, t } = context;
 
+  // Interpolated from the same figures the FAQs use, so the sentence at the
+  // top of the page and the answers further down cannot disagree.
+  const answer = t('answer.categories', await answerParams(context));
+
   const name = t('seo.categories.title');
   const description = t('seo.categories.description', { brand: seo.name });
   const canonical = seo.absolute('/categories');
@@ -59,7 +64,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd graph={graph} />
-      <CategoriesPageClient initialCategories={categories as never} />
+      <CategoriesPageClient initialCategories={categories as never} answer={answer} />
     </>
   );
 }

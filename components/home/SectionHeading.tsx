@@ -23,8 +23,12 @@ export interface SectionHeadingProps {
   /** Rendered opposite the heading on wide screens (e.g. a "View all" link). */
   action?: React.ReactNode;
   className?: string;
-  /** Heading level, for pages that need a different document outline. */
-  as?: 'h2' | 'h3';
+  /**
+   * Heading level, for pages that need a different document outline. `h1` is
+   * allowed because a few pages use this component for their own page heading
+   * rather than for a band inside one — /deals had no h1 at all until it could.
+   */
+  as?: 'h1' | 'h2' | 'h3';
 }
 
 export function SectionHeading({

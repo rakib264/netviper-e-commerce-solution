@@ -1,5 +1,6 @@
 'use client';
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
@@ -62,10 +63,15 @@ const validationSchema = (t: Translate) =>
     .required(t('contact.validation.messageIsRequired')),
 });
 
-export default function ContactPageClient() {
+/** `answer` is the server-resolved extractable answer for this page. */
+export default function ContactPageClient({ answer }: { answer?: string } = {}) {
   const { t } = useTranslation();
+  // No `loading` state gating the whole page. This component used to return a
+  // full-screen spinner until `/api/settings/general` came back, which meant the
+  // server render contained no h1, no contact details and no prose at all — a
+  // crawler saw a spinner. Every consumer of `settings` below already guards
+  // with `settings?.`, so the page renders correctly before the fetch lands.
   const [settings, setSettings] = useState<GeneralSettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -90,8 +96,6 @@ export default function ContactPageClient() {
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -184,14 +188,6 @@ export default function ContactPageClient() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-card">
       <Header />
@@ -209,6 +205,19 @@ export default function ContactPageClient() {
           </div>
         </div>
       </div>
+
+      {/*
+        The extractable answer, rendered at rest and outside the hero's Framer
+        wrapper — `initial={{ opacity: 0 }}` is honoured during SSR, so anything
+        inside it ships invisible until hydration.
+      */}
+      {answer ? (
+        <section className="border-b border-border bg-card py-8 md:py-10">
+          <div className="container mx-auto px-4">
+            <AnswerBlock className="mx-auto">{answer}</AnswerBlock>
+          </div>
+        </section>
+      ) : null}
 
       {/* Contact Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">

@@ -1,5 +1,6 @@
 'use client';
 
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
@@ -467,10 +468,13 @@ function CategoriesSkeleton() {
  */
 export interface CategoriesPageClientProps {
   initialCategories?: Category[];
+  /** The server-resolved extractable answer for this page. */
+  answer?: string;
 }
 
 export default function CategoriesPageClient({
   initialCategories,
+  answer,
 }: CategoriesPageClientProps = {}) {
   const { t } = useTranslation();
   const [tree, setTree] = useState<CategoryNode[]>(() =>
@@ -559,6 +563,7 @@ export default function CategoriesPageClient({
             <p className="mt-4 max-w-2xl font-paragraph text-sm leading-relaxed text-muted-foreground md:text-base">
               {t('categories.exploreOurCarefullyCuratedCategoriesEach')}
             </p>
+            {answer ? <AnswerBlock className="mt-6">{answer}</AnswerBlock> : null}
           </div>
         </section>
 

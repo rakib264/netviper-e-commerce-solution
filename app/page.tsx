@@ -4,6 +4,7 @@ import { getCachedRootCategories } from "@/lib/home/storefront-content";
 import { getCachedHomepageSections } from "@/lib/landing/homepage-sections-server";
 import { mergeHomepageSections } from "@/lib/landing/homepage-sections";
 import { JsonLd } from "@/lib/seo/JsonLd";
+import { answerParams } from "@/lib/seo/faq-server";
 import { BRAND } from "@/lib/seo/brand";
 import { buildPageGraph, getSeoContext } from "@/lib/seo/graph";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -38,6 +39,10 @@ export default async function Home() {
     getCachedRootCategories(12).catch(() => []),
   ]);
 
+  // Interpolated from the same delivery figures the FAQs and the product
+  // schema use, so nothing on the site quotes a different promise.
+  const answer = context.t("answer.home", await answerParams(context));
+
   const { graph } = await buildPageGraph(
     {
       path: "/",
@@ -58,7 +63,7 @@ export default async function Home() {
   return (
     <>
       <JsonLd graph={graph} />
-      <HomeClient sections={sections} data={data} />
+      <HomeClient sections={sections} data={data} answer={answer} />
     </>
   );
 }
