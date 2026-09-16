@@ -46,17 +46,22 @@ const HORIZONTAL_COLUMNS: Record<number, string> = {
 };
 
 /**
- * The vertical family caps the *row* width as well as the card height.
+ * The vertical family fills the container, exactly like every other band.
  *
- * A 4:5 frame only reads as a tall panel while its column stays narrow — poured
- * into a 1600px container it becomes the two-thousand-pixel block this redesign
- * exists to remove. The height ceilings in `AD_SHAPE_CLASSES` stop the runaway;
- * these caps are what keep the result looking composed rather than cropped.
+ * It used to cap the row width as well as the card height, which kept the 4:5
+ * frame narrow but parked the whole band in a centred island with a far deeper
+ * gutter than the sections above and below it. Height is now governed solely by
+ * the `max-h` ceiling in `AD_SHAPE_CLASSES.tall`, so the columns start and end
+ * on the page gutter and the frame crops — `object-cover`, never distorted —
+ * rather than the row shrinking away from the edge.
  */
 const VERTICAL_COLUMNS: Record<number, string> = {
-  1: 'grid-cols-1 sm:max-w-[24rem] lg:max-w-[26rem]',
-  2: 'sm:grid-cols-2 sm:max-w-[46rem] lg:max-w-[52rem]',
-  3: 'sm:grid-cols-2 sm:max-w-[46rem] lg:grid-cols-3 lg:max-w-[76rem]',
+  1: 'grid-cols-1',
+  2: 'sm:grid-cols-2',
+  // Three panels go straight from the rail to a triptych. Two columns in
+  // between would orphan the third card in a half-empty row, and three columns
+  // before `lg` leaves a 4:5 frame too narrow to hold its own call to action.
+  3: 'lg:grid-cols-3',
 };
 
 /** `sizes` hints matching the column classes above, so the CDN serves the right width. */
@@ -66,22 +71,40 @@ const HORIZONTAL_SIZE_HINTS: Record<number, string> = {
   3: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
 };
 
+/**
+ * Vertical columns are now a fraction of the container rather than a fixed cap,
+ * so the hints are viewport fractions like the horizontal ones. Below `sm` a
+ * multi-card band is the snap rail, whose items are 68% of the row.
+ */
 const VERTICAL_SIZE_HINTS: Record<number, string> = {
-  1: '(max-width: 640px) 92vw, 26rem',
-  2: '(max-width: 640px) 68vw, (max-width: 1024px) 23rem, 26rem',
-  3: '(max-width: 640px) 68vw, (max-width: 1024px) 23rem, 26rem',
+  1: '100vw',
+  2: '(max-width: 640px) 68vw, 50vw',
+  3: '(max-width: 640px) 68vw, (max-width: 1024px) 46vw, 33vw',
 };
 
 /**
- * Below `sm`, a vertical band with more than one panel becomes a snap rail
- * rather than a stack — three 430px blocks in a column is the same usability
- * problem as one 2000px block. CSS scroll-snap only: no carousel library, no
- * scroll listeners, and the rail is keyboard-scrollable as-is.
+ * A vertical band with more than one panel is a snap rail before it is a grid —
+ * three 430px blocks stacked in a column is the same usability problem as one
+ * 2000px block. CSS scroll-snap only: no carousel library, no scroll listeners,
+ * and the rail is keyboard-scrollable as-is.
+ *
+ * Where the rail gives way to the grid depends on how many panels it holds,
+ * which is why the exit classes are keyed by count rather than baked in: two
+ * panels resolve into columns at `sm`, three only at `lg`.
  */
-const MOBILE_RAIL =
-  'flex snap-x snap-mandatory overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:snap-none sm:overflow-visible sm:pb-0';
+const RAIL_BASE =
+  'flex snap-x snap-mandatory overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden';
 
-const MOBILE_RAIL_ITEM = 'w-[68%] shrink-0 snap-start sm:w-auto sm:shrink';
+const RAIL_EXIT: Record<number, string> = {
+  2: 'sm:grid sm:snap-none sm:overflow-visible sm:pb-0',
+  3: 'lg:grid lg:snap-none lg:overflow-visible lg:pb-0',
+};
+
+/** Rail item widths, tracking the same breakpoints as `RAIL_EXIT`. */
+const RAIL_ITEM: Record<number, string> = {
+  2: 'w-[68%] shrink-0 snap-start sm:w-auto sm:shrink',
+  3: 'w-[68%] shrink-0 snap-start sm:w-[46%] lg:w-auto lg:shrink',
+};
 
 /**
  * One homepage advertisement band — horizontal or vertical.
@@ -141,7 +164,14 @@ export function AdvertisementBand({
   // the page gutter so it stays aligned with every other section title.
   const sectionClass = cn(HOME_SECTION_SPACING, 'font-paragraph', className);
   const outerClass = bleed ? 'px-0' : HOME_SECTION_CONTAINER;
-  const gapClass = bleed ? 'gap-2 sm:gap-3' : 'gap-3 sm:gap-5 lg:gap-6';
+  // Vertical panels are read as one editorial spread, so they sit a step
+  // tighter than the horizontal family — enough of a seam to separate two
+  // images, not enough to break them into separate cards.
+  const gapClass = bleed
+    ? 'gap-2 sm:gap-3'
+    : isVertical
+      ? 'gap-3 sm:gap-4 lg:gap-5'
+      : 'gap-3 sm:gap-5 lg:gap-6';
 
   /** Row container + per-item classes for a given card count. */
   const rowClasses = (count: number) => {
@@ -153,15 +183,12 @@ export function AdvertisementBand({
       row: cn(
         // `flex` and `grid` are both `display` utilities, and Tailwind emits
         // `.grid` last — so a rail must never carry the bare `grid` class. The
-        // `sm:grid` inside MOBILE_RAIL is in a media query and still wins there.
-        rail ? MOBILE_RAIL : 'grid',
+        // `grid` inside `RAIL_EXIT` is in a media query and still wins there.
+        rail ? cn(RAIL_BASE, RAIL_EXIT[columns]) : 'grid',
         gapClass,
         isVertical ? VERTICAL_COLUMNS[columns] : HORIZONTAL_COLUMNS[columns],
-        // The width caps sit on an inner row so they measure the media, not the
-        // container's page gutter.
-        isVertical && 'mx-auto w-full',
       ),
-      item: rail ? MOBILE_RAIL_ITEM : undefined,
+      item: rail ? RAIL_ITEM[columns] : undefined,
     };
   };
 

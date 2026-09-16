@@ -19,15 +19,23 @@ export const AD_SHAPE_CLASSES: Record<AdCardShape, string> = {
   /* One of two or three side-by-side horizontal cards. */
   panel:
     'aspect-[4/3] min-h-[12rem] max-h-[21rem] sm:aspect-[16/10] sm:max-h-[23rem] lg:max-h-[26rem]',
-  /* A tall vertical panel. Its column is width-capped by the band as well. */
-  tall: 'aspect-[4/5] min-h-[17rem] max-h-[27rem] sm:max-h-[30rem] lg:max-h-[34rem]',
+  /*
+   * A tall vertical panel. Unlike the other two it gets the full page gutter —
+   * the band no longer narrows its row — so the ceiling here is the only thing
+   * governing height. It is set just under a laptop viewport: at two columns in
+   * a 1280–1440px container the 4:5 frame still resolves portrait and only
+   * starts cropping past ~1500px, and a three-column row resolves a true 4:5
+   * at every width. The ceiling stays under a short laptop viewport, so the
+   * band can never grow into the screenful this scale exists to prevent.
+   */
+  tall: 'aspect-[4/5] min-h-[17rem] max-h-[30rem] sm:max-h-[34rem] lg:max-h-[38rem]',
 };
 
 /** Interior padding per shape — the spacing rhythm of the overlay copy. */
 export const AD_COPY_PADDING: Record<AdCardShape, string> = {
   wide: 'p-6 sm:p-9 lg:p-12',
   panel: 'p-5 sm:p-7 lg:p-9',
-  tall: 'p-5 sm:p-6 lg:p-8',
+  tall: 'p-5 sm:p-7 lg:p-10',
 };
 
 /** Headline scale per shape. Restrained on purpose — the artwork leads. */
@@ -41,5 +49,5 @@ export const AD_HEADLINE_CLASSES: Record<AdCardShape, string> = {
 export const AD_COPY_WIDTH: Record<AdCardShape, string> = {
   wide: 'max-w-[26ch] lg:max-w-[32ch]',
   panel: 'max-w-[22ch]',
-  tall: 'max-w-[18ch]',
+  tall: 'max-w-[18ch] lg:max-w-[22ch]',
 };
